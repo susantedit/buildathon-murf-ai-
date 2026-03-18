@@ -45,9 +45,9 @@ router.get('/test-apis', async (req, res) => {
       }
     )
     
-    results.gemini = !!groqRes.data?.choices?.[0]?.message?.content
+    results.groq = !!groqRes.data?.choices?.[0]?.message?.content
   } catch (err) {
-    results.errors.gemini = err.response?.data?.error?.message || err.message
+    results.errors.groq = err.response?.data?.error?.message || err.message
   }
 
   // Test Murf API
