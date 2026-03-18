@@ -54,26 +54,51 @@ export function selectVoice(mode, tone) {
 }
 
 export async function textToSpeech(text, voiceStyle = 'calm', mode = 'assistant') {
-  // Use smart voice selection
-  const voiceId = selectVoice(mode, voiceStyle)
-
-  const res = await axios.post(
-    MURF_URL,
-    {
-      voiceId,
-      text,
-      format: 'MP3',
-      sampleRate: 24000,
-      speed: mode === 'creator' ? 1.05 : 1, // Slightly faster for creator mode
-      pitch: 0
-    },
-    {
-      headers: {
-        'api-key': process.env.MURF_API_KEY,
-        'Content-Type': 'application/json'
-      }
+  try {
+    if (!process.env.MURF_API_KEY) {
+      throw new Error('MURF_API_KEY is not configured')
     }
-  )
 
-  return res.data.audioFile || res.data.encodedAudio || ''
+    // Use smart voice selection
+    const voiceId = selectVoice(mode, voiceStyle)
+
+    const res = await axios.post(
+      MURF_URL,
+      {
+        voiceId,
+        text,
+        format: 'MP3',
+        sampleRate: 24000,
+        speed: mode === 'creator' ? 1.05 : 1,
+        pitch: 0
+      },
+      {
+        headers: {
+          'api-key': process.env.MURF_API_KEY,
+          'Content-Type': 'application/json'
+        },
+        timeout: 30000
+      }
+    )
+
+    const audioUrl = res.data.audioFile || res.data.encodedAudio || ''
+    
+    if (!audioUrl) {
+      throw new Error('No audio URL returned from Murf API')
+    }
+
+    return audioUrl
+  } catch (error) {
+    console.error('Murf API Error:', error.response?.data || error.message)
+    
+    if (error.response?.status === 401 || error.response?.status === 403) {
+      throw new Error('Invalid Murf API key. Please check your credentials.')
+    } else if (error.response?.status === 429) {
+      throw new Error('Murf API rate limit exceeded. Please try again later.')
+    } else if (error.response?.status === 402) {
+      throw new Error('Murf API credits exhausted. Please check your account.')
+    } else {
+      throw new Error(`Murf API error: ${error.message}`)
+    }
+  }
 }

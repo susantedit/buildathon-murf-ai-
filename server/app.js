@@ -4,6 +4,7 @@ import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import generateRoutes from './routes/generate.js'
 import historyRoutes from './routes/history.js'
+import testRoutes from './routes/test.js'
 
 dotenv.config()
 
@@ -36,6 +37,7 @@ app.use(express.json())
 // Routes
 app.use('/api', generateRoutes)
 app.use('/api', historyRoutes)
+app.use('/api', testRoutes)
 
 app.get('/', (req, res) => res.json({ status: 'Vortex Voice AI server running' }))
 

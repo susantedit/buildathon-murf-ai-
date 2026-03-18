@@ -3,11 +3,35 @@ import axios from 'axios'
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
 
 async function callGemini(prompt) {
-  const res = await axios.post(
-    `${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`,
-    { contents: [{ parts: [{ text: prompt }] }] }
-  )
-  return res.data.candidates[0].content.parts[0].text
+  try {
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is not configured')
+    }
+
+    const res = await axios.post(
+      `${GEMINI_URL}?key=${process.env.GEMINI_API_KEY}`,
+      { contents: [{ parts: [{ text: prompt }] }] },
+      { timeout: 30000 }
+    )
+
+    if (!res.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      throw new Error('Invalid response from Gemini API')
+    }
+
+    return res.data.candidates[0].content.parts[0].text
+  } catch (error) {
+    console.error('Gemini API Error:', error.response?.data || error.message)
+    
+    if (error.response?.status === 400) {
+      throw new Error('Invalid Gemini API key or request format')
+    } else if (error.response?.status === 429) {
+      throw new Error('Gemini API rate limit exceeded. Please try again later.')
+    } else if (error.response?.status === 403) {
+      throw new Error('Gemini API key is invalid or expired')
+    } else {
+      throw new Error(`Gemini API error: ${error.message}`)
+    }
+  }
 }
 
 export async function generateScript(idea, tone = 'motivational') {
