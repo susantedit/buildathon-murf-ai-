@@ -569,7 +569,7 @@ Response:
 
 ```bash
 # Clone repository
-git clone <your-repo-url>
+git clone https://github.com/susantedit/buildathon-murf-ai-
 cd vortex-voice-ai
 
 # Backend setup
