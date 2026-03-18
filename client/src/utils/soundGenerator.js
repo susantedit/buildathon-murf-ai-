@@ -1,41 +1,55 @@
+// Shared AudioContext (created on first user interaction)
+let audioContext = null
+
+function getAudioContext() {
+  if (!audioContext) {
+    audioContext = new (window.AudioContext || window.webkitAudioContext)()
+  }
+  return audioContext
+}
+
 // Generate breathing sounds using Web Audio API
 export function playBreathSound(type = 'in') {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-  const oscillator = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
+  try {
+    const ctx = getAudioContext()
+    const oscillator = ctx.createOscillator()
+    const gainNode = ctx.createGain()
 
-  oscillator.connect(gainNode)
-  gainNode.connect(audioContext.destination)
+    oscillator.connect(gainNode)
+    gainNode.connect(ctx.destination)
 
-  if (type === 'in') {
-    // Breathe in - rising tone
-    oscillator.frequency.setValueAtTime(200, audioContext.currentTime)
-    oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 4)
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.3, audioContext.currentTime + 4)
-  } else if (type === 'out') {
-    // Breathe out - falling tone
-    oscillator.frequency.setValueAtTime(400, audioContext.currentTime)
-    oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 4)
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-    gainNode.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 4)
-  } else {
-    // Hold - steady low tone
-    oscillator.frequency.setValueAtTime(250, audioContext.currentTime)
-    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
-  }
-
-  oscillator.type = 'sine'
-  oscillator.start(audioContext.currentTime)
-  oscillator.stop(audioContext.currentTime + 4)
-
-  return () => {
-    try {
-      oscillator.stop()
-      audioContext.close()
-    } catch (e) {
-      // Already stopped
+    if (type === 'in') {
+      // Breathe in - rising tone
+      oscillator.frequency.setValueAtTime(200, ctx.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(400, ctx.currentTime + 4)
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 4)
+    } else if (type === 'out') {
+      // Breathe out - falling tone
+      oscillator.frequency.setValueAtTime(400, ctx.currentTime)
+      oscillator.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 4)
+      gainNode.gain.setValueAtTime(0.3, ctx.currentTime)
+      gainNode.gain.exponentialRampToValueAtTime(0.1, ctx.currentTime + 4)
+    } else {
+      // Hold - steady low tone
+      oscillator.frequency.setValueAtTime(250, ctx.currentTime)
+      gainNode.gain.setValueAtTime(0.15, ctx.currentTime)
     }
+
+    oscillator.type = 'sine'
+    oscillator.start(ctx.currentTime)
+    oscillator.stop(ctx.currentTime + 4)
+
+    return () => {
+      try {
+        oscillator.stop()
+      } catch (e) {
+        // Already stopped
+      }
+    }
+  } catch (err) {
+    console.warn('Audio not available:', err)
+    return () => {}
   }
 }
 
@@ -81,20 +95,24 @@ export function playCompletionSound() {
 
 // UI Feedback Sounds
 export function playClickSound() {
-  const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-  const oscillator = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
+  try {
+    const ctx = getAudioContext()
+    const oscillator = ctx.createOscillator()
+    const gainNode = ctx.createGain()
 
-  oscillator.connect(gainNode)
-  gainNode.connect(audioContext.destination)
+    oscillator.connect(gainNode)
+    gainNode.connect(ctx.destination)
 
-  oscillator.frequency.setValueAtTime(600, audioContext.currentTime)
-  oscillator.type = 'sine'
-  gainNode.gain.setValueAtTime(0.15, audioContext.currentTime)
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1)
+    oscillator.frequency.setValueAtTime(600, ctx.currentTime)
+    oscillator.type = 'sine'
+    gainNode.gain.setValueAtTime(0.15, ctx.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1)
 
-  oscillator.start(audioContext.currentTime)
-  oscillator.stop(audioContext.currentTime + 0.1)
+    oscillator.start(ctx.currentTime)
+    oscillator.stop(ctx.currentTime + 0.1)
+  } catch (err) {
+    // Silently fail
+  }
 }
 
 export function playHoverSound() {

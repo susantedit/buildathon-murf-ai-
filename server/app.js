@@ -8,6 +8,13 @@ import testRoutes from './routes/test.js'
 
 dotenv.config()
 
+// Debug: Check environment variables
+console.log('Environment variables loaded:')
+console.log('- PORT:', process.env.PORT)
+console.log('- MONGODB_URI:', process.env.MONGODB_URI ? 'Set' : 'NOT SET')
+console.log('- GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'Set' : 'NOT SET')
+console.log('- MURF_API_KEY:', process.env.MURF_API_KEY ? 'Set' : 'NOT SET')
+
 const app = express()
 
 // CORS configuration for production

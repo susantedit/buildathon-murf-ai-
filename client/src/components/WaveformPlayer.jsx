@@ -25,20 +25,23 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
 
   useEffect(() => {
     if (audioUrl && audioRef.current) {
+      console.log('Loading audio URL:', audioUrl)
       audioRef.current.src = audioUrl
       setPlaying(false)
       setProgress(0)
       setCurrentTime(0)
       
-      // Setup Web Audio API for real-time visualization
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)()
-      const source = audioContext.createMediaElementSource(audioRef.current)
-      const analyser = audioContext.createAnalyser()
+      // Add error handler
+      audioRef.current.onerror = (e) => {
+        console.error('Audio loading error:', e)
+        console.error('Failed URL:', audioUrl)
+      }
       
-      analyser.fftSize = 128
-      source.connect(analyser)
-      analyser.connect(audioContext.destination)
-      analyserRef.current = analyser
+      audioRef.current.onloadeddata = () => {
+        console.log('Audio loaded successfully')
+      }
+      
+      // Don't setup Web Audio API here - do it on first play
     }
   }, [audioUrl])
 
@@ -61,12 +64,38 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
 
   const toggle = () => {
     if (!audioRef.current) return
+    
     if (playing) {
       audioRef.current.pause()
       if (animationRef.current) cancelAnimationFrame(animationRef.current)
     } else {
+      // Setup Web Audio API on first play (after user gesture)
+      if (!analyserRef.current) {
+        try {
+          const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+          const source = audioContext.createMediaElementSource(audioRef.current)
+          const analyser = audioContext.createAnalyser()
+          
+          analyser.fftSize = 128
+          source.connect(analyser)
+          analyser.connect(audioContext.destination)
+          analyserRef.current = analyser
+          console.log('Web Audio API initialized')
+        } catch (err) {
+          console.error('Web Audio API error:', err)
+        }
+      }
+      
+      console.log('Attempting to play audio...')
       audioRef.current.play()
-      updateFrequencies()
+        .then(() => {
+          console.log('Audio playing successfully')
+          updateFrequencies()
+        })
+        .catch(err => {
+          console.error('Play error:', err)
+          alert('Cannot play audio: ' + err.message)
+        })
     }
     setPlaying(!playing)
   }
@@ -89,10 +118,25 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
 
   const download = () => {
     if (!audioUrl) return
-    const a = document.createElement('a')
-    a.href = audioUrl
-    a.download = `vortex-${mode}-${Date.now()}.mp3`
-    a.click()
+    
+    // Fetch the audio and download it
+    fetch(audioUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `vortex-${mode}-${Date.now()}.mp3`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+      })
+      .catch(err => {
+        console.error('Download error:', err)
+        // Fallback: open in new tab
+        window.open(audioUrl, '_blank')
+      })
   }
 
   const restart = () => {
@@ -120,12 +164,18 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
       className="card" style={{ padding: 20, marginBottom: 12 }}>
-      <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onLoadedMetadata={onLoadedMetadata}
+      <audio 
+        ref={audioRef} 
+        onTimeUpdate={onTimeUpdate} 
+        onLoadedMetadata={onLoadedMetadata}
         onEnded={() => { 
           setPlaying(false)
           setProgress(0)
           if (animationRef.current) cancelAnimationFrame(animationRef.current)
-        }} />
+        }}
+        crossOrigin="anonymous"
+        preload="auto"
+      />
 
       {/* Real-time Frequency Waveform */}
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 60, marginBottom: 16, overflow: 'hidden' }}>

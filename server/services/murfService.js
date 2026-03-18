@@ -59,8 +59,11 @@ export async function textToSpeech(text, voiceStyle = 'calm', mode = 'assistant'
       throw new Error('MURF_API_KEY is not configured')
     }
 
+    console.log('Converting to speech:', { text: text.substring(0, 50), voiceStyle, mode })
+
     // Use smart voice selection
     const voiceId = selectVoice(mode, voiceStyle)
+    console.log('Selected voice:', voiceId)
 
     const res = await axios.post(
       MURF_URL,
@@ -81,12 +84,15 @@ export async function textToSpeech(text, voiceStyle = 'calm', mode = 'assistant'
       }
     )
 
+    console.log('Murf response:', res.data)
     const audioUrl = res.data.audioFile || res.data.encodedAudio || ''
     
     if (!audioUrl) {
+      console.error('No audio URL in response:', res.data)
       throw new Error('No audio URL returned from Murf API')
     }
 
+    console.log('Audio URL generated:', audioUrl.substring(0, 100))
     return audioUrl
   } catch (error) {
     console.error('Murf API Error:', error.response?.data || error.message)

@@ -7,7 +7,7 @@ const router = express.Router()
 router.get('/test-apis', async (req, res) => {
   const results = {
     mongodb: false,
-    gemini: false,
+    groq: false,
     murf: false,
     errors: {}
   }
@@ -23,19 +23,29 @@ router.get('/test-apis', async (req, res) => {
     results.errors.mongodb = err.message
   }
 
-  // Test Gemini API
+  // Test Groq API
   try {
-    if (!process.env.GEMINI_API_KEY) {
-      throw new Error('GEMINI_API_KEY not set')
+    if (!process.env.GROQ_API_KEY) {
+      throw new Error('GROQ_API_KEY not set')
     }
     
-    const geminiRes = await axios.post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_API_KEY}`,
-      { contents: [{ parts: [{ text: 'Say hello' }] }] },
-      { timeout: 10000 }
+    const groqRes = await axios.post(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: 'Say hello' }],
+        max_tokens: 50
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        timeout: 10000
+      }
     )
     
-    results.gemini = !!geminiRes.data?.candidates?.[0]?.content
+    results.gemini = !!groqRes.data?.choices?.[0]?.message?.content
   } catch (err) {
     results.errors.gemini = err.response?.data?.error?.message || err.message
   }
@@ -68,7 +78,7 @@ router.get('/test-apis', async (req, res) => {
     results.errors.murf = err.response?.data?.message || err.message
   }
 
-  const allWorking = results.mongodb && results.gemini && results.murf
+  const allWorking = results.mongodb && results.groq && results.murf
 
   res.status(allWorking ? 200 : 500).json({
     status: allWorking ? 'All APIs working' : 'Some APIs failed',

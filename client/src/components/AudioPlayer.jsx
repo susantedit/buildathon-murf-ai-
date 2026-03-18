@@ -26,7 +26,25 @@ export default function AudioPlayer({ audioUrl, isLoading }) {
 
   const dl = () => {
     if (!audioUrl) return
-    const a = document.createElement('a'); a.href = audioUrl; a.download = 'vortex.mp3'; a.click()
+    
+    // Fetch the audio and download it
+    fetch(audioUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `vortex-${Date.now()}.mp3`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+      })
+      .catch(err => {
+        console.error('Download error:', err)
+        // Fallback: open in new tab
+        window.open(audioUrl, '_blank')
+      })
   }
 
   if (isLoading) return <div className="card shimmer" style={{ height: 80, marginBottom: 12 }} />
