@@ -562,7 +562,7 @@ Response:
 ### Prerequisites
 - Node.js 16+ 
 - MongoDB Atlas account
-- Google Gemini API Key ([Get it here](https://makersuite.google.com/app/apikey))
+- Groq API Key ([Get it FREE here](https://console.groq.com/))
 - Murf Falcon API Key ([Get it here](https://murf.ai/api))
 
 ### Installation
@@ -576,7 +576,7 @@ cd vortex-voice-ai
 cd server
 cp .env.example .env
 # Edit .env with your API keys:
-# GEMINI_API_KEY=your_key
+# GROQ_API_KEY=your_key
 # MURF_API_KEY=your_key
 # MONGODB_URI=your_mongodb_connection_string
 npm install
@@ -630,7 +630,7 @@ vortex-voice-ai/
 | MongoDB connection error | Check `.env` credentials, whitelist IP in Atlas |
 | CORS error | Verify backend runs on `:5000`, check FRONTEND_URL |
 | Audio not playing | Verify Murf API key, check API credits |
-| Gemini API error | Check API key, verify quota limits |
+| Groq API error | Check API key at https://console.groq.com/ |
 | Slow performance | Use Chrome, check network, restart servers |
 | Build errors | Delete `node_modules`, run `npm install` again |
 
