@@ -22,6 +22,7 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'https://vortex-voice-ai.netlify.app',
+  'https://murf-challenge-susantedit.netlify.app',
   'https://buildathon-murf-ai.vercel.app',
   'https://vortex-voice-frontend.onrender.com',
   process.env.FRONTEND_URL
