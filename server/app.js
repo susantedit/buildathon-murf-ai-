@@ -23,6 +23,7 @@ const allowedOrigins = [
   'http://localhost:5174',
   'https://vortex-voice-ai.netlify.app',
   'https://buildathon-murf-ai.vercel.app',
+  'https://vortex-voice-frontend.onrender.com',
   process.env.FRONTEND_URL
 ].filter(Boolean)
 

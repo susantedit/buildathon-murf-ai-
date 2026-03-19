@@ -1,7 +1,7 @@
-const BASE = '/api'
+const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000'
 
 async function post(endpoint, body) {
-  const res = await fetch(`${BASE}${endpoint}`, {
+  const res = await fetch(`${BASE}/api${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
@@ -11,7 +11,7 @@ async function post(endpoint, body) {
 }
 
 async function get(endpoint) {
-  const res = await fetch(`${BASE}${endpoint}`)
+  const res = await fetch(`${BASE}/api${endpoint}`)
   if (!res.ok) throw new Error(`Request failed: ${res.status}`)
   return res.json()
 }
@@ -23,5 +23,5 @@ export const api = {
   generatePlan:    (goal)        => post('/generate-plan',     { goal }),
   textToSpeech:    (text, voice) => post('/text-to-speech',    { text, voice }),
   getHistory:      ()            => get('/history'),
-  deleteHistory:   (id)          => fetch(`${BASE}/history/${id}`, { method: 'DELETE' }).then(r => r.json()),
+  deleteHistory:   (id)          => fetch(`${BASE}/api/history/${id}`, { method: 'DELETE' }).then(r => r.json()),
 }
