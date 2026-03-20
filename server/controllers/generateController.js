@@ -1,6 +1,6 @@
 import { generateScript, generateAdvice, explainTopic, generatePlan } from '../services/geminiService.js'
 import { textToSpeech } from '../services/murfService.js'
-import { sendEmergencyAlert } from '../services/emailService.js'
+import { sendEmergencyAlert, sendContactEmail } from '../services/emailService.js'
 import Session from '../models/Session.js'
 
 export async function handleGenerateScript(req, res) {
@@ -182,58 +182,17 @@ export async function handleContact(req, res) {
       return res.status(400).json({ error: 'name, email, and message are required' })
     }
 
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      return res.status(503).json({ error: 'Email service not configured' })
-    }
-
-    const nodemailer = (await import('nodemailer')).default
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: { user: process.env.GMAIL_USER, pass: process.env.GMAIL_APP_PASSWORD }
-    })
-
-    // Verify connection first
-    await transporter.verify()
-
-    await transporter.sendMail({
-      from: `"Vortex Voice AI" <${process.env.GMAIL_USER}>`,
-      to: process.env.GMAIL_USER, // send to yourself
-      replyTo: email,
-      subject: `[Vortex Voice AI] Message from ${name}`,
-      html: `
-        <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;background:#0f0f1a;color:#fff;border-radius:12px;overflow:hidden;">
-          <div style="background:linear-gradient(135deg,#8b5cf6,#3b82f6);padding:20px 24px;">
-            <h2 style="margin:0;font-size:20px;">📬 New Contact Message</h2>
-            <p style="margin:4px 0 0;opacity:0.85;font-size:13px;">Vortex Voice AI Contact Form</p>
-          </div>
-          <div style="padding:24px;">
-            <table style="width:100%;border-collapse:collapse;margin-bottom:20px;">
-              <tr><td style="padding:8px 0;color:#a0a0b0;width:80px;">Name</td><td style="padding:8px 0;font-weight:bold;">${name}</td></tr>
-              <tr><td style="padding:8px 0;color:#a0a0b0;">Email</td><td style="padding:8px 0;"><a href="mailto:${email}" style="color:#8b5cf6;">${email}</a></td></tr>
-            </table>
-            <div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:16px;">
-              <p style="margin:0;line-height:1.7;white-space:pre-wrap;">${message}</p>
-            </div>
-            <p style="color:#a0a0b0;font-size:11px;margin-top:20px;text-align:center;">Sent from Vortex Voice AI · ${new Date().toLocaleString()}</p>
-          </div>
-        </div>
-      `
-    })
-
+    await sendContactEmail({ name, email, message })
     console.log(`Contact email sent from ${email}`)
     res.json({ success: true })
   } catch (err) {
     console.error('Contact Error:', err.message)
-    // Return specific error so frontend can show it
-    res.status(500).json({ 
+    res.status(500).json({
       error: err.message || 'Failed to send message',
-      hint: err.message?.includes('Invalid login') 
+      hint: err.message?.includes('Invalid login') || err.message?.includes('App Password')
         ? 'Gmail App Password is wrong. Go to myaccount.google.com → Security → App Passwords and generate a new one.'
-        : err.message?.includes('verify')
-          ? 'Gmail SMTP connection failed. Check GMAIL_USER and GMAIL_APP_PASSWORD in .env'
+        : err.message?.includes('RESEND_API_KEY') || err.message?.includes('No email provider')
+          ? 'Set RESEND_API_KEY in Render env vars (free at resend.com) or GMAIL_USER + GMAIL_APP_PASSWORD'
           : undefined
     })
   }

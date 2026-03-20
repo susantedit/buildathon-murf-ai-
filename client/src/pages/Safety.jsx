@@ -282,7 +282,7 @@ export default function Safety() {
     vibrateLight()
     let p = 0
     holdInterval.current = setInterval(() => {
-      p += 100 / 30 // 3 seconds = 30 ticks at 100ms
+      p += 100 / 25 // 2.5 seconds = 25 ticks at 100ms
       setHoldProgress(Math.min(p, 100))
       if (p >= 100) {
         clearInterval(holdInterval.current)
@@ -446,7 +446,7 @@ export default function Safety() {
 
               {/* BIG SOS HOLD BUTTON */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 24 }}>
-                <div style={{ position: 'relative', width: 180, height: 180 }}>
+                <div style={{ position: 'relative', width: 140, height: 140 }}>
                   {/* Pulse rings */}
                   {emergencyMode && [1,2,3].map(i => (
                     <motion.div key={i} animate={{ scale: [1, 2.2], opacity: [0.4, 0] }}
@@ -454,12 +454,12 @@ export default function Safety() {
                       style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2px solid #ef4444', pointerEvents: 'none' }} />
                   ))}
                   {/* Progress ring */}
-                  <svg width="180" height="180" style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
-                    <circle cx="90" cy="90" r="82" fill="none" stroke="rgba(239,68,68,0.15)" strokeWidth="6" />
-                    <circle cx="90" cy="90" r="82" fill="none" stroke="#ef4444" strokeWidth="6"
+                  <svg width="140" height="140" style={{ position: 'absolute', top: 0, left: 0, transform: 'rotate(-90deg)' }}>
+                    <circle cx="70" cy="70" r="64" fill="none" stroke="rgba(239,68,68,0.15)" strokeWidth="5" />
+                    <circle cx="70" cy="70" r="64" fill="none" stroke="#ef4444" strokeWidth="5"
                       strokeLinecap="round"
-                      strokeDasharray={2 * Math.PI * 82}
-                      strokeDashoffset={2 * Math.PI * 82 * (1 - holdProgress / 100)}
+                      strokeDasharray={2 * Math.PI * 64}
+                      strokeDashoffset={2 * Math.PI * 64 * (1 - holdProgress / 100)}
                       style={{ transition: 'stroke-dashoffset 0.1s' }} />
                   </svg>
                   {/* Button */}
@@ -468,7 +468,7 @@ export default function Safety() {
                     onTouchStart={startHold} onTouchEnd={cancelHold}
                     animate={emergencyMode ? { scale: [1, 1.04, 1] } : {}}
                     transition={{ repeat: Infinity, duration: 1.5 }}
-                    style={{ position: 'absolute', inset: 10, borderRadius: '50%', border: 'none', cursor: 'pointer',
+                    style={{ position: 'absolute', inset: 8, borderRadius: '50%', border: 'none', cursor: 'pointer',
                       background: emergencyMode
                         ? 'linear-gradient(135deg,#dc2626,#991b1b)'
                         : holding
@@ -477,16 +477,16 @@ export default function Safety() {
                       boxShadow: emergencyMode
                         ? '0 0 40px rgba(239,68,68,0.6)'
                         : '0 8px 32px rgba(239,68,68,0.35)',
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                    <Shield size={36} color="#fff" />
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff', letterSpacing: 2 }}>SOS</div>
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+                    <Shield size={28} color="#fff" />
+                    <div style={{ fontSize: 14, fontWeight: 900, color: '#fff', letterSpacing: 2 }}>SOS</div>
                     <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.75)', fontWeight: 600 }}>
-                      {emergencyMode ? 'ACTIVE' : holding ? `${Math.round(holdProgress)}%` : 'HOLD 3s'}
+                      {emergencyMode ? 'ACTIVE' : holding ? `${Math.round(holdProgress)}%` : 'HOLD 2.5s'}
                     </div>
                   </motion.button>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 12, textAlign: 'center' }}>
-                  {emergencyMode ? 'Emergency mode is active' : 'Hold the button for 3 seconds to activate'}
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 10, textAlign: 'center' }}>
+                  {emergencyMode ? 'Emergency mode is active' : 'Hold the button for 2.5 seconds to activate'}
                 </div>
               </div>
 

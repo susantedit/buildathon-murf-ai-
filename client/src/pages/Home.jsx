@@ -53,20 +53,26 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [])
 
+  const [contactSending, setContactSending] = useState(false)
+  const [contactSent, setContactSent] = useState(false)
+
   const sendContact = async () => {
     const { name, email, message } = contactForm
     if (!name || !email || !message) {
       toast.error('Please fill all fields')
       return
     }
+    setContactSending(true)
     try {
       await api.sendContact({ name, email, message })
-      toast.success('Message sent! We\'ll get back to you soon.')
+      setContactSent(true)
       setContactForm({ name: '', email: '', message: '' })
+      setTimeout(() => setContactSent(false), 4000)
     } catch (err) {
       const hint = err?.hint || err?.message || ''
       toast.error(hint.includes('App Password') ? 'Email config error — contact susantedit@gmail.com directly' : 'Failed to send. Try again or email susantedit@gmail.com')
-      console.error('Contact error:', hint)
+    } finally {
+      setContactSending(false)
     }
   }
 
@@ -332,14 +338,39 @@ export default function Home() {
                 />
               </div>
 
-              <button
-                onClick={sendContact}
-                className="btn"
-                style={{ background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)' }}
-              >
-                <Send size={15} />
-                Send Message
-              </button>
+              <AnimatePresence mode="wait">
+                {contactSent ? (
+                  <motion.div key="sent" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '14px', borderRadius: 12,
+                      background: 'linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.08))', border: '1px solid rgba(16,185,129,0.4)' }}>
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
+                      <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 7l4 4 6-6" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      </div>
+                    </motion.div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#10b981' }}>Message sent!</div>
+                      <div style={{ fontSize: 11, color: 'var(--text3)' }}>We'll get back to you soon.</div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.button key="btn"
+                    onClick={sendContact}
+                    disabled={contactSending}
+                    className="btn"
+                    style={{ background: contactSending ? 'var(--glass)' : 'linear-gradient(135deg, #8b5cf6, #3b82f6)', border: contactSending ? '1px solid var(--border)' : 'none', color: contactSending ? 'var(--text2)' : '#fff', cursor: contactSending ? 'not-allowed' : 'pointer' }}>
+                    {contactSending ? (
+                      <>
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+                          style={{ width: 15, height: 15, borderRadius: '50%', border: '2px solid var(--border)', borderTopColor: '#8b5cf6', flexShrink: 0 }} />
+                        Sending...
+                      </>
+                    ) : (
+                      <><Send size={15} />Send Message</>
+                    )}
+                  </motion.button>
+                )}
+              </AnimatePresence>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center', paddingTop: 4 }}>
                 <Mail size={13} color="var(--text3)" />
