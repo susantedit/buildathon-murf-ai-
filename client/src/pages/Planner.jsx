@@ -4,6 +4,8 @@ import { CalendarDays, CheckCircle2, Circle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
+import VoiceMicButton from '../components/VoiceMicButton'
+import ShareButton from '../components/ShareButton'
 import { PageHeader, Label, SubmitBtn } from '../components/UI'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -70,9 +72,12 @@ export default function Planner() {
           <WorkflowSteps currentStep={currentStep} steps={steps} />
 
           <div className="card" style={{ padding: 24, marginBottom: 12 }}>
-            <Label>What is your goal?</Label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+              <Label style={{ margin: 0 }}>What is your goal?</Label>
+              <VoiceMicButton onResult={setGoal} />
+            </div>
             <textarea value={goal} onChange={e => setGoal(e.target.value)}
-              placeholder="e.g. Prepare for exam in 3 days, finish project by Friday..."
+              placeholder="e.g. Prepare for exam in 3 days, finish project by Friday... (or tap 🎤)"
               rows={3} className="inp" style={{ marginBottom: 16 }} />
             <SubmitBtn loading={loading} onClick={generate} label="🚀 Generate Plan" loadingLabel="Planning..." />
           </div>
@@ -121,9 +126,12 @@ export default function Planner() {
           </AnimatePresence>
 
           {result && (
-            <button onClick={reset} className="btn" style={{ marginTop: 12, background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
-              ← Start Over
-            </button>
+            <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+              <button onClick={reset} className="btn" style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)', flex: 1 }}>
+                ← Start Over
+              </button>
+              <ShareButton text={result?.text} />
+            </div>
           )}
         </motion.div>
       </div>

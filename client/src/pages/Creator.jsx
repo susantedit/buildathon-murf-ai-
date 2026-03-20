@@ -5,6 +5,8 @@ import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
 import VoiceHistorySidebar from '../components/VoiceHistorySidebar'
+import VoiceMicButton from '../components/VoiceMicButton'
+import ShareButton from '../components/ShareButton'
 import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
@@ -125,6 +127,10 @@ export default function Creator() {
               <motion.div key="write" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
                 <div className="card" style={{ padding: 24, marginBottom: 12 }}>
                   <Label>Your content idea</Label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 12, color: 'var(--text3)', flex: 1 }}>Type or speak your idea</span>
+                    <VoiceMicButton onResult={val => { setInput(val); const d = detectMood(val); if (d !== tone) { setTone(d); setAutoDetected(true); setTimeout(() => setAutoDetected(false), 2000) } }} />
+                  </div>
                   <textarea value={input} onChange={e => setInput(e.target.value)}
                     placeholder="e.g. Motivational reel about never giving up, productivity tips for students..."
                     rows={5} className="inp" style={{ marginBottom: 16 }} />
@@ -254,6 +260,8 @@ export default function Creator() {
                       style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
                       📋 Copy Script to Clipboard
                     </button>
+
+                    <ShareButton text={result.text} audioUrl={result.audio} label="Share Script" style={{ justifyContent: 'center', padding: '10px 14px' }} />
 
                     <button className="btn" onClick={regenerate}
                       style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>

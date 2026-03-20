@@ -485,7 +485,7 @@ export default function Safety() {
                     </div>
                   </motion.button>
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 10, textAlign: 'center' }}>
+                <div style={{ fontSize: 12, color: 'var(--text3)', marginTop: 16, textAlign: 'center' }}>
                   {emergencyMode ? 'Emergency mode is active' : 'Hold the button for 2.5 seconds to activate'}
                 </div>
               </div>

@@ -1,9 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, Pause, RotateCcw, Wind, Timer, Volume2, VolumeX } from 'lucide-react'
+import { Play, Pause, RotateCcw, Wind, Timer, Volume2, VolumeX, Sparkles } from 'lucide-react'
+import toast from 'react-hot-toast'
+import WaveformPlayer from '../components/WaveformPlayer'
 import { PageHeader } from '../components/UI'
 import { playBreathSound, playTimerSound, playCompletionSound } from '../utils/soundGenerator'
 import { vibrateBreath, vibrateSuccess, vibrateLight } from '../utils/haptics'
+import { api } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 
 const sessions = [
   { label: 'Deep Focus', duration: 25, desc: 'Pomodoro work session', color: '#8b5cf6', emoji: '🎯' },
@@ -16,6 +20,7 @@ const sessions = [
 const breathSteps = ['Breathe in...', 'Hold...', 'Breathe out...', 'Hold...']
 
 export default function Focus() {
+  const { userId } = useAuth()
   const [sel, setSel] = useState(sessions[0])
   const [running, setRunning] = useState(false)
   const [customMinutes, setCustomMinutes] = useState(20)
@@ -23,6 +28,10 @@ export default function Focus() {
   const [breathIdx, setBreathIdx] = useState(0)
   const [breathOn, setBreathOn] = useState(false)
   const [soundEnabled, setSoundEnabled] = useState(true)
+  const [meditating, setMeditating] = useState(false)
+  const [meditationResult, setMeditationResult] = useState(null)
+  const [meditationLoading, setMeditationLoading] = useState(false)
+  const [stressLevel, setStressLevel] = useState('moderate')
   const timerRef = useRef(null)
   const breathRef = useRef(null)
 
@@ -74,6 +83,21 @@ export default function Focus() {
   const secs = String(timeLeft % 60).padStart(2, '0')
   const progress = 1 - timeLeft / (activeDuration * 60)
   const C = 2 * Math.PI * 90
+
+  const generateMeditation = async () => {
+    setMeditationLoading(true)
+    setMeditationResult(null)
+    try {
+      const d = await api.generateAdvice(
+        `Create a short 2-minute guided meditation script for someone with ${stressLevel} stress. Include: a calming opening, 3 breathing instructions, a body scan, and a peaceful closing. Use gentle, soothing language. Keep it under 150 words.`,
+        userId
+      )
+      setMeditationResult(d)
+      setMeditating(true)
+      toast.success('Meditation ready — close your eyes 🧘')
+    } catch { toast.error('Could not generate meditation') }
+    finally { setMeditationLoading(false) }
+  }
 
   return (
     <div className="page-wrapper" style={{ '--page-accent': '#ef4444' }}>
@@ -170,6 +194,36 @@ export default function Focus() {
               ))}
             </div>
           )}
+
+          {/* Guided Meditation */}
+          <div className="card" style={{ padding: 20, marginTop: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+              <Sparkles size={15} color="#8b5cf6" />
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text1)' }}>AI Guided Meditation</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+              {['low', 'moderate', 'high'].map(level => (
+                <button key={level} onClick={() => setStressLevel(level)}
+                  style={{ flex: 1, padding: '7px 4px', borderRadius: 8, border: `1px solid ${stressLevel === level ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`,
+                    background: stressLevel === level ? 'rgba(139,92,246,0.15)' : 'var(--glass)',
+                    color: stressLevel === level ? '#8b5cf6' : 'var(--text3)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                  {level === 'low' ? '😌 Low' : level === 'moderate' ? '😐 Medium' : '😰 High'}
+                </button>
+              ))}
+            </div>
+            <button onClick={generateMeditation} disabled={meditationLoading}
+              className="btn" style={{ background: 'linear-gradient(135deg,#8b5cf6,#3b82f6)', fontSize: 13 }}>
+              {meditationLoading
+                ? <><div className="spin" style={{ width: 14, height: 14, borderWidth: 2 }} /> Generating...</>
+                : <><Sparkles size={14} /> Generate Meditation</>}
+            </button>
+            {meditating && meditationResult && (
+              <div style={{ marginTop: 12 }}>
+                <WaveformPlayer audioUrl={meditationResult.audio} isLoading={false} mode="assistant" />
+                <p style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.7, marginTop: 10, whiteSpace: 'pre-line' }}>{meditationResult.text}</p>
+              </div>
+            )}
+          </div>
         </motion.div>
       </div>
     </div>

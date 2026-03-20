@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal } from 'lucide-react'
+import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
@@ -16,6 +16,7 @@ const links = [
   { to: '/safety',     label: 'Safety',     Icon: Shield },
   { to: '/history',    label: 'History',    Icon: History },
   { to: '/podcast',    label: 'Podcast',    Icon: Radio },
+  { to: '/journal',    label: 'Journal',    Icon: BookHeart },
   { to: '/profile',    label: 'Profile',    Icon: UserCircle },
 ]
 
@@ -35,6 +36,7 @@ const moreLinks = [
   { to: '/planner',    label: 'Planner',    Icon: CalendarDays },
   { to: '/history',    label: 'History',    Icon: History },
   { to: '/podcast',    label: 'Podcast',    Icon: Radio },
+  { to: '/journal',    label: 'Journal',    Icon: BookHeart },
 ]
 
 export default function Navbar() {

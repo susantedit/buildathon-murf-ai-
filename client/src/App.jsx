@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Navbar from './components/Navbar'
 import SplashScreen from './components/SplashScreen'
 import LoginGate from './components/LoginGate'
+import PWAInstallPrompt from './components/PWAInstallPrompt'
 import Home from './pages/Home'
 import Creator from './pages/Creator'
 import Assistant from './pages/Assistant'
@@ -17,6 +18,7 @@ import Translator from './pages/Translator'
 import History from './pages/History'
 import Profile from './pages/Profile'
 import Podcast from './pages/Podcast'
+import Journal from './pages/Journal'
 
 function AppInner() {
   const [splashDone, setSplashDone] = useState(false)
@@ -47,7 +49,9 @@ function AppInner() {
         <Route path="/history"    element={<History />} />
         <Route path="/profile"    element={<Profile />} />
         <Route path="/podcast"    element={<Podcast />} />
+        <Route path="/journal"    element={<Journal />} />
       </Routes>
+      <PWAInstallPrompt />
       <Toaster
         position="top-right"
         toastOptions={{
