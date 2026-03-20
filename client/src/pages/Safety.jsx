@@ -376,7 +376,7 @@ export default function Safety() {
 
   return (
     <div className="page-wrapper" style={{ '--page-accent': '#ef4444' }}>
-      <div className="page-content" style={{ paddingTop: 16 }}>
+      <div className="page-content" style={{ paddingTop: 80 }}>
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
 
           {/* Header */}

@@ -392,7 +392,7 @@ select.inp option {
   .navbar    { display: none !important; }
   .mob-top   { display: flex !important; }
   .bot-nav   { display: flex !important; }
-  .page-content, .page-content-wide { padding-top: 70px; padding-bottom: 80px; }
+  .page-content, .page-content-wide { padding-top: 80px; padding-bottom: 80px; }
 }
 
 @media (min-width: 768px) {
