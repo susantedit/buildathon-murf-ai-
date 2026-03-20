@@ -5,6 +5,9 @@ import mongoose from 'mongoose'
 import generateRoutes from './routes/generate.js'
 import historyRoutes from './routes/history.js'
 import testRoutes from './routes/test.js'
+import contactRoutes from './routes/contacts.js'
+import podcastRoutes from './routes/podcast.js'
+import { verifyEmailConfig } from './services/emailService.js'
 
 dotenv.config()
 
@@ -48,6 +51,8 @@ app.use(express.json())
 app.use('/api', generateRoutes)
 app.use('/api', historyRoutes)
 app.use('/api', testRoutes)
+app.use('/api', contactRoutes)
+app.use('/api', podcastRoutes)
 
 app.get('/', (req, res) => res.json({ status: 'Vortex Voice AI server running' }))
 
@@ -55,6 +60,7 @@ app.get('/', (req, res) => res.json({ status: 'Vortex Voice AI server running' }
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('MongoDB connected')
+    verifyEmailConfig() // Check Gmail SMTP on startup
     app.listen(process.env.PORT || 5000, () =>
       console.log(`Server running on port ${process.env.PORT || 5000}`)
     )

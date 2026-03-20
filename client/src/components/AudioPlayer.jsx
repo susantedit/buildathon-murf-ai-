@@ -82,7 +82,17 @@ export default function AudioPlayer({ audioUrl, isLoading }) {
         </button>
       </div>
 
-      <div style={{ marginTop: 10, height: 3, borderRadius: 3, background: 'var(--border)' }}>
+      <div 
+        style={{ marginTop: 10, height: 3, borderRadius: 3, background: 'var(--border)', cursor: 'pointer' }}
+        onClick={(e) => {
+          if (!ref.current || !ref.current.duration) return
+          const rect = e.currentTarget.getBoundingClientRect()
+          const clickX = e.clientX - rect.left
+          const percentage = clickX / rect.width
+          ref.current.currentTime = percentage * ref.current.duration
+          setProgress(percentage * 100)
+        }}
+      >
         <div style={{ height: '100%', borderRadius: 3, width: progress + '%', background: 'linear-gradient(to right,#8b5cf6,#3b82f6)', transition: 'width 0.4s' }} />
       </div>
     </div>

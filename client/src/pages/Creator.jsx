@@ -7,6 +7,7 @@ import WorkflowSteps from '../components/WorkflowSteps'
 import VoiceHistorySidebar from '../components/VoiceHistorySidebar'
 import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
 import { api } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import { detectMood } from '../utils/moodDetector'
 import { saveToHistory } from '../utils/voiceHistory'
 import { playWhooshSound, playSuccessSound, playClickSound } from '../utils/soundGenerator'
@@ -26,6 +27,7 @@ const steps = [
 ]
 
 export default function Creator() {
+  const { userId } = useAuth()
   const [currentStep, setCurrentStep] = useState(0)
   const [input, setInput] = useState('')
   const [tone, setTone] = useState('motivational')
@@ -61,7 +63,7 @@ export default function Creator() {
     const startTime = performance.now()
     
     try {
-      const data = await api.generateScript(input, tone)
+      const data = await api.generateScript(input, tone, userId)
       const endTime = performance.now()
       const timeInSeconds = ((endTime - startTime) / 1000).toFixed(2)
       

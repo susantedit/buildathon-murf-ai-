@@ -1,9 +1,9 @@
 import mongoose from 'mongoose'
 
 const sessionSchema = new mongoose.Schema({
+  userId: { type: String, index: true, default: 'anonymous' },
   mode: {
     type: String,
-    enum: ['creator', 'assistant', 'study', 'focus', 'planner'],
     required: true
   },
   inputText: { type: String, required: true },

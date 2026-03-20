@@ -6,6 +6,7 @@ import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
 import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
 import { api } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
 
 const modes = [
@@ -22,6 +23,7 @@ const steps = [
 ]
 
 export default function Study() {
+  const { userId } = useAuth()
   const [topic, setTopic] = useState('')
   const [mode, setMode] = useState('normal')
   const [currentStep, setCurrentStep] = useState(0)
@@ -36,7 +38,7 @@ export default function Study() {
     setResult(null)
     try { 
       setCurrentStep(2)
-      const d = await api.explainTopic(topic, mode)
+      const d = await api.explainTopic(topic, mode, userId)
       setResult(d)
       setCurrentStep(3)
       playSuccessSound()

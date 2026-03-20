@@ -10,6 +10,7 @@ const sessions = [
   { label: 'Calm Mind',  duration: 10, desc: 'Breathing and reset',   color: '#3b82f6', emoji: '🧘' },
   { label: 'Power Nap',  duration: 5,  desc: 'Quick recharge',        color: '#10b981', emoji: '⚡' },
   { label: 'Study Flow', duration: 45, desc: 'Extended study mode',   color: '#c084fc', emoji: '📖' },
+  { label: 'Custom',     duration: null, desc: 'Set your own time',   color: '#f59e0b', emoji: '⏱️' },
 ]
 
 const breathSteps = ['Breathe in...', 'Hold...', 'Breathe out...', 'Hold...']
@@ -17,6 +18,7 @@ const breathSteps = ['Breathe in...', 'Hold...', 'Breathe out...', 'Hold...']
 export default function Focus() {
   const [sel, setSel] = useState(sessions[0])
   const [running, setRunning] = useState(false)
+  const [customMinutes, setCustomMinutes] = useState(20)
   const [timeLeft, setTimeLeft] = useState(sessions[0].duration * 60)
   const [breathIdx, setBreathIdx] = useState(0)
   const [breathOn, setBreathOn] = useState(false)
@@ -54,12 +56,23 @@ export default function Focus() {
     return () => clearTimeout(breathRef.current)
   }, [breathOn, breathIdx, soundEnabled])
 
-  const pick = s => { setSel(s); setTimeLeft(s.duration * 60); setRunning(false) }
-  const reset = () => { setRunning(false); setTimeLeft(sel.duration * 60) }
+  const pick = s => {
+    setSel(s)
+    const dur = s.duration ?? customMinutes
+    setTimeLeft(dur * 60)
+    setRunning(false)
+  }
+  const reset = () => {
+    setRunning(false)
+    const dur = sel.duration ?? customMinutes
+    setTimeLeft(dur * 60)
+  }
+
+  const activeDuration = sel.duration ?? customMinutes
 
   const mins = String(Math.floor(timeLeft / 60)).padStart(2, '0')
   const secs = String(timeLeft % 60).padStart(2, '0')
-  const progress = 1 - timeLeft / (sel.duration * 60)
+  const progress = 1 - timeLeft / (activeDuration * 60)
   const C = 2 * Math.PI * 90
 
   return (
@@ -68,16 +81,34 @@ export default function Focus() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={Timer} color="#10b981" title="Focus Mode" sub="Guided sessions to help you stay in flow" />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 28 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: sel.duration === null ? 12 : 28 }}>
             {sessions.map(s => (
               <button key={s.label} onClick={() => pick(s)} className="card"
                 style={{ padding: 16, textAlign: 'left', cursor: 'pointer', background: sel.label === s.label ? s.color + '12' : 'var(--glass)', borderColor: sel.label === s.label ? s.color + '55' : 'var(--border)' }}>
                 <div style={{ fontSize: 20, marginBottom: 4 }}>{s.emoji}</div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text1)' }}>{s.label}</div>
-                <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 2 }}>{s.duration} min · {s.desc}</div>
+                <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 2 }}>{s.duration ? `${s.duration} min · ` : ''}{s.desc}</div>
               </button>
             ))}
           </div>
+
+          {sel.duration === null && (
+            <div className="card" style={{ padding: 16, marginBottom: 28, display: 'flex', alignItems: 'center', gap: 12 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)', whiteSpace: 'nowrap' }}>Minutes:</label>
+              <input
+                type="number" min={1} max={180} value={customMinutes}
+                onChange={e => {
+                  const v = Math.max(1, Math.min(180, Number(e.target.value) || 1))
+                  setCustomMinutes(v)
+                  setTimeLeft(v * 60)
+                  setRunning(false)
+                }}
+                className="inp"
+                style={{ fontSize: 15, fontWeight: 700, textAlign: 'center', width: 80, padding: '8px 12px' }}
+              />
+              <span style={{ fontSize: 12, color: 'var(--text3)' }}>1 – 180 min</span>
+            </div>
+          )}
 
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 28 }}>
             <div style={{ position: 'relative', width: 200, height: 200 }}>

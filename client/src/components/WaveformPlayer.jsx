@@ -177,8 +177,20 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
         preload="auto"
       />
 
-      {/* Real-time Frequency Waveform */}
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 60, marginBottom: 16, overflow: 'hidden' }}>
+      {/* Real-time Frequency Waveform - Clickable for seeking */}
+      <div 
+        style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 60, marginBottom: 16, overflow: 'hidden', cursor: 'pointer' }}
+        onClick={(e) => {
+          if (!audioRef.current || !duration) return
+          const rect = e.currentTarget.getBoundingClientRect()
+          const clickX = e.clientX - rect.left
+          const percentage = clickX / rect.width
+          const newTime = percentage * duration
+          audioRef.current.currentTime = newTime
+          setCurrentTime(newTime)
+          setProgress(percentage * 100)
+        }}
+      >
         {frequencies.map((freq, i) => {
           const baseHeight = 20
           const dynamicHeight = playing ? baseHeight + (freq * 40) : baseHeight + Math.abs(Math.sin(i * 0.5) * 30)
@@ -201,8 +213,27 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
         })}
       </div>
 
-      {/* Progress bar */}
-      <div style={{ height: 4, borderRadius: 4, background: 'var(--border)', marginBottom: 14 }}>
+      {/* Progress bar - Clickable for seeking */}
+      <div 
+        style={{ height: 4, borderRadius: 4, background: 'var(--border)', marginBottom: 14, cursor: 'pointer', position: 'relative' }}
+        onClick={(e) => {
+          if (!audioRef.current || !duration) return
+          const rect = e.currentTarget.getBoundingClientRect()
+          const clickX = e.clientX - rect.left
+          const percentage = clickX / rect.width
+          const newTime = percentage * duration
+          audioRef.current.currentTime = newTime
+          setCurrentTime(newTime)
+          setProgress(percentage * 100)
+        }}
+        onMouseMove={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect()
+          const hoverX = e.clientX - rect.left
+          const percentage = hoverX / rect.width
+          const hoverTime = percentage * duration
+          e.currentTarget.title = formatTime(hoverTime)
+        }}
+      >
         <div style={{
           height: '100%',
           borderRadius: 4,

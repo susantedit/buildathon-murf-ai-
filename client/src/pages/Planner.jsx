@@ -6,6 +6,7 @@ import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
 import { PageHeader, Label, SubmitBtn } from '../components/UI'
 import { api } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
 
 const steps = [
@@ -16,6 +17,7 @@ const steps = [
 ]
 
 export default function Planner() {
+  const { userId } = useAuth()
   const [goal, setGoal] = useState('')
   const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -33,7 +35,8 @@ export default function Planner() {
       setCurrentStep(2)
       const data = await api.generateAdvice(
         'Create a practical daily plan for: "' + goal +
-        '". Format as numbered steps (1. 2. 3.), max 6 steps, each clear and actionable. Under 120 words.'
+        '". Format as numbered steps (1. 2. 3.), max 6 steps, each clear and actionable. Under 120 words.',
+        userId
       )
       setResult(data)
       setCurrentStep(3)

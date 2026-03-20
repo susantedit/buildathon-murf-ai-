@@ -7,6 +7,7 @@ import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
 import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
 import { api } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
 
 const chips = ["I can't focus", 'Exam stress', 'I feel overwhelmed', 'Help me decide', 'I lack motivation', 'Study plan for tomorrow']
@@ -19,6 +20,7 @@ const steps = [
 ]
 
 export default function Assistant() {
+  const { userId } = useAuth()
   const location = useLocation()
   const [currentStep, setCurrentStep] = useState(0)
   const [input, setInput] = useState(location.state?.input || '')
@@ -34,7 +36,7 @@ export default function Assistant() {
     
     try { 
       setCurrentStep(2)
-      const d = await api.generateAdvice(input)
+      const d = await api.generateAdvice(input, userId)
       setResult(d)
       setCurrentStep(3)
       playSuccessSound()
