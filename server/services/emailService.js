@@ -3,6 +3,13 @@
 // Fallback: if no Resend key, tries Gmail SMTP (may timeout on Render free tier)
 
 async function sendViaResend({ to, subject, html, text: textBody }) {
+  // Use verified sender — on free Resend tier without a domain, use onboarding@resend.dev
+  // but it can only send to the account owner's email. For emergency alerts to contacts,
+  // we try the custom from first, fall back to resend.dev sender.
+  const from = process.env.RESEND_FROM_EMAIL
+    ? `Vortex Voice AI <${process.env.RESEND_FROM_EMAIL}>`
+    : 'Vortex Voice AI <onboarding@resend.dev>'
+
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -10,7 +17,7 @@ async function sendViaResend({ to, subject, html, text: textBody }) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Vortex Voice AI <onboarding@resend.dev>',
+      from,
       to: Array.isArray(to) ? to : [to],
       subject,
       html,
@@ -112,7 +119,14 @@ export async function sendEmergencyAlert({ toEmails, userName, location, situati
 
   const text = `🚨 EMERGENCY ALERT\nUser: ${userName || 'User'}\nTime: ${time} · ${date}\nSituation: ${situationType || 'General'}\n${location ? `Location: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}\nMap: ${mapLink}` : 'Location unavailable'}\n\nPlease check on the user immediately.\n— Vortex Voice AI`
 
-  await sendEmail({ to: toEmails, subject: '🚨 Emergency Alert from Vortex Voice AI', html, text })
+  // For emergency alerts, prefer Gmail (can send to any address on free tier)
+  // Resend free tier with onboarding@resend.dev can only deliver to the account owner
+  const emailPayload = { to: toEmails, subject: '🚨 Emergency Alert from Vortex Voice AI', html, text }
+  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+    await sendViaGmail(emailPayload)
+  } else {
+    await sendViaResend(emailPayload)
+  }
   return { sent: toEmails.length, recipients: toEmails }
 }
 

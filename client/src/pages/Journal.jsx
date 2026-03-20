@@ -6,6 +6,7 @@ import WaveformPlayer from '../components/WaveformPlayer'
 import VoiceMicButton from '../components/VoiceMicButton'
 import ShareButton from '../components/ShareButton'
 import { PageHeader, SubmitBtn } from '../components/UI'
+import QuoteBar from '../components/QuoteBar'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { playClickSound, playSuccessSound } from '../utils/soundGenerator'
@@ -80,6 +81,7 @@ export default function Journal() {
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={BookHeart} color="#ec4899" title="Voice Journal" sub="Speak or write your thoughts — AI summarizes and reflects" />
+          <QuoteBar section="journal" color="#ec4899" />
 
           <div className="card" style={{ padding: 24, marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -90,7 +92,12 @@ export default function Journal() {
             </div>
             <textarea value={entry} onChange={e => handleInput(e.target.value)}
               placeholder="How was your day? What's on your mind? Speak or type freely... (tap 🎤 to speak)"
-              rows={5} className="inp" style={{ marginBottom: 16 }} />
+              rows={5} className="inp" style={{ marginBottom: 6 }} />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+              <span style={{ fontSize: 11, color: entry.length > 800 ? '#ef4444' : 'var(--text3)' }}>
+                {entry.trim() ? entry.trim().split(/\s+/).length : 0} words · {entry.length} chars
+              </span>
+            </div>
             <SubmitBtn loading={loading} onClick={summarize} label="🎙️ Summarize & Reflect" loadingLabel="Reflecting..." />
           </div>
 

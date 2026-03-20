@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Languages, Copy, ArrowLeftRight, Mic, MicOff, Search, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
+import VoiceMicButton from '../components/VoiceMicButton'
 import { PageHeader } from '../components/UI'
+import QuoteBar from '../components/QuoteBar'
 import { api } from '../services/api'
 import { playClickSound, playSuccessSound } from '../utils/soundGenerator'
 
@@ -232,6 +234,7 @@ export default function Translator() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={Languages} color="#10b981" title="Voice Translator"
             sub={'Speak or type · ' + languages.length + '+ languages · Auto-detect'} />
+          <QuoteBar section="translator" color="#10b981" />
 
           <div className="card" style={{ padding: 20, marginBottom: 12 }}>
 
@@ -264,7 +267,10 @@ export default function Translator() {
 
             {/* Nepal Mode toggle */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text1)' }}>Input text</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--text1)' }}>Input text</label>
+                <VoiceMicButton onResult={val => { setInput(val); setTimeout(() => doTranslate(val), 300) }} />
+              </div>
               <button
                 onClick={() => { setNepalMode(m => !m); playClickSound() }}
                 style={{ padding: '4px 10px', borderRadius: 20, border: '1px solid ' + (nepalMode ? 'rgba(239,68,68,0.4)' : 'var(--border)'), background: nepalMode ? 'rgba(239,68,68,0.12)' : 'var(--glass)', color: nepalMode ? '#ef4444' : 'var(--text2)', fontSize: 11, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}

@@ -156,14 +156,16 @@ export async function handleSendAlert(req, res) {
       return res.status(400).json({ error: 'toEmails array is required' })
     }
 
-    // Validate emails
     const validEmails = toEmails.filter(e => e && e.includes('@'))
     if (validEmails.length === 0) {
       return res.status(400).json({ error: 'No valid email addresses provided' })
     }
 
-    if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
-      return res.status(503).json({ error: 'Email service not configured. Add GMAIL_USER and GMAIL_APP_PASSWORD to .env' })
+    // Check that at least one email provider is configured
+    const hasResend = !!process.env.RESEND_API_KEY
+    const hasGmail = !!(process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD)
+    if (!hasResend && !hasGmail) {
+      return res.status(503).json({ error: 'Email service not configured. Set RESEND_API_KEY in Render env vars (free at resend.com).' })
     }
 
     const result = await sendEmergencyAlert({ toEmails: validEmails, userName, location, situationType })

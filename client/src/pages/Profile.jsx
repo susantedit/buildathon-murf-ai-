@@ -4,6 +4,7 @@ import { User, Camera, Edit2, Check, X, LogOut, Mail, Shield, ZoomIn, ZoomOut, M
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
 import { PageHeader } from '../components/UI'
+import QuoteBar from '../components/QuoteBar'
 import StreakBadge from '../components/StreakBadge'
 import NotificationReminder from '../components/NotificationReminder'
 import { playClickSound, playSuccessSound } from '../utils/soundGenerator'
@@ -190,7 +191,7 @@ export default function Profile() {
   const MODE_EMOJI = { creator: '🎬', assistant: '🧠', study: '📚', focus: '🧘', planner: '📅', translator: '🌍', podcast: '🎙️', journal: '📖' }
 
   // Extra profile fields stored in localStorage
-  const [bio,      setBio]      = useState(() => localStorage.getItem('vortex-bio')      || '')
+  const [bio,      setBio]      = useState(() => localStorage.getItem('vortex-bio')      || '🚀 Building cool things with code while exploring AI, Generative AI, and Cybersecurity.')
   const [location, setLocation] = useState(() => localStorage.getItem('vortex-location') || '')
   const [language, setLanguage] = useState(() => localStorage.getItem('vortex-lang')     || '')
 
@@ -236,6 +237,7 @@ export default function Profile() {
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={User} color="#8b5cf6" title="Profile" sub="Manage your account" />
+          <QuoteBar section="profile" color="#8b5cf6" />
 
           {/* Avatar + Name card */}
           <div className="card" style={{ padding: 32, textAlign: 'center', marginBottom: 12 }}>

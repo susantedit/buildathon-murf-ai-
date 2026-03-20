@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { PageHeader } from '../components/UI'
+import QuoteBar from '../components/QuoteBar'
 import { playClickSound, playSuccessSound } from '../utils/soundGenerator'
 
 const MODES = [
@@ -201,6 +202,7 @@ export default function Podcast() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={Radio} color="#7c3aed" title="Podcast Studio"
             sub="Turn any content into a 2-speaker AI podcast" />
+          <QuoteBar section="podcast" color="#7c3aed" />
 
           <div className="card" style={{ padding: 20, marginBottom: 12 }}>
 
@@ -329,10 +331,24 @@ export default function Podcast() {
 
                 {/* Full script toggle */}
                 <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-                  <button onClick={() => setShowScript(s => !s)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text2)', fontSize: 13, fontWeight: 600 }}>
-                    <span>📄 Full Script</span>
-                    {showScript ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <button onClick={() => setShowScript(s => !s)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text2)', fontSize: 13, fontWeight: 600 }}>
+                      <span>📄 Full Script</span>
+                      {showScript ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </button>
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([result.script], { type: 'text/plain' })
+                        const url = URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url; a.download = `podcast-script-${Date.now()}.txt`; a.click()
+                        URL.revokeObjectURL(url)
+                        toast.success('Script downloaded!')
+                      }}
+                      style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, border: '1px solid rgba(124,58,237,0.3)', background: 'rgba(124,58,237,0.1)', color: '#a78bfa', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                      ⬇️ Download .txt
+                    </button>
+                  </div>
                   {showScript && (
                     <pre style={{ marginTop: 12, fontSize: 12, color: 'var(--text2)', whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{result.script}</pre>
                   )}

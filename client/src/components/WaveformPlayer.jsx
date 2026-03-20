@@ -282,6 +282,14 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
           </motion.button>
         </div>
       </div>
+
+      {/* Murf Falcon badge */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: 10 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '4px 10px', borderRadius: 20, background: `${colors.from}12`, border: `1px solid ${colors.from}30` }}>
+          <span style={{ fontSize: 12 }}>⚡</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: colors.from, letterSpacing: '0.03em' }}>Powered by Murf Falcon</span>
+        </div>
+      </div>
     </motion.div>
   )
 }

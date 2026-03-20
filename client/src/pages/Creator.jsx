@@ -8,6 +8,7 @@ import VoiceHistorySidebar from '../components/VoiceHistorySidebar'
 import VoiceMicButton from '../components/VoiceMicButton'
 import ShareButton from '../components/ShareButton'
 import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
+import QuoteBar from '../components/QuoteBar'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { detectMood } from '../utils/moodDetector'
@@ -101,6 +102,16 @@ export default function Creator() {
     setResult(null)
   }
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = e => {
+      if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); if (currentStep === 0) goToVoice() }
+      if (e.key === 'Escape' && result) regenerate()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [input, result, currentStep])
+
   const goToExport = () => {
     playClickSound()
     setCurrentStep(3)
@@ -120,6 +131,7 @@ export default function Creator() {
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={Video} color="#8b5cf6" title="Creator Mode" sub="Generate scripts and voice for reels, YouTube and podcasts" />
+          <QuoteBar section="creator" color="#8b5cf6" />
 
           <WorkflowSteps currentStep={currentStep} steps={steps} />
 
@@ -261,6 +273,16 @@ export default function Creator() {
                     <button className="btn" onClick={() => navigator.clipboard.writeText(result.text)}
                       style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
                       📋 Copy Script to Clipboard
+                    </button>
+
+                    <button className="btn"
+                      onClick={() => {
+                        const md = `# Creator Script\n\n${result.text}`
+                        navigator.clipboard.writeText(md)
+                        toast.success('Copied as Markdown!')
+                      }}
+                      style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
+                      📝 Copy as Markdown
                     </button>
 
                     <ShareButton text={result.text} audioUrl={result.audio} label="Share Script" style={{ justifyContent: 'center', padding: '10px 14px' }} />

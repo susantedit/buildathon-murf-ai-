@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CalendarDays, CheckCircle2, Circle } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -7,6 +7,7 @@ import WorkflowSteps from '../components/WorkflowSteps'
 import VoiceMicButton from '../components/VoiceMicButton'
 import ShareButton from '../components/ShareButton'
 import { PageHeader, Label, SubmitBtn } from '../components/UI'
+import QuoteBar from '../components/QuoteBar'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
@@ -25,6 +26,10 @@ export default function Planner() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [checked, setChecked] = useState({})
+  const [savedPlans, setSavedPlans] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('planner-saved') || '[]') } catch { return [] }
+  })
+  const [showSaved, setShowSaved] = useState(false)
 
   const generate = async () => {
     if (!goal.trim()) return toast.error('Enter your goal first')
@@ -44,6 +49,11 @@ export default function Planner() {
       setCurrentStep(3)
       playSuccessSound()
       toast.success('Plan ready!')
+      // Save to localStorage
+      const entry = { id: Date.now(), goal, text: data.text, date: new Date().toLocaleDateString() }
+      const updated = [entry, ...savedPlans].slice(0, 10)
+      setSavedPlans(updated)
+      localStorage.setItem('planner-saved', JSON.stringify(updated))
     } catch { toast.error('Something went wrong. Check your API keys.') }
     finally { setLoading(false) }
   }
@@ -55,6 +65,16 @@ export default function Planner() {
     setGoal('')
     setChecked({})
   }
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handler = e => {
+      if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); generate() }
+      if (e.key === 'Escape' && result) reset()
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [goal, result])
 
   const planSteps = result?.text
     ? result.text.split('\n').filter(l => /^\d+\./.test(l.trim())).map(l => l.trim())
@@ -68,6 +88,7 @@ export default function Planner() {
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={CalendarDays} color="#f59e0b" title="Productivity Planner" sub="Set a goal, get a voice-guided daily plan" />
+          <QuoteBar section="planner" color="#f59e0b" />
 
           <WorkflowSteps currentStep={currentStep} steps={steps} />
 
@@ -131,6 +152,30 @@ export default function Planner() {
                 ← Start Over
               </button>
               <ShareButton text={result?.text} />
+            </div>
+          )}
+
+          {/* Saved Plans */}
+          {savedPlans.length > 0 && (
+            <div style={{ marginTop: 20 }}>
+              <button onClick={() => setShowSaved(s => !s)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'var(--text2)', marginBottom: 10 }}>
+                📋 Past Plans ({savedPlans.length}) {showSaved ? '▲' : '▼'}
+              </button>
+              {showSaved && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {savedPlans.map(p => (
+                    <div key={p.id} className="card" style={{ padding: 14, cursor: 'pointer' }}
+                      onClick={() => { setGoal(p.goal); setResult({ text: p.text }); setCurrentStep(3); setChecked({}) }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text1)' }}>{p.goal}</span>
+                        <span style={{ fontSize: 10, color: 'var(--text3)' }}>{p.date}</span>
+                      </div>
+                      <span style={{ fontSize: 11, color: '#f59e0b' }}>Tap to reload →</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </motion.div>

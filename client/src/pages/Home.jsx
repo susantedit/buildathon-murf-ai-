@@ -6,6 +6,7 @@ import { playHoverSound, playClickSound } from '../utils/soundGenerator'
 import { api } from '../services/api'
 import toast from 'react-hot-toast'
 import StreakBadge from '../components/StreakBadge'
+import QuoteBar from '../components/QuoteBar'
 
 const modes = [
   { emoji: '🎬', label: 'Creator Mode',        desc: 'Scripts & voice for reels, YouTube, podcasts',   color: '#8b5cf6', path: '/creator' },
@@ -16,7 +17,8 @@ const modes = [
   { emoji: '🛡️', label: 'Safety Guardian',      desc: 'Voice-powered emergency assistance for women',    color: '#ef4444', path: '/safety' },
   { emoji: '🌍', label: 'Voice Translator',     desc: 'Translate text into native speech across 80+ languages', color: '#10b981', path: '/translator' },
   { emoji: '🎙️', label: 'Podcast Studio',       desc: 'Turn URLs, PDFs & prompts into multi-voice podcasts', color: '#ec4899', path: '/podcast' },
-  { emoji: '📖', label: 'History',              desc: 'Review all your past sessions and responses',     color: '#64748b', path: '/history' },
+  { emoji: '📖', label: 'Voice Journal',        desc: 'Speak your daily entry, AI reflects it back',    color: '#ec4899', path: '/journal' },
+  { emoji: '📋', label: 'History',              desc: 'Review all your past sessions and responses',     color: '#64748b', path: '/history' },
 ]
 
 const chips = ['Focus tips', 'Exam stress', 'Motivational reel', 'Explain quantum physics', 'Daily plan', 'I feel overwhelmed']
@@ -145,9 +147,19 @@ export default function Home() {
           </div>
 
           {/* Chips */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 44 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
             {chips.map(c => <button key={c} className="chip" onClick={() => setInput(c)}>{c}</button>)}
           </div>
+
+          {/* Try Demo button */}
+          <motion.button
+            whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
+            onClick={() => navigate('/assistant', { state: { input: "I'm feeling overwhelmed with my studies and can't focus. Help me make a plan." } })}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 24, border: '1px solid rgba(139,92,246,0.4)', background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 28 }}>
+            🎬 Try Demo — see it in action
+          </motion.button>
+
+          <QuoteBar section="home" color="#8b5cf6" />
         </motion.div>
 
         {/* Mode cards */}

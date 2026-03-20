@@ -14,13 +14,37 @@ import Assistant from './pages/Assistant'
 import Study from './pages/Study'
 import Focus from './pages/Focus'
 import Planner from './pages/Planner'
-import SafetyNew from './pages/SafetyNew'
+import SafetyNew from './pages/Safety'
 import Translator from './pages/Translator'
 import History from './pages/History'
 import Profile from './pages/Profile'
 import Podcast from './pages/Podcast'
 import Journal from './pages/Journal'
 import { recordActivity } from './utils/streak'
+import { ChevronUp } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+function BackToTop() {
+  const [visible, setVisible] = useState(false)
+  useEffect(() => {
+    const onScroll = () => setVisible(window.scrollY > 300)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Back to top"
+          style={{ position: 'fixed', bottom: 80, right: 16, width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'linear-gradient(135deg,#8b5cf6,#3b82f6)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 900, boxShadow: '0 4px 16px rgba(139,92,246,0.4)' }}>
+          <ChevronUp size={18} color="#fff" />
+        </motion.button>
+      )}
+    </AnimatePresence>
+  )
+}
 
 function AppInner() {
   const [splashDone, setSplashDone] = useState(false)
@@ -58,6 +82,7 @@ function AppInner() {
       </Routes>
       <PWAInstallPrompt />
       <OnboardingTour />
+      <BackToTop />
       <Toaster
         position="top-right"
         toastOptions={{

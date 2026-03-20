@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
+import { api } from '../services/api'
 import toast from 'react-hot-toast'
 
 const links = [
@@ -14,10 +15,10 @@ const links = [
   { to: '/focus',      label: 'Focus',      Icon: Timer },
   { to: '/planner',    label: 'Planner',    Icon: CalendarDays },
   { to: '/safety',     label: 'Safety',     Icon: Shield },
-  { to: '/history',    label: 'History',    Icon: History },
   { to: '/podcast',    label: 'Podcast',    Icon: Radio },
   { to: '/journal',    label: 'Journal',    Icon: BookHeart },
   { to: '/profile',    label: 'Profile',    Icon: UserCircle },
+  { to: '/history',    label: 'History',    Icon: History },
 ]
 
 // Bottom nav: Home + 4 primary + "More" button
@@ -41,9 +42,15 @@ const moreLinks = [
 
 export default function Navbar() {
   const { dark, toggle } = useTheme()
-  const { user, displayName, avatarUrl, signIn } = useAuth()
+  const { user, displayName, avatarUrl, signIn, userId } = useAuth()
   const [open, setOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [sessionCount, setSessionCount] = useState(0)
+
+  useEffect(() => {
+    if (!userId) return
+    api.getHistory(userId).then(data => setSessionCount(data.length)).catch(() => {})
+  }, [userId])
 
   const handleSignIn = async () => {
     try {
@@ -72,12 +79,17 @@ export default function Navbar() {
             <NavLink key={to} to={to} end={to === '/'}
               className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
               <Icon size={13} />{label}
+              {to === '/history' && sessionCount > 0 && (
+                <span style={{ marginLeft: 4, fontSize: 9, fontWeight: 800, padding: '1px 5px', borderRadius: 10, background: '#8b5cf6', color: '#fff', lineHeight: 1.4 }}>
+                  {sessionCount > 99 ? '99+' : sessionCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </div>
 
         <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}
-          className="icon-btn" onClick={toggle}>
+          className="icon-btn" onClick={toggle} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
           {dark ? <Sun size={15} /> : <Moon size={15} />}
         </motion.button>
 
@@ -107,7 +119,7 @@ export default function Navbar() {
           <span className="nav-logo-text" style={{ fontSize: 14 }}>Vortex Voice AI</span>
         </NavLink>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={toggle}>
+          <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={toggle} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}>
             {dark ? <Sun size={14} /> : <Moon size={14} />}
           </button>
           {user
@@ -178,11 +190,17 @@ export default function Navbar() {
                       fontSize: 10, fontWeight: 600,
                       color: isActive ? '#8b5cf6' : 'var(--text2)',
                       background: isActive ? 'rgba(139,92,246,0.12)' : 'transparent',
+                      position: 'relative',
                     })}>
                     {({ isActive }) => (
                       <>
                         <Icon size={20} color={isActive ? '#8b5cf6' : 'var(--text2)'} />
                         {label}
+                        {to === '/history' && sessionCount > 0 && (
+                          <span style={{ position: 'absolute', top: 6, right: 10, fontSize: 8, fontWeight: 800, padding: '1px 4px', borderRadius: 8, background: '#8b5cf6', color: '#fff', lineHeight: 1.4 }}>
+                            {sessionCount > 99 ? '99+' : sessionCount}
+                          </span>
+                        )}
                       </>
                     )}
                   </NavLink>

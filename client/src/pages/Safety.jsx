@@ -5,6 +5,47 @@ import toast from 'react-hot-toast'
 import { api } from '../services/api'
 import { vibrateEmergency, vibrateSuccess, vibrateLight } from '../utils/haptics'
 import { playClickSound, playSuccessSound, playErrorSound } from '../utils/soundGenerator'
+import QuoteBar from '../components/QuoteBar'
+
+// CSS confetti animation injected once
+const CONFETTI_CSS = `
+@keyframes confetti-fall {
+  0%   { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.confetti-piece {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  top: -10px;
+  animation: confetti-fall linear forwards;
+  z-index: 99999;
+  pointer-events: none;
+  border-radius: 2px;
+}
+`
+
+function launchConfetti() {
+  if (!document.getElementById('confetti-style')) {
+    const style = document.createElement('style')
+    style.id = 'confetti-style'
+    style.textContent = CONFETTI_CSS
+    document.head.appendChild(style)
+  }
+  const colors = ['#ef4444','#f59e0b','#10b981','#3b82f6','#8b5cf6','#ec4899','#fff']
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div')
+    el.className = 'confetti-piece'
+    el.style.left = Math.random() * 100 + 'vw'
+    el.style.background = colors[Math.floor(Math.random() * colors.length)]
+    el.style.animationDuration = (1.5 + Math.random() * 2) + 's'
+    el.style.animationDelay = (Math.random() * 0.8) + 's'
+    el.style.width = (6 + Math.random() * 8) + 'px'
+    el.style.height = (6 + Math.random() * 8) + 'px'
+    document.body.appendChild(el)
+    setTimeout(() => el.remove(), 4000)
+  }
+}
 
 const EMERGENCY = {
   NP: { police: '100', ambulance: '102', fire: '101', label: '🇳🇵 Nepal' },
@@ -335,6 +376,7 @@ export default function Safety() {
   const triggerEmergency = async () => {
     setEmergencyMode(true)
     vibrateEmergency()
+    launchConfetti()
     const loc = await getLocation()
     startRecording()
     startTracking()
@@ -380,7 +422,7 @@ export default function Safety() {
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
 
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
             <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Shield size={22} color="#ef4444" />
             </div>
@@ -393,6 +435,7 @@ export default function Safety() {
               {Object.entries(EMERGENCY).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
           </div>
+          <QuoteBar section="safety" color="#ef4444" />
 
           {/* Emergency Active Banner */}
           <AnimatePresence>
