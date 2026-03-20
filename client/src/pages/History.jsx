@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trash2, BookOpen } from 'lucide-react'
+import { Trash2, BookOpen, FileDown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { PageHeader } from '../components/UI'
 import { api } from '../services/api'
@@ -61,6 +61,24 @@ export default function History() {
     loadHistory()
   }
 
+  const exportPDF = () => {
+    if (!sessions.length) return toast.error('No sessions to export')
+    const lines = sessions.map((s, i) => {
+      const c = cfg[s.mode] || { label: s.mode, emoji: '💬' }
+      return `${i + 1}. [${c.label}] ${new Date(s.createdAt).toLocaleDateString()}\nInput: ${s.inputText}\nResponse: ${s.responseText}\n`
+    }).join('\n---\n\n')
+
+    const content = `VORTEX VOICE AI — Session History\nExported: ${new Date().toLocaleString()}\nUser: ${displayName}\nTotal Sessions: ${sessions.length}\n\n${'='.repeat(50)}\n\n${lines}`
+    const blob = new Blob([content], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `vortex-history-${Date.now()}.txt`
+    a.click()
+    URL.revokeObjectURL(url)
+    toast.success('History exported!')
+  }
+
   return (
     <div className="page-wrapper">
       <div className="page-content">
@@ -73,7 +91,13 @@ export default function History() {
               ? <img src={avatarUrl} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
               : <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'linear-gradient(135deg,#7c3aed,#3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 800, color: '#fff' }}>{displayName?.slice(0,2).toUpperCase()}</div>
             }
-            <span style={{ fontSize: 13, color: 'var(--text2)' }}>Signed in as <strong style={{ color: 'var(--text1)' }}>{displayName}</strong></span>
+            <span style={{ fontSize: 13, color: 'var(--text2)', flex: 1 }}>Signed in as <strong style={{ color: 'var(--text1)' }}>{displayName}</strong></span>
+            {sessions.length > 0 && (
+              <button onClick={exportPDF} aria-label="Export history"
+                style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, border: '1px solid rgba(139,92,246,0.3)', background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                <FileDown size={12} /> Export
+              </button>
+            )}
           </div>
 
           {/* Debug Info */}

@@ -10,9 +10,12 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
   const [duration, setDuration] = useState(0)
   const [currentTime, setCurrentTime] = useState(0)
   const [frequencies, setFrequencies] = useState(Array(BARS).fill(0))
+  const [speed, setSpeed] = useState(1)
   const audioRef = useRef(null)
   const analyserRef = useRef(null)
   const animationRef = useRef(null)
+
+  const SPEEDS = [0.75, 1, 1.25, 1.5]
 
   const modeColors = {
     creator: { from: '#8b5cf6', to: '#c084fc' },
@@ -25,25 +28,19 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
 
   useEffect(() => {
     if (audioUrl && audioRef.current) {
-      console.log('Loading audio URL:', audioUrl)
       audioRef.current.src = audioUrl
+      audioRef.current.playbackRate = speed
       setPlaying(false)
       setProgress(0)
       setCurrentTime(0)
-      
-      // Add error handler
-      audioRef.current.onerror = (e) => {
-        console.error('Audio loading error:', e)
-        console.error('Failed URL:', audioUrl)
-      }
-      
-      audioRef.current.onloadeddata = () => {
-        console.log('Audio loaded successfully')
-      }
-      
-      // Don't setup Web Audio API here - do it on first play
+      audioRef.current.onerror = (e) => console.error('Audio loading error:', e)
+      audioRef.current.onloadeddata = () => console.log('Audio loaded successfully')
     }
   }, [audioUrl])
+
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.playbackRate = speed
+  }, [speed])
 
   const updateFrequencies = () => {
     if (!analyserRef.current || !playing) return
@@ -247,51 +244,43 @@ export default function WaveformPlayer({ audioUrl, isLoading, mode = 'creator' }
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-            onClick={toggle}
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              border: 'none',
-              background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer'
-            }}>
+            onClick={toggle} aria-label={playing ? 'Pause' : 'Play'}
+            style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             {playing ? <Pause size={18} color="#fff" /> : <Play size={18} color="#fff" />}
           </motion.button>
 
-          <button onClick={restart} className="icon-btn" style={{ width: 36, height: 36 }}>
+          <button onClick={restart} className="icon-btn" style={{ width: 36, height: 36 }} aria-label="Restart">
             <RotateCcw size={14} />
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <Volume2 size={14} color={colors.from} />
+            <Volume2 size={14} color={colors.from} aria-hidden="true" />
             <span style={{ fontSize: 12, color: 'var(--text2)', fontVariantNumeric: 'tabular-nums' }}>
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
         </div>
 
-        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-          onClick={download}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            padding: '8px 14px',
-            borderRadius: 10,
-            border: `1px solid ${colors.from}40`,
-            background: `${colors.from}15`,
-            color: colors.from,
-            fontSize: 12,
-            fontWeight: 600,
-            cursor: 'pointer'
-          }}>
-          <Download size={13} />
-          Download
-        </motion.button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {/* Speed control */}
+          <div style={{ display: 'flex', gap: 3 }}>
+            {SPEEDS.map(s => (
+              <button key={s} onClick={() => setSpeed(s)} aria-label={`Speed ${s}x`}
+                style={{ padding: '3px 7px', borderRadius: 6, border: `1px solid ${speed === s ? colors.from + '80' : 'var(--border)'}`,
+                  background: speed === s ? colors.from + '20' : 'var(--glass)',
+                  color: speed === s ? colors.from : 'var(--text3)', fontSize: 10, fontWeight: 700, cursor: 'pointer' }}>
+                {s}x
+              </button>
+            ))}
+          </div>
+
+          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+            onClick={download} aria-label="Download audio"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: `1px solid ${colors.from}40`, background: `${colors.from}15`, color: colors.from, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+            <Download size={13} aria-hidden="true" />
+            Download
+          </motion.button>
+        </div>
       </div>
     </motion.div>
   )

@@ -5,6 +5,7 @@ import { Zap, ArrowRight, Sparkles, Mail, Send, Radio, Globe, Shield, Users, Cod
 import { playHoverSound, playClickSound } from '../utils/soundGenerator'
 import { api } from '../services/api'
 import toast from 'react-hot-toast'
+import StreakBadge from '../components/StreakBadge'
 
 const modes = [
   { emoji: '🎬', label: 'Creator Mode',        desc: 'Scripts & voice for reels, YouTube, podcasts',   color: '#8b5cf6', path: '/creator' },
@@ -88,6 +89,9 @@ export default function Home() {
 
           <div className="badge" style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#8b5cf6', marginBottom: 20 }}>
             <Sparkles size={13} /> Voice-First AI Platform · Powered by Murf Falcon
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>
+            <StreakBadge />
           </div>
 
           {/* Multilingual Welcome */}

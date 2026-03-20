@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
 import { ThemeProvider } from './context/ThemeContext'
@@ -7,6 +7,7 @@ import Navbar from './components/Navbar'
 import SplashScreen from './components/SplashScreen'
 import LoginGate from './components/LoginGate'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
+import OnboardingTour from './components/OnboardingTour'
 import Home from './pages/Home'
 import Creator from './pages/Creator'
 import Assistant from './pages/Assistant'
@@ -19,10 +20,14 @@ import History from './pages/History'
 import Profile from './pages/Profile'
 import Podcast from './pages/Podcast'
 import Journal from './pages/Journal'
+import { recordActivity } from './utils/streak'
 
 function AppInner() {
   const [splashDone, setSplashDone] = useState(false)
   const { user, loading } = useAuth()
+
+  // Record daily activity for streak
+  useEffect(() => { if (user) recordActivity() }, [user])
 
   // Show splash first
   if (!splashDone) return <SplashScreen onDone={() => setSplashDone(true)} />
@@ -52,6 +57,7 @@ function AppInner() {
         <Route path="/journal"    element={<Journal />} />
       </Routes>
       <PWAInstallPrompt />
+      <OnboardingTour />
       <Toaster
         position="top-right"
         toastOptions={{

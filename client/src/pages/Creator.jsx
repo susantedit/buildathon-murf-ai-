@@ -12,6 +12,7 @@ import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { detectMood } from '../utils/moodDetector'
 import { saveToHistory } from '../utils/voiceHistory'
+import { recordSession } from '../utils/stats'
 import { playWhooshSound, playSuccessSound, playClickSound } from '../utils/soundGenerator'
 
 const tones = [
@@ -72,6 +73,7 @@ export default function Creator() {
       setResult(data)
       setGenerationTime(timeInSeconds)
       setCurrentStep(2)
+      recordSession({ mode: 'creator', wordCount: data.text?.split(' ').length || 0 })
       
       // Save to history
       saveToHistory({

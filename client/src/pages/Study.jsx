@@ -9,6 +9,7 @@ import ShareButton from '../components/ShareButton'
 import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { recordSession } from '../utils/stats'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
 
 const modes = [
@@ -105,6 +106,7 @@ export default function Study() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [quizQuestions, setQuizQuestions] = useState([])
+  const [sessionId] = useState(() => `study-${Date.now()}`)
 
   const go = async () => {
     if (!topic.trim()) return toast.error('Enter a topic first')
@@ -128,6 +130,7 @@ export default function Study() {
       }
       setResult(d)
       setCurrentStep(3)
+      recordSession({ mode: 'study', wordCount: d.text?.split(' ').length || 0 })
       playSuccessSound()
       toast.success(mode === 'quiz' ? 'Quiz ready!' : 'Explanation ready!')
     } catch { toast.error('Something went wrong. Check your API keys.') }
@@ -180,7 +183,7 @@ export default function Study() {
 
           {result?.text && mode !== 'quiz' && (
             <>
-              <ResultCard icon={<BookOpen size={14} color="#c084fc" />} label="Explanation" text={result.text} />
+              <ResultCard icon={<BookOpen size={14} color="#c084fc" />} label="Explanation" text={result.text} sessionId={sessionId} />
               <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                 <button onClick={reset} className="btn" style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)', flex: 1 }}>
                   ← Start Over

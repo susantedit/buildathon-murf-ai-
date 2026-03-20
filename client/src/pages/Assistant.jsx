@@ -11,6 +11,7 @@ import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { detectMood } from '../utils/moodDetector'
+import { recordSession } from '../utils/stats'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
 
 const chips = ["I can't focus", 'Exam stress', 'I feel overwhelmed', 'Help me decide', 'I lack motivation', 'Study plan for tomorrow']
@@ -32,6 +33,7 @@ export default function Assistant() {
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState(null)
   const [detectedMood, setDetectedMood] = useState(null)
+  const [sessionId] = useState(() => `assistant-${Date.now()}`)
 
   const handleInput = val => {
     setInput(val)
@@ -52,6 +54,7 @@ export default function Assistant() {
       const d = await api.generateAdvice(input, userId)
       setResult(d)
       setCurrentStep(3)
+      recordSession({ mode: 'assistant', wordCount: d.text?.split(' ').length || 0 })
       playSuccessSound()
       toast.success('Advice ready!')
     } catch { toast.error('Something went wrong. Check your API keys.') }
@@ -97,7 +100,7 @@ export default function Assistant() {
 
           {result?.text && (
             <>
-              <ResultCard icon={<Brain size={14} color="#3b82f6" />} label="AI Advice" text={result.text} />
+              <ResultCard icon={<Brain size={14} color="#3b82f6" />} label="AI Advice" text={result.text} sessionId={sessionId} />
               <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
                 <button onClick={reset} className="btn" style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)', flex: 1 }}>
                   ← Start Over

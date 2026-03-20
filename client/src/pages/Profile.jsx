@@ -1,10 +1,15 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Camera, Edit2, Check, X, LogOut, Mail, Shield, ZoomIn, ZoomOut, Move } from 'lucide-react'
+import { User, Camera, Edit2, Check, X, LogOut, Mail, Shield, ZoomIn, ZoomOut, Move, BarChart2, Zap } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
 import { PageHeader } from '../components/UI'
+import StreakBadge from '../components/StreakBadge'
+import NotificationReminder from '../components/NotificationReminder'
 import { playClickSound, playSuccessSound } from '../utils/soundGenerator'
+import { getStats, getMostUsedMode } from '../utils/stats'
+import { getStreak } from '../utils/streak'
+import { getRatingStats } from '../utils/ratings'
 
 // ── Image Crop Modal ──────────────────────────────────────────
 function CropModal({ src, onSave, onCancel }) {
@@ -177,6 +182,13 @@ export default function Profile() {
   const [savingName, setSavingName]   = useState(false)
   const fileRef = useRef(null)
 
+  const stats = getStats()
+  const streak = getStreak()
+  const ratingStats = getRatingStats()
+  const mostUsed = getMostUsedMode(stats.modes)
+
+  const MODE_EMOJI = { creator: '🎬', assistant: '🧠', study: '📚', focus: '🧘', planner: '📅', translator: '🌍', podcast: '🎙️', journal: '📖' }
+
   // Extra profile fields stored in localStorage
   const [bio,      setBio]      = useState(() => localStorage.getItem('vortex-bio')      || '')
   const [location, setLocation] = useState(() => localStorage.getItem('vortex-location') || '')
@@ -307,6 +319,40 @@ export default function Profile() {
               placeholder="e.g. Nepali, English,Hindi"
               onSave={v => { setLanguage(v); localStorage.setItem('vortex-lang', v) }}
             />
+          </div>
+
+          {/* Stats Dashboard */}
+          <div className="card" style={{ padding: 20, marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <BarChart2 size={15} color="#8b5cf6" />
+              <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your Stats</span>
+              <StreakBadge style={{ marginLeft: 'auto' }} />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 14 }}>
+              {[
+                { label: 'Sessions', value: stats.totalSessions || 0, icon: '🎯', color: '#8b5cf6' },
+                { label: 'Words Generated', value: (stats.totalWords || 0).toLocaleString(), icon: '✍️', color: '#3b82f6' },
+                { label: 'Day Streak', value: `${streak.current} 🔥`, icon: '📅', color: '#f59e0b' },
+                { label: 'Helpful Ratings', value: `${ratingStats.thumbsUp} 👍`, icon: '⭐', color: '#10b981' },
+              ].map(({ label, value, icon, color }) => (
+                <div key={label} style={{ padding: '12px 14px', borderRadius: 12, background: color + '10', border: `1px solid ${color}25` }}>
+                  <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color, fontFamily: 'Syne,system-ui,sans-serif' }}>{value}</div>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2 }}>{label}</div>
+                </div>
+              ))}
+            </div>
+            {mostUsed && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 10, background: 'var(--glass)', border: '1px solid var(--border)' }}>
+                <Zap size={13} color="#f59e0b" />
+                <span style={{ fontSize: 12, color: 'var(--text2)' }}>Most used: <strong style={{ color: 'var(--text1)' }}>{MODE_EMOJI[mostUsed] || '💬'} {mostUsed.charAt(0).toUpperCase() + mostUsed.slice(1)}</strong></span>
+              </div>
+            )}
+          </div>
+
+          {/* Notification Reminder */}
+          <div style={{ marginBottom: 12 }}>
+            <NotificationReminder />
           </div>
 
           {/* Sign out */}
