@@ -86,16 +86,20 @@ async function sendSOSEmail({ toEmail, toName, userName, phone, location, situat
   }
 
   // Try each account in order — if one fails (quota exceeded), try next
+  // allclear always starts from account 0 for max reliability
+  const startIdx = type === 'allclear' ? 0 : ejsAccountIndex
   let lastErr
   for (let i = 0; i < EJS_ACCOUNTS.length; i++) {
-    const acc = EJS_ACCOUNTS[(ejsAccountIndex + i) % EJS_ACCOUNTS.length]
+    const acc = EJS_ACCOUNTS[(startIdx + i) % EJS_ACCOUNTS.length]
+    // initial → Template 1, update/allclear → Template 2
     const templateId = type === 'initial' ? acc.templateId : (acc.updateId || acc.templateId)
+    console.log(`EmailJS attempt ${i + 1}: service=${acc.serviceId} template=${templateId}`)
     try {
       const result = await emailjs.send(acc.serviceId, templateId, params, acc.publicKey)
-      ejsAccountIndex = (ejsAccountIndex + i + 1) % EJS_ACCOUNTS.length // advance past used account
+      if (type !== 'allclear') ejsAccountIndex = (startIdx + i + 1) % EJS_ACCOUNTS.length
       return result
     } catch (err) {
-      console.warn(`EmailJS account ${i + 1} failed:`, err.text || err.message)
+      console.warn(`EmailJS account ${i + 1} failed:`, err.status, err.text || err.message)
       lastErr = err
     }
   }
