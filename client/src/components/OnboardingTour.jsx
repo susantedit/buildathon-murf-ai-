@@ -70,15 +70,14 @@ export default function OnboardingTour() {
             style={{
               position: 'fixed',
               top: '50%', left: '50%',
-              marginTop: '-50%',
+              transform: 'translate(-50%, -50%)',
               zIndex: 3001,
               width: 'min(340px, 88vw)',
-              maxHeight: '90vh',
+              maxHeight: '85vh',
               overflowY: 'auto',
               background: 'var(--bg2)', borderRadius: 24, padding: 28,
               border: `1px solid ${current.color}40`,
               boxShadow: `0 24px 64px rgba(0,0,0,0.5), 0 0 0 1px ${current.color}20`,
-              translateX: '-50%', translateY: '-50%',
             }}>
 
             {/* Close */}

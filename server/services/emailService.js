@@ -119,15 +119,61 @@ export async function sendEmergencyAlert({ toEmails, userName, location, situati
 
   const text = `🚨 EMERGENCY ALERT\nUser: ${userName || 'User'}\nTime: ${time} · ${date}\nSituation: ${situationType || 'General'}\n${location ? `Location: ${location.lat.toFixed(6)}, ${location.lng.toFixed(6)}\nMap: ${mapLink}` : 'Location unavailable'}\n\nPlease check on the user immediately.\n— Vortex Voice AI`
 
-  // For emergency alerts, prefer Gmail (can send to any address on free tier)
-  // Resend free tier with onboarding@resend.dev can only deliver to the account owner
-  const emailPayload = { to: toEmails, subject: '🚨 Emergency Alert from Vortex Voice AI', html, text }
-  if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-    await sendViaGmail(emailPayload)
-  } else {
-    await sendViaResend(emailPayload)
+  const subject = '🚨 Emergency Alert from Vortex Voice AI'
+
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY not set in Render env vars.')
   }
-  return { sent: toEmails.length, recipients: toEmails }
+
+  // Resend free tier restriction: onboarding@resend.dev can only deliver to the
+  // account owner email. We send one email per contact directly using the API.
+  // On free tier without a verified domain, each recipient must be the owner —
+  // so we send TO the owner and include the contact list in the email body.
+  // If RESEND_FROM_EMAIL is set (verified domain), we can send directly to contacts.
+
+  const from = process.env.RESEND_FROM_EMAIL
+    ? `Vortex Voice AI 🚨 <${process.env.RESEND_FROM_EMAIL}>`
+    : 'Vortex Voice AI <onboarding@resend.dev>'
+
+  const hasVerifiedDomain = !!process.env.RESEND_FROM_EMAIL
+
+  if (hasVerifiedDomain) {
+    // Can send directly to any address
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to: toEmails, subject, html, text }),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.message || `Resend error: ${res.status}`)
+    }
+    return { sent: toEmails.length, recipients: toEmails }
+  }
+
+  // Free tier: send to owner with contacts listed in body
+  const ownerEmail = process.env.RESEND_OWNER_EMAIL || 'susantedit@gmail.com'
+  const contactsHtml = toEmails.map(e => `<li style="color:#fff">${e}</li>`).join('')
+  const alertHtml = html.replace(
+    '<p style="color:#a0a0b0;font-size:12px',
+    `<div style="background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);border-radius:8px;padding:12px;margin-bottom:16px;">
+      <p style="margin:0 0 8px;font-weight:700;color:#8b5cf6;">📬 Alert was triggered for these contacts:</p>
+      <ul style="margin:0;padding-left:20px">${contactsHtml}</ul>
+      <p style="margin:8px 0 0;font-size:11px;color:#a0a0b0;">Forward this email to them or set RESEND_FROM_EMAIL with a verified domain to auto-send.</p>
+    </div>
+    <p style="color:#a0a0b0;font-size:12px`
+  )
+
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to: [ownerEmail], subject, html: alertHtml, text: `${text}\n\nContacts to notify: ${toEmails.join(', ')}` }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.message || `Resend error: ${res.status}`)
+  }
+  return { sent: toEmails.length, recipients: toEmails, note: 'Sent to owner — forward to contacts or add verified domain' }
 }
 
 export async function sendContactEmail({ name, email, message }) {

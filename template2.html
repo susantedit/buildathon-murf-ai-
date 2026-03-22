@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#0f0f1a;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" bgcolor="#0f0f1a" style="background:#0f0f1a;padding:24px 12px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#1a1a2e;border-radius:16px;overflow:hidden;" bgcolor="#1a1a2e">
+
+  <!-- HEADER -->
+  <tr>
+    <td bgcolor="#ef4444" style="background:#ef4444;background:linear-gradient(135deg,#ef4444,#dc2626);padding:32px 24px;text-align:center;">
+      <div style="font-size:56px;line-height:1;margin-bottom:10px;">🚨</div>
+      <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:900;letter-spacing:4px;text-transform:uppercase;">Emergency Alert</h1>
+      <p style="margin:8px 0 0;color:rgba(255,255,255,0.9);font-size:13px;letter-spacing:2px;text-transform:uppercase;">Vortex Voice AI · Safety Guardian</p>
+    </td>
+  </tr>
+
+  <!-- SEVERITY BANNER -->
+  <tr>
+    <td bgcolor="#2a0a0a" style="background:rgba(239,68,68,0.18);padding:14px 24px;text-align:center;border-bottom:2px solid #ef4444;">
+      <span style="color:#ef4444;font-size:20px;font-weight:900;letter-spacing:2px;">{{severity}}</span>
+      <p style="margin:6px 0 0;color:#fff;font-size:14px;font-weight:700;">{{user_name}} has triggered an SOS — respond immediately</p>
+    </td>
+  </tr>
+
+  <!-- DETAILS -->
+  <tr><td style="padding:24px 24px 8px;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:#a0a0b0;font-size:13px;">👤 Person</td>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);text-align:right;color:#ffffff;font-size:13px;font-weight:700;">{{user_name}}</td>
+      </tr>
+      <tr>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:#a0a0b0;font-size:13px;">📞 Phone</td>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);text-align:right;">
+          <a href="tel:{{phone}}" style="color:#10b981;font-size:13px;font-weight:700;text-decoration:none;">{{phone}}</a>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:#a0a0b0;font-size:13px;">⚠️ Situation</td>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);text-align:right;color:#ef4444;font-size:13px;font-weight:700;">{{situation}}</td>
+      </tr>
+      <tr>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:#a0a0b0;font-size:13px;">🕐 Time</td>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);text-align:right;color:#ffffff;font-size:13px;">{{time}}</td>
+      </tr>
+      <tr>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);color:#a0a0b0;font-size:13px;">📍 Coordinates</td>
+        <td style="padding:11px 0;border-bottom:1px solid rgba(255,255,255,0.07);text-align:right;color:#3b82f6;font-size:12px;font-weight:600;">{{lat}}, {{lng}}</td>
+      </tr>
+      <tr>
+        <td style="padding:11px 0;color:#a0a0b0;font-size:13px;">📌 Address</td>
+        <td style="padding:11px 0;text-align:right;color:#ffffff;font-size:12px;">{{location_text}}</td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- CALL NOW BUTTON -->
+  <tr><td style="padding:20px 24px 8px;">
+    <a href="tel:{{phone}}" style="display:block;text-align:center;padding:15px;background:#10b981;color:#ffffff;font-size:16px;font-weight:900;text-decoration:none;border-radius:12px;letter-spacing:2px;text-transform:uppercase;">
+      📞 &nbsp;CALL {{user_name}} NOW
+    </a>
+  </td></tr>
+
+  <!-- MAP BUTTON -->
+  <tr><td style="padding:8px 24px;">
+    <a href="{{location_link}}" style="display:block;text-align:center;padding:15px;background:#3b82f6;color:#ffffff;font-size:15px;font-weight:800;text-decoration:none;border-radius:12px;letter-spacing:1px;text-transform:uppercase;">
+      📍 &nbsp;OPEN LIVE LOCATION NOW
+    </a>
+  </td></tr>
+
+  
+  <!-- WARNING BOX -->
+  <tr><td style="padding:0 24px 24px;">
+    <table width="100%" cellpadding="16" cellspacing="0" bgcolor="#1f0a0a" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.35);border-radius:10px;">
+      <tr><td style="text-align:center;">
+        <p style="margin:0;color:#ffffff;font-size:14px;font-weight:700;">⚠️ Please check on {{user_name}} immediately</p>
+        <p style="margin:6px 0 0;color:#a0a0b0;font-size:12px;">If unreachable, contact local emergency services</p>
+        <p style="margin:6px 0 0;color:#f59e0b;font-size:11px;font-weight:600;">📡 This alert will repeat with updated location every 2 minutes until SOS is cancelled</p>
+      </td></tr>
+    </table>
+  </td></tr>
+
+  <!-- UPDATE COUNT -->
+  <tr><td style="padding:0 24px 20px;text-align:center;">
+    <span style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:6px 16px;color:#f59e0b;font-size:12px;font-weight:700;">
+      🔄 Location Update #{{update_count}}
+    </span>
+  </td></tr>
+
+  <!-- FOOTER -->
+  <tr><td style="padding:16px 24px;border-top:1px solid rgba(255,255,255,0.06);text-align:center;">
+    <p style="margin:0;color:#444444;font-size:11px;">
+      Automated alert by <a href="https://murf-challenge-susantedit.netlify.app" style="color:#8b5cf6;text-decoration:none;">Vortex Voice AI</a> · Safety Guardian System<br>
+      Do not reply to this email
+    </p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>

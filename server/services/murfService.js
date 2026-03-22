@@ -84,7 +84,7 @@ export async function textToSpeech(text, voiceStyle = 'calm', mode = 'assistant'
       }
     )
 
-    console.log('Murf response:', res.data)
+    console.log('Murf response: audioFile =', res.data.audioFile ? 'received' : 'missing')
     const audioUrl = res.data.audioFile || res.data.encodedAudio || ''
     
     if (!audioUrl) {

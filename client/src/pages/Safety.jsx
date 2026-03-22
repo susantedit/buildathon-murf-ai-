@@ -2,10 +2,105 @@ import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Shield, Phone, MapPin, Users, Mic, X, Video, Navigation, AlertTriangle, Check, PhoneCall, Radio, MicOff, Volume2, Clock, ChevronRight } from 'lucide-react'
 import toast from 'react-hot-toast'
+import emailjs from '@emailjs/browser'
 import { api } from '../services/api'
 import { vibrateEmergency, vibrateSuccess, vibrateLight } from '../utils/haptics'
 import { playClickSound, playSuccessSound, playErrorSound } from '../utils/soundGenerator'
 import QuoteBar from '../components/QuoteBar'
+import { useAuth } from '../context/AuthContext'
+
+// EmailJS config — supports up to 3 accounts for quota rotation
+// Set VITE_EMAILJS_* in Netlify env vars
+const EJS_ACCOUNTS = [
+  {
+    serviceId:  import.meta.env.VITE_EMAILJS_SERVICE_ID   || '',
+    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID  || '',
+    updateId:   import.meta.env.VITE_EMAILJS_UPDATE_TEMPLATE   || '',
+    allclearId: import.meta.env.VITE_EMAILJS_ALLCLEAR_TEMPLATE || '',
+    publicKey:  import.meta.env.VITE_EMAILJS_PUBLIC_KEY   || '',
+  },
+  {
+    serviceId:  import.meta.env.VITE_EMAILJS_SERVICE_ID_2   || '',
+    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_2  || '',
+    updateId:   import.meta.env.VITE_EMAILJS_UPDATE_TEMPLATE_2   || '',
+    allclearId: import.meta.env.VITE_EMAILJS_ALLCLEAR_TEMPLATE_2 || '',
+    publicKey:  import.meta.env.VITE_EMAILJS_PUBLIC_KEY_2   || '',
+  },
+  {
+    serviceId:  import.meta.env.VITE_EMAILJS_SERVICE_ID_3   || '',
+    templateId: import.meta.env.VITE_EMAILJS_TEMPLATE_ID_3  || '',
+    updateId:   import.meta.env.VITE_EMAILJS_UPDATE_TEMPLATE_3   || '',
+    allclearId: import.meta.env.VITE_EMAILJS_ALLCLEAR_TEMPLATE_3 || '',
+    publicKey:  import.meta.env.VITE_EMAILJS_PUBLIC_KEY_3   || '',
+  },
+].filter(a => a.serviceId && a.publicKey && !a.serviceId.startsWith('your_') && !a.publicKey.startsWith('your_'))
+
+let ejsAccountIndex = 0
+const getEjsAccount = () => {
+  if (EJS_ACCOUNTS.length === 0) return null
+  const acc = EJS_ACCOUNTS[ejsAccountIndex % EJS_ACCOUNTS.length]
+  ejsAccountIndex = (ejsAccountIndex + 1) % EJS_ACCOUNTS.length
+  return acc
+}
+const ejsReady = () => EJS_ACCOUNTS.length > 0
+
+async function sendSOSEmail({ toEmail, toName, userName, phone, location, situationType, updateCount, type = 'initial' }) {
+  if (EJS_ACCOUNTS.length === 0) throw new Error('No EmailJS account configured')
+
+  const mapLink = location ? `https://maps.google.com/?q=${location.lat},${location.lng}` : null
+  const locationText = location ? `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}` : 'Location unavailable'
+
+  const subjectMap = {
+    initial:  `🚨 EMERGENCY — ${userName || 'User'} needs help NOW!`,
+    update:   `📍 Location Update #${updateCount} — ${userName || 'User'} SOS Still Active`,
+    allclear: `✅ All Clear — ${userName || 'User'} is safe`,
+  }
+  const severityMap = {
+    initial:  ['followed','harassment'].includes(situationType) ? '🔴 HIGH RISK' : situationType === 'medical' ? '🟠 MEDICAL' : '🟡 GENERAL',
+    update:   `🔄 UPDATE #${updateCount} — SOS STILL ACTIVE`,
+    allclear: '✅ ALL CLEAR — PERSON IS SAFE',
+  }
+  const bannerMap = {
+    initial:  `${userName || 'User'} has triggered an SOS — respond immediately`,
+    update:   `${userName || 'User'} SOS still active — may be moving`,
+    allclear: `${userName || 'User'} has cancelled the SOS — they are safe`,
+  }
+
+  const params = {
+    to_email:       toEmail,
+    to_name:        toName || toEmail,
+    from_name:      'Vortex Voice AI Safety',
+    user_name:      userName || 'User',
+    phone:          phone || 'N/A',
+    situation:      type === 'allclear' ? '✅ Cancelled — person is safe' : (situationType || 'General'),
+    severity:       severityMap[type] || severityMap.initial,
+    banner_text:    bannerMap[type] || bannerMap.initial,
+    email_subject:  subjectMap[type] || subjectMap.initial,
+    location_link:  mapLink || '#',
+    location_text:  locationText,
+    lat:            location ? location.lat.toFixed(6) : 'N/A',
+    lng:            location ? location.lng.toFixed(6) : 'N/A',
+    time:           new Date().toLocaleString(),
+    update_count:   updateCount || '1',
+    email_type:     type,
+  }
+
+  // Try each account in order — if one fails (quota exceeded), try next
+  let lastErr
+  for (let i = 0; i < EJS_ACCOUNTS.length; i++) {
+    const acc = EJS_ACCOUNTS[(ejsAccountIndex + i) % EJS_ACCOUNTS.length]
+    const templateId = type === 'initial' ? acc.templateId : (acc.updateId || acc.templateId)
+    try {
+      const result = await emailjs.send(acc.serviceId, templateId, params, acc.publicKey)
+      ejsAccountIndex = (ejsAccountIndex + i + 1) % EJS_ACCOUNTS.length // advance past used account
+      return result
+    } catch (err) {
+      console.warn(`EmailJS account ${i + 1} failed:`, err.text || err.message)
+      lastErr = err
+    }
+  }
+  throw lastErr
+}
 
 // CSS confetti animation injected once
 const CONFETTI_CSS = `
@@ -287,6 +382,8 @@ function FakeCallScreen({ callerName, callerNum, onEnd, situation }) {
 }
 
 export default function Safety() {
+  const { displayName } = useAuth()
+  const displayNameRef = useRef('User')
   const [emergencyMode, setEmergencyMode] = useState(false)
   const [contacts, setContacts] = useState([])
   const [newContact, setNewContact] = useState({ name: '', phone: '', email: '' })
@@ -306,6 +403,13 @@ export default function Safety() {
   const holdInterval = useRef(null)
   const mediaRecorderRef = useRef(null)
   const trackingRef = useRef(null)
+  const emailUpdateRef = useRef(null)
+  const emailContactsRef = useRef([])
+  const updateCountRef = useRef(0)
+  const situationRef = useRef('general')
+  const currentLocRef = useRef(null)
+
+  useEffect(() => { displayNameRef.current = displayName || 'User' }, [displayName])
 
   useEffect(() => {
     const saved = localStorage.getItem('safety-contacts')
@@ -367,31 +471,91 @@ export default function Safety() {
   const startTracking = () => {
     setLiveTracking(true)
     trackingRef.current = setInterval(() => {
-      navigator.geolocation?.getCurrentPosition(p => setLocation({ lat: p.coords.latitude, lng: p.coords.longitude, ts: Date.now() }))
+      navigator.geolocation?.getCurrentPosition(p => {
+        const loc = { lat: p.coords.latitude, lng: p.coords.longitude, ts: Date.now() }
+        setLocation(loc)
+        currentLocRef.current = loc
+      })
     }, 10000)
   }
 
   const stopTracking = () => { clearInterval(trackingRef.current); setLiveTracking(false) }
+
+  const startLocationEmailUpdates = (contacts, situation) => {
+    emailContactsRef.current = contacts
+    situationRef.current = situation
+    updateCountRef.current = 0
+    // Send update email every 2 minutes
+    emailUpdateRef.current = setInterval(async () => {
+      if (!ejsReady()) { console.warn('EmailJS not ready for update'); return }
+      updateCountRef.current += 1
+      console.log(`Sending location update #${updateCountRef.current}...`)
+      const loc = currentLocRef.current
+      for (const contact of emailContactsRef.current) {
+        try {
+          await sendSOSEmail({
+            toEmail: contact.email,
+            toName: contact.name,
+            userName: displayNameRef.current,
+            phone: contact.phone,
+            location: loc,
+            situationType: situationRef.current,
+            updateCount: String(updateCountRef.current),
+            type: 'update',
+          })
+        } catch (err) {
+          console.error('Location update email failed:', err)
+        }
+      }
+      toast(`📍 Location update #${updateCountRef.current} sent`, { duration: 3000 })
+    }, 2 * 60 * 1000) // every 2 minutes
+  }
+
+  const stopLocationEmailUpdates = () => {
+    clearInterval(emailUpdateRef.current)
+  }
 
   const triggerEmergency = async () => {
     setEmergencyMode(true)
     vibrateEmergency()
     launchConfetti()
     const loc = await getLocation()
+    currentLocRef.current = loc
     startRecording()
     startTracking()
 
-    // Send email alerts to contacts with email
     const emailContacts = contacts.filter(c => c.email)
+
     if (emailContacts.length > 0) {
-      try {
-        await api.sendAlert({
-          toEmails: emailContacts.map(c => c.email),
-          userName: 'User',
-          location: loc,
-          situationType: situation
-        })
-      } catch { /* offline */ }
+      if (!ejsReady()) {
+        toast.error('EmailJS not configured — set VITE_EMAILJS_* in Netlify env vars', { duration: 6000 })
+      } else {
+        let sent = 0
+        for (const contact of emailContacts) {
+          try {
+            await sendSOSEmail({
+              toEmail: contact.email,
+              toName: contact.name,
+              userName: displayNameRef.current,
+              phone: contact.phone,
+              location: loc,
+              situationType: situation,
+              updateCount: '1',
+              type: 'initial',
+            })
+            sent++
+          } catch (err) {
+            console.error(`Failed to send to ${contact.email}:`, err)
+          }
+        }
+        if (sent > 0) {
+          toast.success(`📧 Alert sent to ${sent} contact${sent > 1 ? 's' : ''}`, { duration: 4000 })
+          // Start sending location updates every 2 min
+          startLocationEmailUpdates(emailContacts, situation)
+        } else {
+          toast.error('Email alerts failed — check EmailJS config', { duration: 6000 })
+        }
+      }
     }
 
     try {
@@ -404,15 +568,43 @@ export default function Safety() {
     toast.success('🚨 Emergency activated — stay safe!', { duration: 5000 })
   }
 
-  const cancelEmergency = () => {
+  const cancelEmergency = async () => {
     setEmergencyMode(false)
     stopRecording()
     stopTracking()
+    stopLocationEmailUpdates()
     playClickSound()
+
+    // Send all-clear email — delay 3s to avoid EmailJS rate limit
+    const emailContacts = emailContactsRef.current
+    if (emailContacts.length > 0 && ejsReady()) {
+      setTimeout(async () => {
+        for (const contact of emailContacts) {
+          try {
+            console.log('Sending all-clear to:', contact.email, 'template:', EJS_ACCOUNTS[0]?.updateId)
+            const result = await sendSOSEmail({
+              toEmail: contact.email,
+              toName: contact.name,
+              userName: displayNameRef.current,
+              phone: contact.phone,
+              location: currentLocRef.current,
+              situationType: '✅ Cancelled — person is safe',
+              updateCount: String(updateCountRef.current),
+              type: 'allclear',
+            })
+            console.log('All-clear sent:', result)
+          } catch (err) {
+            console.error('All-clear email failed:', err.text || err.message || err)
+          }
+        }
+        toast.success('✅ All-clear sent to contacts', { duration: 3000 })
+      }, 3000)
+    }
+
     toast('Emergency cancelled')
   }
 
-  useEffect(() => () => { stopRecording(); stopTracking() }, [])
+  useEffect(() => () => { stopRecording(); stopTracking(); stopLocationEmailUpdates() }, [])
 
   const nums = EMERGENCY[country]
 
