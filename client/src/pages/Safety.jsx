@@ -776,13 +776,13 @@ export default function Safety() {
                 <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text1)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Users size={15} color="#8b5cf6" /> Add Emergency Contact
                 </div>
-                <input placeholder="Name" value={newContact.name}
+                <input placeholder="Close person's name" value={newContact.name}
                   onChange={e => setNewContact(f => ({ ...f, name: e.target.value }))}
                   className="inp" style={{ marginBottom: 8, fontSize: 13 }} />
-                <input placeholder="Phone" type="tel" value={newContact.phone}
+                <input placeholder="Your phone number" type="tel" value={newContact.phone}
                   onChange={e => setNewContact(f => ({ ...f, phone: e.target.value }))}
                   className="inp" style={{ marginBottom: 8, fontSize: 13 }} />
-                <input placeholder="Email (for alerts)" type="email" value={newContact.email}
+                <input placeholder="Your neighbour's email (for alerts)" type="email" value={newContact.email}
                   onChange={e => setNewContact(f => ({ ...f, email: e.target.value }))}
                   className="inp" style={{ marginBottom: 12, fontSize: 13 }} />
                 <button onClick={() => {
