@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Sparkles, Zap, Video } from 'lucide-react'
+import { Mic, Sparkles, Zap, Video, Flame } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
@@ -40,6 +40,9 @@ export default function Creator() {
   const [generationTime, setGenerationTime] = useState(null)
   const [autoDetected, setAutoDetected] = useState(false)
   const [enhanceScript, setEnhanceScript] = useState(true)
+  const [activeTab, setActiveTab] = useState('script') // script | hooks
+  const [hooks, setHooks] = useState(null)
+  const [hooksLoading, setHooksLoading] = useState(false)
 
   // Auto-detect mood when user types
   useEffect(() => {
@@ -126,6 +129,28 @@ export default function Creator() {
     toast.success('Replaying from history')
   }
 
+  const generateHooks = async () => {
+    if (!input.trim()) return toast.error('Enter a content idea first')
+    setHooksLoading(true); setHooks(null)
+    try {
+      const res = await api.generateAdvice(
+        `You are a viral content strategist. For the topic: "${input}" (tone: ${tone}), generate hooks for social media.
+Reply ONLY in this exact JSON (no markdown):
+{
+  "hooks": ["hook1","hook2","hook3","hook4","hook5"],
+  "retentionLines": ["line1","line2","line3"],
+  "ctas": ["cta1","cta2","cta3"],
+  "titleIdeas": ["title1","title2","title3"]
+}`
+      )
+      const parsed = JSON.parse(res.text.replace(/```json|```/gi,'').trim().match(/\{[\s\S]*\}/)?.[0] || '{}')
+      if (!parsed.hooks) throw new Error('bad json')
+      setHooks(parsed)
+      playSuccessSound()
+    } catch { toast.error('Failed to generate hooks') }
+    finally { setHooksLoading(false) }
+  }
+
   return (
     <div className="page-wrapper" style={{ '--page-accent': '#f59e0b' }}>
       <div className="page-content">
@@ -135,6 +160,80 @@ export default function Creator() {
 
           <WorkflowSteps currentStep={currentStep} steps={steps} />
 
+          {/* Tab switcher */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 16, background: 'var(--glass)', borderRadius: 12, padding: 4, border: '1px solid var(--border)' }}>
+            {[['script','🎬 Script + Voice'],['hooks','🔥 Hook Generator']].map(([t,l]) => (
+              <button key={t} onClick={() => { setActiveTab(t); playClickSound() }}
+                style={{ flex: 1, padding: '8px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                  background: activeTab === t ? 'linear-gradient(135deg,#8b5cf6,#f59e0b)' : 'transparent',
+                  color: activeTab === t ? '#fff' : 'var(--text2)' }}>
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {/* Hook Generator tab */}
+          {activeTab === 'hooks' && (
+            <AnimatePresence mode="wait">
+              <motion.div key="hooks" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+                <div className="card" style={{ padding: 20, marginBottom: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+                    <Flame size={18} color="#f59e0b" />
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text1)' }}>Viral Hook Generator</div>
+                  </div>
+                  <input value={input} onChange={e => setInput(e.target.value)}
+                    placeholder="Your content topic or idea..."
+                    className="inp" style={{ marginBottom: 10, fontSize: 14 }} />
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
+                    {tones.map(t => (
+                      <button key={t.key} onClick={() => setTone(t.key)}
+                        style={{ padding: '6px 12px', borderRadius: 20, border: `1px solid ${tone === t.key ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: tone === t.key ? 'rgba(139,92,246,0.15)' : 'var(--glass)', color: tone === t.key ? '#8b5cf6' : 'var(--text2)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                        {t.emoji} {t.label}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={generateHooks} disabled={hooksLoading} className="btn"
+                    style={{ background: 'linear-gradient(135deg,#f59e0b,#ef4444)' }}>
+                    {hooksLoading ? (
+                      <><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+                        style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff' }} /> Generating...</>
+                    ) : <><Flame size={14} /> Generate Hooks</>}
+                  </button>
+                </div>
+
+                <AnimatePresence>
+                  {hooks && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {[
+                        { label: '🎣 Opening Hooks', items: hooks.hooks, color: '#ef4444' },
+                        { label: '⏱️ Retention Lines', items: hooks.retentionLines, color: '#f59e0b' },
+                        { label: '📣 Call to Actions', items: hooks.ctas, color: '#10b981' },
+                        { label: '📌 Title Ideas', items: hooks.titleIdeas, color: '#8b5cf6' },
+                      ].map(({ label, items, color }) => items?.length > 0 && (
+                        <div key={label} className="card" style={{ padding: 16 }}>
+                          <div style={{ fontSize: 12, fontWeight: 700, color, marginBottom: 10 }}>{label}</div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {items.map((item, i) => (
+                              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                                <span style={{ fontSize: 11, fontWeight: 700, color, flexShrink: 0, marginTop: 2 }}>{i + 1}.</span>
+                                <div style={{ flex: 1, fontSize: 13, color: 'var(--text1)', lineHeight: 1.5 }}>{item}</div>
+                                <button onClick={() => { navigator.clipboard.writeText(item); toast.success('Copied!') }}
+                                  style={{ fontSize: 10, padding: '3px 8px', borderRadius: 6, border: `1px solid ${color}40`, background: color + '12', color, cursor: 'pointer', flexShrink: 0 }}>
+                                  Copy
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </AnimatePresence>
+          )}
+
+          {activeTab === 'script' && (
           <AnimatePresence mode="wait">
             {/* Step 1: Write Script */}
             {currentStep === 0 && (
@@ -309,6 +408,7 @@ export default function Creator() {
               </motion.div>
             )}
           </AnimatePresence>
+          )}
         </motion.div>
       </div>
 

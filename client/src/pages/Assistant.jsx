@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Brain } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Brain, GitBranch } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
@@ -26,6 +26,122 @@ const steps = [
   { label: 'Ready', icon: '✅' },
 ]
 
+// ── Decision Simulator ────────────────────────────────────────────────────────
+function DecisionSimulator() {
+  const [optionA, setOptionA] = useState('')
+  const [optionB, setOptionB] = useState('')
+  const [context, setContext] = useState('')
+  const [result, setResult] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  const simulate = async () => {
+    if (!optionA.trim() || !optionB.trim()) return toast.error('Enter both options')
+    setLoading(true); setResult(null)
+    try {
+      const res = await api.generateAdvice(
+        `You are a decision analysis AI. The user must choose between two options.
+Option A: "${optionA}"
+Option B: "${optionB}"
+${context ? `Context: "${context}"` : ''}
+
+Analyze both options and reply ONLY in this exact JSON (no markdown):
+{
+  "recommendation": "A or B",
+  "confidence": "High|Medium|Low",
+  "summary": "one sentence why",
+  "optionA": { "pros": ["...","...","..."], "cons": ["...","..."], "riskLevel": "Low|Medium|High", "longTermImpact": "..." },
+  "optionB": { "pros": ["...","...","..."], "cons": ["...","..."], "riskLevel": "Low|Medium|High", "longTermImpact": "..." }
+}`
+      )
+      const parsed = JSON.parse(res.text.replace(/```json|```/gi, '').trim().match(/\{[\s\S]*\}/)?.[0] || '{}')
+      if (!parsed.optionA) throw new Error('bad json')
+      setResult(parsed)
+      playSuccessSound()
+    } catch { toast.error('Analysis failed — try again') }
+    finally { setLoading(false) }
+  }
+
+  const riskColor = r => r === 'Low' ? '#10b981' : r === 'Medium' ? '#f59e0b' : '#ef4444'
+
+  return (
+    <div style={{ marginTop: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: 'rgba(139,92,246,0.15)', border: '1px solid rgba(139,92,246,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <GitBranch size={16} color="#8b5cf6" />
+        </div>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text1)' }}>Decision Simulator</div>
+          <div style={{ fontSize: 11, color: 'var(--text3)' }}>AI simulates outcomes for both options</div>
+        </div>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', marginBottom: 6 }}>Option A</div>
+          <input value={optionA} onChange={e => setOptionA(e.target.value)}
+            placeholder="e.g. Take the job offer" className="inp" style={{ fontSize: 13 }} />
+        </div>
+        <div>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#8b5cf6', marginBottom: 6 }}>Option B</div>
+          <input value={optionB} onChange={e => setOptionB(e.target.value)}
+            placeholder="e.g. Start my own business" className="inp" style={{ fontSize: 13 }} />
+        </div>
+      </div>
+      <input value={context} onChange={e => setContext(e.target.value)}
+        placeholder="Optional: add context (age, goals, situation...)"
+        className="inp" style={{ fontSize: 13, marginBottom: 12 }} />
+      <button onClick={simulate} disabled={loading} className="btn"
+        style={{ background: 'linear-gradient(135deg,#8b5cf6,#3b82f6)', marginBottom: result ? 16 : 0 }}>
+        {loading ? (
+          <><motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+            style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff' }} /> Simulating...</>
+        ) : <><GitBranch size={14} /> Simulate Outcomes</>}
+      </button>
+
+      <AnimatePresence>
+        {result && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+            {/* Recommendation banner */}
+            <div style={{ padding: '14px 18px', borderRadius: 12, marginBottom: 14,
+              background: result.recommendation === 'A' ? 'rgba(59,130,246,0.12)' : 'rgba(139,92,246,0.12)',
+              border: `1px solid ${result.recommendation === 'A' ? 'rgba(59,130,246,0.4)' : 'rgba(139,92,246,0.4)'}` }}>
+              <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 4 }}>AI Recommendation · {result.confidence} confidence</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: result.recommendation === 'A' ? '#3b82f6' : '#8b5cf6' }}>
+                Go with Option {result.recommendation}: {result.recommendation === 'A' ? optionA : optionB}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text2)', marginTop: 6 }}>{result.summary}</div>
+            </div>
+
+            {/* Side by side comparison */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              {[['A', result.optionA, '#3b82f6', optionA], ['B', result.optionB, '#8b5cf6', optionB]].map(([label, data, color, name]) => (
+                <div key={label} className="card" style={{ padding: 14, borderColor: result.recommendation === label ? color + '60' : 'var(--border)', background: result.recommendation === label ? color + '08' : 'var(--glass)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, color, marginBottom: 8 }}>
+                    Option {label} {result.recommendation === label && '✓'}
+                  </div>
+                  <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: riskColor(data.riskLevel), marginBottom: 8 }}>
+                    Risk: {data.riskLevel}
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    {data.pros?.map((p, i) => <div key={i} style={{ fontSize: 11, color: '#10b981', marginBottom: 2 }}>✓ {p}</div>)}
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    {data.cons?.map((c, i) => <div key={i} style={{ fontSize: 11, color: '#ef4444', marginBottom: 2 }}>✗ {c}</div>)}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text3)', fontStyle: 'italic', lineHeight: 1.5 }}>
+                    Long-term: {data.longTermImpact}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
 export default function Assistant() {
   const { userId } = useAuth()
   const location = useLocation()
@@ -39,6 +155,15 @@ export default function Assistant() {
   const [translatLang, setTranslateLang] = useState('')
   const [translating, setTranslating] = useState(false)
   const [history, setHistory] = useState([]) // session conversation history
+  const [activeTab, setActiveTab] = useState('advice') // advice | decision
+
+  // Memory: last 3 sessions stored in localStorage
+  const memory = useRef(JSON.parse(localStorage.getItem('assistant-memory') || '[]'))
+  const saveMemory = (q, a) => {
+    const updated = [{ q, a, date: new Date().toLocaleDateString() }, ...memory.current].slice(0, 3)
+    memory.current = updated
+    localStorage.setItem('assistant-memory', JSON.stringify(updated))
+  }
 
   const LANGS = [
     { code: 'ne', label: 'Nepali' }, { code: 'hi', label: 'Hindi' },
@@ -75,12 +200,16 @@ export default function Assistant() {
     setResult(null)
     try {
       setCurrentStep(2)
-      const d = await api.generateAdvice(input, userId)
+      // Inject memory context into prompt
+      const memCtx = memory.current.length > 0
+        ? `\n\n[User context from past sessions: ${memory.current.map(m => `"${m.q}"`).join('; ')}]`
+        : ''
+      const d = await api.generateAdvice(input + memCtx, userId)
       setResult(d)
       setCurrentStep(3)
       recordSession({ mode: 'assistant', wordCount: d.text?.split(' ').length || 0 })
-      // Add to session history
       setHistory(h => [...h, { q: input, a: d.text, audio: d.audio }])
+      saveMemory(input, d.text)
       playSuccessSound()
       toast.success('Advice ready!')
     } catch { toast.error('Something went wrong. Check your API keys.') }
@@ -115,6 +244,21 @@ export default function Assistant() {
 
           <WorkflowSteps currentStep={currentStep} steps={steps} />
 
+          {/* Tab switcher */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 16, background: 'var(--glass)', borderRadius: 12, padding: 4, border: '1px solid var(--border)' }}>
+            {[['advice','🧠 Advice'],['decision','🔀 Decide']].map(([t,l]) => (
+              <button key={t} onClick={() => { setActiveTab(t); playClickSound() }}
+                style={{ flex: 1, padding: '8px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                  background: activeTab === t ? 'linear-gradient(135deg,#3b82f6,#06b6d4)' : 'transparent',
+                  color: activeTab === t ? '#fff' : 'var(--text2)' }}>
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {activeTab === 'decision' && <DecisionSimulator />}
+
+          {activeTab === 'advice' && (<>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
             {chips.map(c => <button key={c} className="chip" onClick={() => { playClickSound(); handleInput(c) }}>{c}</button>)}
           </div>
@@ -170,7 +314,7 @@ export default function Assistant() {
           )}
 
           {/* Session conversation history */}
-          {history.length > 1 && (
+          {activeTab === 'advice' && history.length > 1 && (
             <div style={{ marginTop: 20 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text3)', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 This session · {history.length} exchanges
@@ -185,6 +329,7 @@ export default function Assistant() {
               </div>
             </div>
           )}
+          </>)}
         </motion.div>
       </div>
     </div>

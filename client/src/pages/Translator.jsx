@@ -115,7 +115,13 @@ export default function Translator() {
   const [tgtSearch, setTgtSearch]       = useState('')
   const [listening, setListening]       = useState(false)
   const [nepalMode, setNepalMode]       = useState(false)
+  const [activeTab, setActiveTab]       = useState('translate') // translate | convo
+  const [convoLangA, setConvoLangA]     = useState('en')
+  const [convoLangB, setConvoLangB]     = useState('ne')
+  const [convoMessages, setConvoMessages] = useState([])
+  const [convoListening, setConvoListening] = useState(null) // null | 'A' | 'B'
   const recognitionRef = useRef(null)
+  const convoRecRef = useRef(null)
 
   const selectedLang   = languages.find(l => l.code === targetLang)
   const selectedSource = languages.find(l => l.code === sourceLang)
@@ -228,6 +234,43 @@ export default function Translator() {
     toast.success('Copied!')
   }
 
+  // ── Conversation Mode ──
+  const startConvoListen = (speaker) => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition
+    if (!SR) return toast.error('Speech recognition not supported')
+    const langCode = speaker === 'A' ? convoLangA : convoLangB
+    const rec = new SR()
+    convoRecRef.current = rec
+    rec.lang = MIC_LANG_MAP[langCode] || 'en-US'
+    rec.interimResults = false
+    rec.start()
+    setConvoListening(speaker)
+    rec.onresult = async (e) => {
+      setConvoListening(null)
+      const spoken = e.results[0][0].transcript
+      const targetCode = speaker === 'A' ? convoLangB : convoLangA
+      const langAInfo = languages.find(l => l.code === convoLangA)
+      const langBInfo = languages.find(l => l.code === convoLangB)
+      // Add original message
+      setConvoMessages(m => [...m, { speaker, text: spoken, translated: null, loading: true }])
+      try {
+        const data = await api.translateText(spoken, targetCode)
+        setConvoMessages(m => m.map((msg, i) => i === m.length - 1 ? { ...msg, translated: data.translatedText, loading: false } : msg))
+        // Speak translation
+        if (window.speechSynthesis) {
+          window.speechSynthesis.cancel()
+          const u = new SpeechSynthesisUtterance(data.translatedText)
+          u.lang = MIC_LANG_MAP[targetCode] || 'en-US'
+          window.speechSynthesis.speak(u)
+        }
+      } catch {
+        setConvoMessages(m => m.map((msg, i) => i === m.length - 1 ? { ...msg, translated: '(translation failed)', loading: false } : msg))
+      }
+    }
+    rec.onerror = () => setConvoListening(null)
+    rec.onend = () => setConvoListening(null)
+  }
+
   return (
     <div className="page-wrapper" style={{ '--page-accent': '#10b981' }}>
       <div className="page-content">
@@ -236,6 +279,104 @@ export default function Translator() {
             sub={'Speak or type · ' + languages.length + '+ languages · Auto-detect'} />
           <QuoteBar section="translator" color="#10b981" />
 
+          {/* Tab switcher */}
+          <div style={{ display: 'flex', gap: 6, marginBottom: 16, background: 'var(--glass)', borderRadius: 12, padding: 4, border: '1px solid var(--border)' }}>
+            {[['translate','🌍 Translate'],['convo','🗣️ Conversation']].map(([t,l]) => (
+              <button key={t} onClick={() => { setActiveTab(t); playClickSound() }}
+                style={{ flex: 1, padding: '8px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
+                  background: activeTab === t ? 'linear-gradient(135deg,#10b981,#3b82f6)' : 'transparent',
+                  color: activeTab === t ? '#fff' : 'var(--text2)' }}>
+                {l}
+              </button>
+            ))}
+          </div>
+
+          {/* ── Conversation Mode ── */}
+          {activeTab === 'convo' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <div className="card" style={{ padding: 16, marginBottom: 12 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text1)', marginBottom: 12 }}>Two-person live translation</div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+                  {[['A', convoLangA, setConvoLangA, '#3b82f6'], ['B', convoLangB, setConvoLangB, '#10b981']].map(([speaker, lang, setLang, color]) => {
+                    const info = languages.find(l => l.code === lang)
+                    return (
+                      <div key={speaker}>
+                        <div style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 6 }}>Person {speaker}</div>
+                        <select value={lang} onChange={e => setLang(e.target.value)}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: `1px solid ${color}40`, background: 'var(--glass)', color: 'var(--text1)', fontSize: 12, cursor: 'pointer' }}>
+                          {languages.map(l => <option key={l.code} value={l.code}>{l.flag} {l.name}</option>)}
+                        </select>
+                      </div>
+                    )
+                  })}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  {[['A','#3b82f6'],['B','#10b981']].map(([speaker, color]) => {
+                    const isListening = convoListening === speaker
+                    const info = languages.find(l => l.code === (speaker === 'A' ? convoLangA : convoLangB))
+                    return (
+                      <motion.button key={speaker} whileTap={{ scale: 0.95 }}
+                        onClick={() => isListening ? (convoRecRef.current?.stop()) : startConvoListen(speaker)}
+                        style={{ padding: '16px 8px', borderRadius: 12, border: `2px solid ${isListening ? color : color + '40'}`,
+                          background: isListening ? color + '20' : 'var(--glass)', cursor: 'pointer', textAlign: 'center' }}>
+                        <div style={{ fontSize: 20, marginBottom: 6 }}>{info?.flag || '🌐'}</div>
+                        <div style={{ fontSize: 12, fontWeight: 700, color }}>{info?.name}</div>
+                        <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>
+                          {isListening ? (
+                            <motion.span animate={{ opacity: [1,0.3,1] }} transition={{ repeat: Infinity, duration: 0.8 }}>
+                              🎤 Listening...
+                            </motion.span>
+                          ) : `Tap to speak`}
+                        </div>
+                      </motion.button>
+                    )
+                  })}
+                </div>
+              </div>
+
+              {/* Conversation messages */}
+              {convoMessages.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+                  {convoMessages.map((msg, i) => {
+                    const isA = msg.speaker === 'A'
+                    const color = isA ? '#3b82f6' : '#10b981'
+                    const info = languages.find(l => l.code === (isA ? convoLangA : convoLangB))
+                    const targetInfo = languages.find(l => l.code === (isA ? convoLangB : convoLangA))
+                    return (
+                      <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                        style={{ display: 'flex', justifyContent: isA ? 'flex-start' : 'flex-end' }}>
+                        <div style={{ maxWidth: '85%' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 3, textAlign: isA ? 'left' : 'right' }}>
+                            Person {msg.speaker} · {info?.flag} {info?.name}
+                          </div>
+                          <div style={{ padding: '10px 14px', borderRadius: isA ? '4px 16px 16px 16px' : '16px 4px 16px 16px',
+                            background: color + '15', border: `1px solid ${color}30`, marginBottom: 4 }}>
+                            <div style={{ fontSize: 13, color: 'var(--text1)', lineHeight: 1.5 }}>{msg.text}</div>
+                          </div>
+                          {msg.loading ? (
+                            <div style={{ fontSize: 11, color: 'var(--text3)', padding: '4px 8px' }}>Translating...</div>
+                          ) : msg.translated && (
+                            <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--glass)', border: '1px solid var(--border)' }}>
+                              <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 2 }}>{targetInfo?.flag} {targetInfo?.name}</div>
+                              <div style={{ fontSize: 13, color: 'var(--text1)', lineHeight: 1.5 }}>{msg.translated}</div>
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
+                    )
+                  })}
+                </div>
+              )}
+              {convoMessages.length > 0 && (
+                <button onClick={() => setConvoMessages([])}
+                  style={{ fontSize: 12, padding: '6px 14px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--glass)', color: 'var(--text3)', cursor: 'pointer' }}>
+                  Clear conversation
+                </button>
+              )}
+            </motion.div>
+          )}
+
+          {activeTab === 'translate' && (<>
           <div className="card" style={{ padding: 20, marginBottom: 12 }}>
 
             {/* FROM -> TO BAR */}
@@ -450,7 +591,7 @@ export default function Translator() {
               ✓ 🔊 Native voice via Murf Falcon
             </div>
           </div>
-
+          </>)}
         </motion.div>
       </div>
     </div>

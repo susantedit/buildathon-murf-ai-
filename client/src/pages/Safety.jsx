@@ -405,6 +405,7 @@ export default function Safety() {
   const [liveTracking, setLiveTracking] = useState(false)
   const [listening, setListening] = useState(false)
   const [tab, setTab] = useState('sos') // sos | contacts | tools | history
+  const [silentMode, setSilentMode] = useState(false)
   const [callHistory, setCallHistory] = useState([])
   // SOS hold state
   const [holding, setHolding] = useState(false)
@@ -541,8 +542,8 @@ export default function Safety() {
 
   const triggerEmergency = async () => {
     setEmergencyMode(true)
-    vibrateEmergency()
-    launchConfetti()
+    if (!silentMode) vibrateEmergency()
+    if (!silentMode) launchConfetti()
     const loc = await getLocation()
     currentLocRef.current = loc
     startRecording()
@@ -690,6 +691,19 @@ export default function Safety() {
           {/* ── SOS TAB ── */}
           {tab === 'sos' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+
+              {/* Silent Mode toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', borderRadius: 10, background: silentMode ? 'rgba(139,92,246,0.1)' : 'var(--glass)', border: `1px solid ${silentMode ? 'rgba(139,92,246,0.4)' : 'var(--border)'}`, marginBottom: 16 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: silentMode ? '#8b5cf6' : 'var(--text1)' }}>🤫 Silent SOS Mode</div>
+                  <div style={{ fontSize: 11, color: 'var(--text3)' }}>No sound/vibration — screen shows fake app</div>
+                </div>
+                <button onClick={() => { setSilentMode(m => !m); playClickSound() }}
+                  style={{ width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer', position: 'relative',
+                    background: silentMode ? '#8b5cf6' : 'var(--border)', transition: 'background 0.2s' }}>
+                  <div style={{ position: 'absolute', top: 2, left: silentMode ? 22 : 2, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }} />
+                </button>
+              </div>
 
               {/* Situation selector */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 20 }}>
@@ -988,6 +1002,35 @@ export default function Safety() {
 
         </motion.div>
       </div>
+
+      {/* Silent Mode Fake Screen */}
+      <AnimatePresence>
+        {silentMode && emergencyMode && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 9998, background: 'var(--bg1)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24 }}>
+            {/* Fake calculator UI */}
+            <div style={{ fontSize: 13, color: 'var(--text3)', marginBottom: 8 }}>Calculator</div>
+            <div style={{ fontSize: 48, fontWeight: 300, color: 'var(--text1)', letterSpacing: 2 }}>0</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, width: 280 }}>
+              {['C','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','='].map((k,i) => (
+                <button key={i} style={{ padding: '18px 0', borderRadius: 12, border: 'none', fontSize: 18, fontWeight: 500,
+                  background: ['÷','×','−','+','='].includes(k) ? '#f59e0b' : ['C','±','%'].includes(k) ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.08)',
+                  color: '#fff', cursor: 'pointer', gridColumn: k === '0' ? 'span 2' : undefined }}>
+                  {k}
+                </button>
+              ))}
+            </div>
+            {/* Hidden cancel — triple tap */}
+            <button onClick={cancelEmergency}
+              style={{ position: 'fixed', bottom: 20, right: 20, width: 12, height: 12, borderRadius: '50%', background: 'transparent', border: 'none', cursor: 'pointer', opacity: 0 }}>
+              x
+            </button>
+            <div style={{ position: 'fixed', bottom: 8, fontSize: 9, color: 'rgba(255,255,255,0.1)' }}>
+              triple-tap bottom-right to cancel
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Fake Call Overlay */}
       <AnimatePresence>
