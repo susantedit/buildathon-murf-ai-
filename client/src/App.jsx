@@ -20,6 +20,7 @@ import History from './pages/History'
 import Profile from './pages/Profile'
 import Podcast from './pages/Podcast'
 import Journal from './pages/Journal'
+import Games from './pages/Games'
 import { recordActivity } from './utils/streak'
 import { ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -79,6 +80,7 @@ function AppInner() {
         <Route path="/profile"    element={<Profile />} />
         <Route path="/podcast"    element={<Podcast />} />
         <Route path="/journal"    element={<Journal />} />
+        <Route path="/games"      element={<Games />} />
       </Routes>
       <PWAInstallPrompt />
       <OnboardingTour />

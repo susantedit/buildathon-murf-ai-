@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart } from 'lucide-react'
+import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart, Gamepad2 } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
@@ -17,6 +17,7 @@ const links = [
   { to: '/safety',     label: 'Safety',     Icon: Shield },
   { to: '/podcast',    label: 'Podcast',    Icon: Radio },
   { to: '/journal',    label: 'Journal',    Icon: BookHeart },
+  { to: '/games',      label: 'Games',      Icon: Gamepad2 },
   { to: '/profile',    label: 'Profile',    Icon: UserCircle },
   { to: '/history',    label: 'History',    Icon: History },
 ]
@@ -38,6 +39,7 @@ const moreLinks = [
   { to: '/history',    label: 'History',    Icon: History },
   { to: '/podcast',    label: 'Podcast',    Icon: Radio },
   { to: '/journal',    label: 'Journal',    Icon: BookHeart },
+  { to: '/games',      label: 'Games',      Icon: Gamepad2 },
 ]
 
 export default function Navbar() {

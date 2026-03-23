@@ -18,6 +18,7 @@ const modes = [
   { emoji: '🌍', label: 'Voice Translator',     desc: 'Translate text into native speech across 80+ languages', color: '#10b981', path: '/translator' },
   { emoji: '🎙️', label: 'Podcast Studio',       desc: 'Turn URLs, PDFs & prompts into multi-voice podcasts', color: '#ec4899', path: '/podcast' },
   { emoji: '📖', label: 'Voice Journal',        desc: 'Speak your daily entry, AI reflects it back',    color: '#ec4899', path: '/journal' },
+  { emoji: '🎮', label: 'Brain Games',          desc: 'Quiz, debate, speed reading, riddles & mood',     color: '#8b5cf6', path: '/games' },
   { emoji: '📋', label: 'History',              desc: 'Review all your past sessions and responses',     color: '#64748b', path: '/history' },
 ]
 

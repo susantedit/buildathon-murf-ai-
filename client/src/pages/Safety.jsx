@@ -147,11 +147,16 @@ function launchConfetti() {
 }
 
 const EMERGENCY = {
-  NP: { police: '100', ambulance: '102', fire: '101', label: '🇳🇵 Nepal' },
-  IN: { police: '100', ambulance: '102', fire: '101', label: '🇮🇳 India' },
-  US: { police: '911', ambulance: '911', fire: '911', label: '🇺🇸 USA' },
-  GB: { police: '999', ambulance: '999', fire: '999', label: '🇬🇧 UK' },
-  AU: { police: '000', ambulance: '000', fire: '000', label: '🇦🇺 Australia' },
+  NP: { police: '100', ambulance: '102', fire: '101', label: '🇳🇵 Nepal',     dialCode: '+977' },
+  IN: { police: '100', ambulance: '102', fire: '101', label: '🇮🇳 India',     dialCode: '+91'  },
+  US: { police: '911', ambulance: '911', fire: '911', label: '🇺🇸 USA',       dialCode: '+1'   },
+  GB: { police: '999', ambulance: '999', fire: '999', label: '🇬🇧 UK',        dialCode: '+44'  },
+  AU: { police: '000', ambulance: '000', fire: '000', label: '🇦🇺 Australia', dialCode: '+61'  },
+  CA: { police: '911', ambulance: '911', fire: '911', label: '🇨🇦 Canada',    dialCode: '+1'   },
+  DE: { police: '110', ambulance: '112', fire: '112', label: '🇩🇪 Germany',   dialCode: '+49'  },
+  FR: { police: '17',  ambulance: '15',  fire: '18',  label: '🇫🇷 France',    dialCode: '+33'  },
+  JP: { police: '110', ambulance: '119', fire: '119', label: '🇯🇵 Japan',     dialCode: '+81'  },
+  PK: { police: '15',  ambulance: '115', fire: '16',  label: '🇵🇰 Pakistan',  dialCode: '+92'  },
 }
 
 const SITUATIONS = [
@@ -394,6 +399,7 @@ export default function Safety() {
   const [location, setLocation] = useState(null)
   const [country, setCountry] = useState('NP')
   const [situation, setSituation] = useState('general')
+  const [weather, setWeather] = useState(null)
   const [fakeCall, setFakeCall] = useState(null) // null | { callerName, callerNum }
   const [recording, setRecording] = useState(false)
   const [liveTracking, setLiveTracking] = useState(false)
@@ -450,7 +456,21 @@ export default function Safety() {
   const getLocation = () => new Promise(resolve => {
     if (!navigator.geolocation) return resolve(null)
     navigator.geolocation.getCurrentPosition(
-      p => { const l = { lat: p.coords.latitude, lng: p.coords.longitude }; setLocation(l); resolve(l) },
+      p => {
+        const l = { lat: p.coords.latitude, lng: p.coords.longitude }
+        setLocation(l)
+        // Fetch weather for this location (Open-Meteo, no key)
+        fetch(`https://api.open-meteo.com/v1/forecast?latitude=${l.lat}&longitude=${l.lng}&current_weather=true&hourly=relativehumidity_2m&forecast_days=1`)
+          .then(r => r.json())
+          .then(d => {
+            if (d.current_weather) {
+              const wc = d.current_weather.weathercode
+              const emoji = wc === 0 ? '☀️' : wc <= 3 ? '⛅' : wc <= 48 ? '🌫️' : wc <= 67 ? '🌧️' : wc <= 77 ? '❄️' : wc <= 82 ? '🌦️' : '⛈️'
+              setWeather({ temp: Math.round(d.current_weather.temperature), wind: Math.round(d.current_weather.windspeed), emoji })
+            }
+          }).catch(() => {})
+        resolve(l)
+      },
       () => resolve(null)
     )
   })
@@ -743,6 +763,7 @@ export default function Safety() {
                     <div style={{ color }}>{icon}</div>
                     <div style={{ fontSize: 11, fontWeight: 700, color }}>{num}</div>
                     <div style={{ fontSize: 10, color: 'var(--text3)' }}>{label}</div>
+                    <div style={{ fontSize: 9, color: 'var(--text3)' }}>{nums.dialCode}</div>
                   </button>
                 ))}
               </div>
@@ -760,10 +781,20 @@ export default function Safety() {
                   </button>
                 </div>
                 {location && (
-                  <a href={`https://www.google.com/maps?q=${location.lat},${location.lng}`} target="_blank" rel="noopener noreferrer"
-                    style={{ fontSize: 12, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Navigation size={12} /> {location.lat.toFixed(5)}, {location.lng.toFixed(5)} — View on Maps →
-                  </a>
+                  <>
+                    <a href={`https://www.google.com/maps?q=${location.lat},${location.lng}`} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: 12, color: '#3b82f6', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <Navigation size={12} /> {location.lat.toFixed(5)}, {location.lng.toFixed(5)} — View on Maps →
+                    </a>
+                    {weather && (
+                      <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--text2)', padding: '6px 10px', borderRadius: 8, background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.15)' }}>
+                        <span style={{ fontSize: 16 }}>{weather.emoji}</span>
+                        <span>{weather.temp}°C</span>
+                        <span style={{ color: 'var(--text3)' }}>·</span>
+                        <span>💨 {weather.wind} km/h</span>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </motion.div>

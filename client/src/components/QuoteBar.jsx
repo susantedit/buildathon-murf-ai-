@@ -104,6 +104,21 @@ export const QUOTES = {
 export default function QuoteBar({ section = 'home', color = '#8b5cf6' }) {
   const quotes = QUOTES[section] || QUOTES.home
   const [idx, setIdx] = useState(() => Math.floor(Math.random() * quotes.length))
+  const [liveQuote, setLiveQuote] = useState(null)
+
+  // Try to fetch a live quote from Quotable API (no key needed)
+  useEffect(() => {
+    const tags = {
+      study: 'education,knowledge', focus: 'inspirational', creator: 'creativity',
+      safety: 'courage,strength', home: 'technology,success', journal: 'wisdom',
+      planner: 'success,motivational', assistant: 'motivational', podcast: 'communication',
+    }
+    const tag = tags[section] || 'inspirational'
+    fetch(`https://api.quotable.io/random?tags=${tag}&maxLength=160`)
+      .then(r => r.json())
+      .then(d => { if (d.content) setLiveQuote({ text: d.content, author: d.author }) })
+      .catch(() => {}) // silently fall back to local quotes
+  }, [section])
 
   // Cycle every 7 seconds
   useEffect(() => {
@@ -111,7 +126,7 @@ export default function QuoteBar({ section = 'home', color = '#8b5cf6' }) {
     return () => clearInterval(t)
   }, [quotes.length])
 
-  const q = quotes[idx]
+  const q = liveQuote || quotes[idx]
 
   return (
     <div style={{
