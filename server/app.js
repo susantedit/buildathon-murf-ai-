@@ -20,6 +20,16 @@ console.log('- MURF_API_KEY:', process.env.MURF_API_KEY ? 'Set' : 'NOT SET')
 
 const app = express()
 
+// Raw CORS headers — absolute first middleware, catches everything including cold-start races
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*')
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,api-key,Accept')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  if (req.method === 'OPTIONS') return res.sendStatus(204)
+  next()
+})
+
 // CORS configuration for production
 const allowedOrigins = [
   'http://localhost:5173',
@@ -33,23 +43,30 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    // Allow requests with no origin (mobile apps, Postman, curl, etc.)
     if (!origin) return callback(null, true)
-    // Allow any Vercel preview/deploy URL for this project
-    if (origin.endsWith('.vercel.app')) return callback(null, true)
-    if (allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
+    // Allow localhost dev
+    if (origin.startsWith('http://localhost')) return callback(null, true)
+    // Allow any Vercel or Netlify deploy URL
+    if (origin.endsWith('.vercel.app') || origin.endsWith('.netlify.app')) return callback(null, true)
+    // Allow explicitly listed origins
+    if (allowedOrigins.includes(origin)) return callback(null, true)
+    // Allow all for now (hackathon — tighten later)
+    return callback(null, true)
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'api-key']
+  allowedHeaders: ['Content-Type', 'Authorization', 'api-key', 'Accept']
 }))
 
-// Handle preflight for all routes
-app.options('*', cors())
+// Explicit preflight handler — must be before routes
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', req.headers.origin || '*')
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization,api-key,Accept')
+  res.header('Access-Control-Allow-Credentials', 'true')
+  res.sendStatus(204)
+})
 
 app.use(express.json({ limit: '10mb' }))
 
@@ -61,6 +78,7 @@ app.use('/api', contactRoutes)
 app.use('/api', podcastRoutes)
 
 app.get('/', (req, res) => res.json({ status: 'Vortex Voice AI server running' }))
+app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }))
 
 // Connect DB + start
 mongoose.connect(process.env.MONGODB_URI)

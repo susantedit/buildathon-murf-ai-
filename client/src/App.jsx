@@ -22,6 +22,7 @@ import Podcast from './pages/Podcast'
 import Journal from './pages/Journal'
 import Games from './pages/Games'
 import { recordActivity } from './utils/streak'
+import { api } from './services/api'
 import { ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -53,6 +54,9 @@ function AppInner() {
 
   // Record daily activity for streak
   useEffect(() => { if (user) recordActivity() }, [user])
+
+  // Wake up Render server on load (free tier sleeps after inactivity)
+  useEffect(() => { api.ping() }, [])
 
   // Show splash first
   if (!splashDone) return <SplashScreen onDone={() => setSplashDone(true)} />

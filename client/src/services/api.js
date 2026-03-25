@@ -23,6 +23,7 @@ async function get(endpoint) {
 
 // userId injected by each page via useAuth()
 export const api = {
+  ping:            ()                 => fetch(`${BASE}/api/ping`).catch(() => {}),
   generateScript:  (text, tone, userId)  => post('/generate-script',  { text, tone, userId }),
   generateAdvice:  (text, userId)        => post('/generate-advice',   { text, userId }),
   explainTopic:    (topic, mode, userId) => post('/explain-topic',     { topic, mode, userId }),
