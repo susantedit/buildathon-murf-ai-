@@ -33,7 +33,14 @@ export async function handleGenerateAdvice(req, res) {
 
     console.log('Generating advice for:', text)
     const responseText = await generateAdvice(text)
-    const audioUrl = await textToSpeech(responseText, 'calm', 'assistant')
+
+    // TTS is optional — don't fail the whole request if Murf is down
+    let audioUrl = ''
+    try {
+      audioUrl = await textToSpeech(responseText, 'calm', 'assistant')
+    } catch (ttsErr) {
+      console.warn('TTS skipped (non-fatal):', ttsErr.message)
+    }
 
     await Session.create({ userId, mode: 'assistant', inputText: text, responseText, audioUrl })
     res.json({ text: responseText, audio: audioUrl })

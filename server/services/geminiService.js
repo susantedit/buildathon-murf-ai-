@@ -73,43 +73,52 @@ export async function describeImage(base64Image, mimeType = 'image/jpeg') {
   const keys = getKeys()
   if (!keys.length) throw new Error('No GROQ_API_KEY configured')
 
+  // Try vision-capable models in order of availability
+  const visionModels = [
+    'meta-llama/llama-4-scout-17b-16e-instruct',
+    'llava-v1.5-7b-4096-preview',
+  ]
+
   let lastError
   for (const key of keys) {
-    try {
-      const res = await axios.post(
-        GROQ_URL,
-        {
-          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'image_url',
-                  image_url: { url: `data:${mimeType};base64,${base64Image}` }
-                },
-                {
-                  type: 'text',
-                  text: 'Describe this image in 3-4 vivid sentences. Be specific about colors, objects, people, mood, and setting. Write as if narrating to someone who cannot see it.'
-                }
-              ]
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 512,
-        },
-        {
-          headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-          timeout: 30000,
-        }
-      )
-      if (!res.data?.choices?.[0]?.message?.content) throw new Error('Invalid response')
-      return res.data.choices[0].message.content
-    } catch (err) {
-      const status = err.response?.status
-      if (status === 429 || status === 401) { lastError = err; continue }
-      throw new Error(`Vision API error: ${err.response?.data?.error?.message || err.message}`)
+    for (const model of visionModels) {
+      try {
+        const res = await axios.post(
+          GROQ_URL,
+          {
+            model,
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'image_url',
+                    image_url: { url: `data:${mimeType};base64,${base64Image}` }
+                  },
+                  {
+                    type: 'text',
+                    text: 'Describe this image in 3-4 vivid sentences. Be specific about colors, objects, people, mood, and setting. Write as if narrating to someone who cannot see it.'
+                  }
+                ]
+              }
+            ],
+            temperature: 0.7,
+            max_tokens: 512,
+          },
+          {
+            headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+            timeout: 30000,
+          }
+        )
+        if (!res.data?.choices?.[0]?.message?.content) throw new Error('Invalid response')
+        return res.data.choices[0].message.content
+      } catch (err) {
+        const status = err.response?.status
+        if (status === 429 || status === 401) { lastError = err; break } // try next key
+        if (status === 400) { lastError = err; continue } // model not supported, try next model
+        throw new Error(`Vision API error: ${err.response?.data?.error?.message || err.message}`)
+      }
     }
   }
-  throw lastError || new Error('All keys exhausted')
+  throw lastError || new Error('All vision models/keys exhausted')
 }
