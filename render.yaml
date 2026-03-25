@@ -20,4 +20,4 @@ services:
         sync: false  # Set manually in Render dashboard
       - key: MURF_API_KEY
         sync: false  # Set manually in Render dashboard
-    healthCheckPath: /
+    healthCheckPath: /api/ping
