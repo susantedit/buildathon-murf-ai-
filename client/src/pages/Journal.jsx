@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookHeart, Trash2, Mic } from 'lucide-react'
+import { BookHeart, Trash2, Mic, MessageSquare, Wind, Flame, BookOpen, Briefcase, PenLine } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import VoiceMicButton from '../components/VoiceMicButton'
@@ -12,7 +12,16 @@ import { useAuth } from '../context/AuthContext'
 import { playClickSound, playSuccessSound } from '../utils/soundGenerator'
 import { detectMood } from '../utils/moodDetector'
 
-const MOOD_EMOJI = { calm: '🧘', motivational: '🔥', storytelling: '📖', serious: '💼' }
+const MOOD_ICONS = {
+  calm: { Icon: Wind, color: '#10b981' },
+  motivational: { Icon: Flame, color: '#ef4444' },
+  storytelling: { Icon: BookOpen, color: '#8b5cf6' },
+  serious: { Icon: Briefcase, color: '#3b82f6' },
+}
+function MoodIcon({ mood, size = 16 }) {
+  const m = MOOD_ICONS[mood] || { Icon: PenLine, color: '#8b5cf6' }
+  return <m.Icon size={size} color={m.color} />
+}
 
 export default function Journal() {
   const { userId } = useAuth()
@@ -86,7 +95,7 @@ export default function Journal() {
           <div className="card" style={{ padding: 24, marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--text2)' }}>
-                Today's entry {detectedMood && <span style={{ color: '#ec4899' }}>{MOOD_EMOJI[detectedMood]}</span>}
+                Today's entry {detectedMood && <span style={{ color: '#ec4899' }}><MoodIcon mood={detectedMood} size={14} /></span>}
               </span>
               <VoiceMicButton onResult={handleInput} />
             </div>
@@ -98,7 +107,7 @@ export default function Journal() {
                 {entry.trim() ? entry.trim().split(/\s+/).length : 0} words · {entry.length} chars
               </span>
             </div>
-            <SubmitBtn loading={loading} onClick={summarize} label="🎙️ Summarize & Reflect" loadingLabel="Reflecting..." />
+            <SubmitBtn loading={loading} onClick={summarize} label={<><Mic size={14} style={{ marginRight: 6 }} />Summarize &amp; Reflect</>} loadingLabel="Reflecting..." />
           </div>
 
           <WaveformPlayer audioUrl={result?.audio} isLoading={loading} mode="assistant" />
@@ -131,7 +140,9 @@ export default function Journal() {
                     className="card" style={{ padding: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 16 }}>{MOOD_EMOJI[e.mood] || '📝'}</span>
+                        <div style={{ width: 28, height: 28, borderRadius: 8, background: (MOOD_ICONS[e.mood]?.color || '#8b5cf6') + '18', border: `1px solid ${(MOOD_ICONS[e.mood]?.color || '#8b5cf6')}30`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <MoodIcon mood={e.mood} size={14} />
+                        </div>
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text1)' }}>{e.date}</div>
                           <div style={{ fontSize: 10, color: 'var(--text3)' }}>{e.time}</div>
@@ -146,8 +157,8 @@ export default function Journal() {
                       {e.text}
                     </p>
                     {e.summary && (
-                      <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.2)', fontSize: 12, color: 'var(--text2)', lineHeight: 1.5 }}>
-                        💭 {e.summary}
+                      <div style={{ padding: '8px 12px', borderRadius: 8, background: 'rgba(236,72,153,0.08)', border: '1px solid rgba(236,72,153,0.2)', fontSize: 12, color: 'var(--text2)', lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                        <MessageSquare size={12} color="#ec4899" style={{ flexShrink: 0, marginTop: 2 }} /> {e.summary}
                       </div>
                     )}
                   </motion.div>

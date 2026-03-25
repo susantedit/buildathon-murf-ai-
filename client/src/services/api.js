@@ -41,4 +41,6 @@ export const api = {
   chatWithPodcast: (data)               => post('/podcast/chat',      data),
   // Contact form
   sendContact:     (data)               => post('/contact',           data),
+  // Vision
+  describeImage:   (image, mimeType)    => post('/describe-image',    { image, mimeType }),
 }

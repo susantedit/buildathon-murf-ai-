@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Gamepad2, BookOpen, Mic, Zap, Brain, Timer, Star, ChevronRight, RotateCcw, Check, X, Volume2 } from 'lucide-react'
+import { Gamepad2, BookOpen, Mic, Zap, Brain, Timer, Star, ChevronRight, RotateCcw, Check, X, Volume2, Trophy, Lightbulb, Wind } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../services/api'
 import QuoteBar from '../components/QuoteBar'
@@ -19,9 +19,11 @@ function speak(text) {
 function WordOfDay() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(false)
 
   const fetch = async () => {
     setLoading(true)
+    setError(false)
     try {
       const res = await api.generateAdvice(
         'Give me a single interesting English word. Reply ONLY in this exact JSON format (no markdown): {"word":"...","pronunciation":"...","partOfSpeech":"...","definition":"...","example":"...","funFact":"..."}'
@@ -30,6 +32,7 @@ function WordOfDay() {
       if (!json?.word) throw new Error('bad json')
       setData(json)
     } catch {
+      setError(true)
       toast.error('Failed to load word')
     } finally {
       setLoading(false)
@@ -74,12 +77,20 @@ function WordOfDay() {
           </div>
           {data.funFact && (
             <div className="card" style={{ padding: 14, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-              <span style={{ fontSize: 18 }}>💡</span>
+              <Lightbulb size={18} color="#f59e0b" style={{ flexShrink: 0, marginTop: 1 }} />
               <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.6 }}>{data.funFact}</div>
             </div>
           )}
         </motion.div>
-      ) : null}
+      ) : (
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text2)' }}>
+          <BookOpen size={36} color="var(--text3)" style={{ margin: '0 auto 12px' }} />
+          <div style={{ fontSize: 14, marginBottom: 16 }}>{error ? 'Could not load word. Make sure the server is running.' : 'No word loaded yet.'}</div>
+          <button onClick={fetch} className="btn" style={{ background: 'linear-gradient(135deg,#8b5cf6,#3b82f6)' }}>
+            <RotateCcw size={14} /> Try Again
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -140,7 +151,7 @@ function VocabQuiz() {
 
   if (done) return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', padding: 32 }}>
-      <div style={{ fontSize: 48, marginBottom: 12 }}>{score >= 4 ? '🏆' : score >= 3 ? '🎉' : '📚'}</div>
+      <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}>{score >= 4 ? <Trophy size={48} color="#f59e0b" /> : score >= 3 ? <Star size={48} color="#3b82f6" /> : <BookOpen size={48} color="#8b5cf6" />}</div>
       <div style={{ fontSize: 28, fontWeight: 900, color: 'var(--text1)', fontFamily: 'Syne,system-ui,sans-serif' }}>{score}/5</div>
       <div style={{ fontSize: 14, color: 'var(--text2)', marginTop: 6, marginBottom: 24 }}>
         {score === 5 ? 'Perfect score!' : score >= 3 ? 'Good job!' : 'Keep practicing!'}
@@ -215,8 +226,8 @@ function VocabQuiz() {
           </div>
           {selected !== null && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 8, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', fontSize: 12, color: 'var(--text2)', lineHeight: 1.6 }}>
-                💡 {questions[current].explanation}
+              <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 8, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', fontSize: 12, color: 'var(--text2)', lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                <Lightbulb size={12} color="#3b82f6" style={{ flexShrink: 0, marginTop: 2 }} /> {questions[current].explanation}
               </div>
               <button onClick={next} className="btn" style={{ marginTop: 12, background: 'linear-gradient(135deg,#8b5cf6,#3b82f6)' }}>
                 {current + 1 >= questions.length ? 'See Results' : 'Next'} <ChevronRight size={14} />
@@ -279,7 +290,7 @@ function DebateMode() {
         placeholder="e.g. AI will replace humans, Social media is harmful..."
         className="inp" style={{ marginBottom: 12, fontSize: 14 }} />
       <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        {[['for','✅ I argue FOR','#10b981'],['against','❌ I argue AGAINST','#ef4444']].map(([v, l, c]) => (
+        {[['for','I argue FOR','#10b981'],['against','I argue AGAINST','#ef4444']].map(([v, l, c]) => (
           <button key={v} onClick={() => setSide(v)}
             style={{ flex: 1, padding: '10px', borderRadius: 10, border: `1px solid ${side === v ? c + '60' : 'var(--border)'}`, background: side === v ? c + '15' : 'var(--glass)', color: side === v ? c : 'var(--text2)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
             {l}
@@ -399,7 +410,7 @@ function SpeedReader() {
         <div style={{ textAlign: 'center' }}>
           {done ? (
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>✅</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 12 }}><Check size={48} color="#10b981" /></div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text1)', marginBottom: 6 }}>Done!</div>
               <div style={{ fontSize: 13, color: 'var(--text3)', marginBottom: 24 }}>{words.length} words at {wpm} WPM</div>
               <button onClick={reset} className="btn" style={{ background: 'linear-gradient(135deg,#10b981,#3b82f6)' }}>
@@ -581,27 +592,30 @@ function BrainTeaser() {
   useEffect(() => { load() }, [])
 
   const diffColor = { Easy: '#10b981', Medium: '#f59e0b', Hard: '#ef4444' }
-  const modeIcons = { Classic: '🧩', Science: '🔬', Logic: '🧠', Math: '📐', Wordplay: '📝' }
+  const modeIcons = { Classic: Brain, Science: Zap, Logic: Brain, Math: Star, Wordplay: BookOpen }
 
   return (
     <div>
       {/* Mode selector */}
       <div style={{ display: 'flex', gap: 6, marginBottom: 16, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none' }}>
-        {ALL_RIDDLE_MODES.map(m => (
+        {ALL_RIDDLE_MODES.map(m => {
+          const MIcon = modeIcons[m] || Brain
+          return (
           <button key={m} onClick={() => switchMode(m)}
             style={{ flexShrink: 0, padding: '6px 12px', borderRadius: 20, border: `1px solid ${riddleMode === m ? 'rgba(245,158,11,0.5)' : 'var(--border)'}`,
               background: riddleMode === m ? 'rgba(245,158,11,0.15)' : 'var(--glass)',
-              color: riddleMode === m ? '#f59e0b' : 'var(--text2)', fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-            {modeIcons[m]} {m}
+              color: riddleMode === m ? '#f59e0b' : 'var(--text2)', fontSize: 11, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5 }}>
+            <MIcon size={11} /> {m}
           </button>
-        ))}
+          )
+        })}
       </div>
 
       {/* Streak */}
       {streak > 0 && (
         <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }}
           style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 20, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)', marginBottom: 12, width: 'fit-content' }}>
-          <span style={{ fontSize: 16 }}>🔥</span>
+          <Zap size={14} color="#f59e0b" />
           <span style={{ fontSize: 12, fontWeight: 700, color: '#f59e0b' }}>{streak} streak!</span>
         </motion.div>
       )}
@@ -625,7 +639,9 @@ function BrainTeaser() {
           <div className="card" style={{ padding: 24, marginBottom: 12, background: 'linear-gradient(135deg,rgba(245,158,11,0.08),rgba(239,68,68,0.06))', border: '1px solid rgba(245,158,11,0.2)' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 22 }}>{riddle.emoji || '🧩'}</span>
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Lightbulb size={16} color="#f59e0b" />
+                </div>
                 {riddle.difficulty && (
                   <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 20,
                     background: (diffColor[riddle.difficulty] || '#f59e0b') + '20',
@@ -635,7 +651,9 @@ function BrainTeaser() {
                   </span>
                 )}
                 {wrongCount > 0 && (
-                  <span style={{ fontSize: 10, color: '#ef4444' }}>❌ ×{wrongCount}</span>
+                  <span style={{ fontSize: 10, color: '#ef4444', display: 'flex', alignItems: 'center', gap: 3 }}>
+                    <X size={10} /> ×{wrongCount}
+                  </span>
                 )}
               </div>
               <button onClick={() => voiceSay(riddle.riddle)}
@@ -663,7 +681,7 @@ function BrainTeaser() {
                   {result === 'wrong' && (
                     <motion.div key="wrong" initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
                       style={{ fontSize: 12, color: '#ef4444', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      ❌ Not quite — try again!
+                      <X size={12} /> Not quite — try again!
                       {wrongCount >= 2 && <span style={{ color: 'var(--text3)' }}>({wrongCount} attempts)</span>}
                     </motion.div>
                   )}
@@ -671,8 +689,8 @@ function BrainTeaser() {
 
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button onClick={getHint} disabled={hintLoading}
-                    style={{ fontSize: 12, padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.1)', color: '#f59e0b', cursor: 'pointer' }}>
-                    {hintLoading ? '...' : '💡 Hint'}
+                    style={{ fontSize: 12, padding: '6px 12px', borderRadius: 8, border: '1px solid rgba(245,158,11,0.3)', background: 'rgba(245,158,11,0.1)', color: '#f59e0b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                    {hintLoading ? '...' : <><Lightbulb size={12} /> Hint</>}
                   </button>
                   <button onClick={handleReveal}
                     style={{ fontSize: 12, padding: '6px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--glass)', color: 'var(--text3)', cursor: 'pointer' }}>
@@ -682,8 +700,8 @@ function BrainTeaser() {
 
                 {hint && (
                   <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                    style={{ marginTop: 12, padding: '10px 14px', borderRadius: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 12, color: 'var(--text2)' }}>
-                    💡 {hint}
+                    style={{ marginTop: 12, padding: '10px 14px', borderRadius: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 12, color: 'var(--text2)', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                    <Lightbulb size={12} color="#f59e0b" style={{ flexShrink: 0, marginTop: 2 }} /> {hint}
                   </motion.div>
                 )}
               </>
@@ -691,7 +709,7 @@ function BrainTeaser() {
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
                 {result === 'win' ? (
                   <div style={{ padding: '16px 18px', borderRadius: 12, background: 'linear-gradient(135deg,rgba(16,185,129,0.15),rgba(16,185,129,0.08))', border: '1px solid rgba(16,185,129,0.4)', textAlign: 'center' }}>
-                    <div style={{ fontSize: 32, marginBottom: 8 }}>🎉</div>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}><Trophy size={32} color="#10b981" /></div>
                     <div style={{ fontSize: 13, color: '#10b981', fontWeight: 700, marginBottom: 4 }}>Correct!</div>
                     <div style={{ fontSize: 18, fontWeight: 900, color: 'var(--text1)' }}>{riddle.answer}</div>
                   </div>
@@ -708,7 +726,12 @@ function BrainTeaser() {
             )}
           </div>
         </motion.div>
-      ) : null}
+      ) : (
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text2)' }}>
+          <Lightbulb size={36} color="var(--text3)" style={{ margin: '0 auto 12px' }} />
+          <div style={{ fontSize: 14, marginBottom: 16 }}>Click "New Riddle" to get started.</div>
+        </div>
+      )}
     </div>
   )
 }
@@ -716,11 +739,11 @@ function BrainTeaser() {
 // ── Mood Check-in ─────────────────────────────────────────────────────────────
 function MoodCheckin() {
   const MOODS = [
-    { emoji: '😄', label: 'Great',    color: '#10b981', value: 5 },
-    { emoji: '🙂', label: 'Good',     color: '#3b82f6', value: 4 },
-    { emoji: '😐', label: 'Okay',     color: '#f59e0b', value: 3 },
-    { emoji: '😔', label: 'Low',      color: '#8b5cf6', value: 2 },
-    { emoji: '😞', label: 'Rough',    color: '#ef4444', value: 1 },
+    { label: 'Great',    color: '#10b981', value: 5, icon: 'smile-big' },
+    { label: 'Good',     color: '#3b82f6', value: 4, icon: 'smile' },
+    { label: 'Okay',     color: '#f59e0b', value: 3, icon: 'meh' },
+    { label: 'Low',      color: '#8b5cf6', value: 2, icon: 'frown' },
+    { label: 'Rough',    color: '#ef4444', value: 1, icon: 'frown-big' },
   ]
   const [selected, setSelected] = useState(null)
   const [advice, setAdvice] = useState(null)
@@ -751,7 +774,9 @@ function MoodCheckin() {
           <button key={m.value} onClick={() => pick(m)}
             style={{ flex: 1, padding: '14px 4px', borderRadius: 12, border: `2px solid ${selected?.value === m.value ? m.color : 'var(--border)'}`,
               background: selected?.value === m.value ? m.color + '18' : 'var(--glass)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
-            <div style={{ fontSize: 24, marginBottom: 4 }}>{m.emoji}</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 4 }}>
+              <Star size={22} color={selected?.value === m.value ? m.color : 'var(--text3)'} />
+            </div>
             <div style={{ fontSize: 10, fontWeight: 600, color: selected?.value === m.value ? m.color : 'var(--text3)' }}>{m.label}</div>
           </button>
         ))}
@@ -769,7 +794,11 @@ function MoodCheckin() {
         {advice && !loading && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             style={{ padding: '16px 18px', borderRadius: 12, background: (selected?.color || '#8b5cf6') + '12', border: `1px solid ${(selected?.color || '#8b5cf6')}30`, marginBottom: 20 }}>
-            <div style={{ fontSize: 18, marginBottom: 8 }}>{selected?.emoji}</div>
+            <div style={{ fontSize: 18, marginBottom: 8 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: (selected?.color || '#8b5cf6') + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+                <Star size={18} color={selected?.color || '#8b5cf6'} />
+              </div>
+            </div>
             <div style={{ fontSize: 13, color: 'var(--text1)', lineHeight: 1.7 }}>{advice}</div>
           </motion.div>
         )}
@@ -781,8 +810,8 @@ function MoodCheckin() {
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {history.slice(0, 7).map((h, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 10px', borderRadius: 20, background: 'var(--glass)', border: '1px solid var(--border)' }}>
-                <span style={{ fontSize: 14 }}>{h.emoji}</span>
-                <span style={{ fontSize: 10, color: 'var(--text3)' }}>{h.date}</span>
+                <Star size={12} color={h.color || '#8b5cf6'} />
+                <span style={{ fontSize: 10, color: 'var(--text3)' }}>{h.label} · {h.date}</span>
               </div>
             ))}
           </div>
@@ -882,8 +911,8 @@ function PronunciationCoach() {
                 <div style={{ fontSize: 12, color: 'var(--text3)' }}>Phonetic: <strong style={{ color: 'var(--text2)' }}>{result.phonetic}</strong></div>
               </div>
             </div>
-            <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', fontSize: 12, color: 'var(--text2)', lineHeight: 1.6 }}>
-              💡 {result.tip}
+            <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(139,92,246,0.08)', border: '1px solid rgba(139,92,246,0.2)', fontSize: 12, color: 'var(--text2)', lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+              <Lightbulb size={12} color="#8b5cf6" style={{ flexShrink: 0, marginTop: 2 }} /> {result.tip}
             </div>
           </motion.div>
         )}
@@ -893,69 +922,68 @@ function PronunciationCoach() {
 }
 
 // ── Mood Music ────────────────────────────────────────────────────────────────
-function MoodMusic() {
-  const [playing, setPlaying] = useState(null) // null | mood label
-  const nodesRef = useRef([])
-  const ctxRef = useRef(null)
+function MoodMusic({ audioRef, onPlayChange }) {
+  const [playing, setPlaying] = useState(audioRef.current.playing)
 
   const TRACKS = [
-    { label: 'Focus', emoji: '🎯', color: '#3b82f6', desc: 'Deep concentration', freq: [40, 80], type: 'sine', gain: 0.06 },
-    { label: 'Calm', emoji: '🌊', color: '#10b981', desc: 'Peaceful & relaxed', freq: [60, 120], type: 'sine', gain: 0.05 },
-    { label: 'Energy', emoji: '⚡', color: '#f59e0b', desc: 'Boost motivation', freq: [200, 400, 600], type: 'triangle', gain: 0.07 },
-    { label: 'Sleep', emoji: '🌙', color: '#8b5cf6', desc: 'Wind down & rest', freq: [30, 60], type: 'sine', gain: 0.04 },
-    { label: 'Happy', emoji: '😊', color: '#ec4899', desc: 'Uplifting vibes', freq: [261, 329, 392], type: 'sine', gain: 0.06 },
-    { label: 'Rain', emoji: '🌧️', color: '#64748b', desc: 'White noise rain', freq: null, type: 'noise', gain: 0.08 },
+    { label: 'Focus',  color: '#3b82f6', desc: 'Deep concentration', freq: [396, 417], type: 'sine', gain: 0.18, Icon: Brain },
+    { label: 'Calm',   color: '#10b981', desc: 'Peaceful & relaxed', freq: [528, 264], type: 'sine', gain: 0.15, Icon: Wind },
+    { label: 'Energy', color: '#f59e0b', desc: 'Boost motivation', freq: [200, 400, 600], type: 'triangle', gain: 0.18, Icon: Zap },
+    { label: 'Sleep',  color: '#8b5cf6', desc: 'Wind down & rest', freq: [174, 285], type: 'sine', gain: 0.14, Icon: Star },
+    { label: 'Happy',  color: '#ec4899', desc: 'Uplifting vibes', freq: [261, 329, 392], type: 'sine', gain: 0.18, Icon: Star },
+    { label: 'Rain',   color: '#64748b', desc: 'White noise rain', freq: null, type: 'noise', gain: 0.25, Icon: Volume2 },
   ]
 
   const stopAll = () => {
-    nodesRef.current.forEach(n => { try { n.stop() } catch {} })
-    nodesRef.current = []
-    if (ctxRef.current) { ctxRef.current.close(); ctxRef.current = null }
+    audioRef.current.nodes.forEach(n => { try { n.stop() } catch {} })
+    audioRef.current.nodes = []
+    if (audioRef.current.ctx) { audioRef.current.ctx.close(); audioRef.current.ctx = null }
+    audioRef.current.playing = null
     setPlaying(null)
+    onPlayChange?.(null)
   }
 
   const play = (track) => {
+    if (audioRef.current.playing === track.label) { stopAll(); return }
     stopAll()
-    if (playing === track.label) return // toggle off
     try {
       const ctx = new (window.AudioContext || window.webkitAudioContext)()
-      ctxRef.current = ctx
-      const master = ctx.createGain()
-      master.gain.setValueAtTime(0, ctx.currentTime)
-      master.gain.linearRampToValueAtTime(track.gain, ctx.currentTime + 1.5)
-      master.connect(ctx.destination)
+      audioRef.current.ctx = ctx
+      ctx.resume().then(() => {
+        const master = ctx.createGain()
+        master.gain.setValueAtTime(0, ctx.currentTime)
+        master.gain.linearRampToValueAtTime(track.gain, ctx.currentTime + 1.5)
+        master.connect(ctx.destination)
 
-      if (track.type === 'noise') {
-        // White noise buffer
-        const bufSize = ctx.sampleRate * 2
-        const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate)
-        const data = buf.getChannelData(0)
-        for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1
-        const src = ctx.createBufferSource()
-        src.buffer = buf; src.loop = true
-        // Low-pass filter for rain feel
-        const filter = ctx.createBiquadFilter()
-        filter.type = 'lowpass'; filter.frequency.value = 800
-        src.connect(filter); filter.connect(master)
-        src.start()
-        nodesRef.current.push(src)
-      } else {
-        track.freq.forEach((f, i) => {
-          const osc = ctx.createOscillator()
-          osc.type = track.type
-          osc.frequency.value = f
-          // Slight detune for richness
-          if (i > 0) osc.detune.value = (i % 2 === 0 ? 1 : -1) * 5
-          osc.connect(master)
-          osc.start()
-          nodesRef.current.push(osc)
-        })
-      }
-      setPlaying(track.label)
+        if (track.type === 'noise') {
+          const bufSize = ctx.sampleRate * 2
+          const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate)
+          const data = buf.getChannelData(0)
+          for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1
+          const src = ctx.createBufferSource()
+          src.buffer = buf; src.loop = true
+          const filter = ctx.createBiquadFilter()
+          filter.type = 'lowpass'; filter.frequency.value = 1200
+          src.connect(filter); filter.connect(master)
+          src.start()
+          audioRef.current.nodes.push(src)
+        } else {
+          track.freq.forEach((f, i) => {
+            const osc = ctx.createOscillator()
+            osc.type = track.type
+            osc.frequency.value = f
+            if (i > 0) osc.detune.value = (i % 2 === 0 ? 3 : -3)
+            osc.connect(master)
+            osc.start()
+            audioRef.current.nodes.push(osc)
+          })
+        }
+        audioRef.current.playing = track.label
+        setPlaying(track.label)
+        onPlayChange?.(track.label)
+      })
     } catch { toast.error('Audio not available') }
   }
-
-  useEffect(() => () => stopAll(), [])
 
   return (
     <div>
@@ -963,15 +991,20 @@ function MoodMusic() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10 }}>
         {TRACKS.map(t => (
           <motion.button key={t.label} whileTap={{ scale: 0.95 }} onClick={() => play(t)}
-            style={{ padding: '16px 8px', borderRadius: 12, border: `2px solid ${playing === t.label ? t.color : 'var(--border)'}`,
-              background: playing === t.label ? t.color + '18' : 'var(--glass)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s' }}>
-            <div style={{ fontSize: 24, marginBottom: 6 }}>
+            style={{ padding: '16px 8px', borderRadius: 12,
+              border: `2px solid ${playing === t.label ? t.color : 'rgba(255,255,255,0.15)'}`,
+              background: playing === t.label ? t.color + '30' : 'rgba(255,255,255,0.08)',
+              cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s',
+              boxShadow: playing === t.label ? `0 0 16px ${t.color}40` : 'none' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6 }}>
               {playing === t.label ? (
-                <motion.span animate={{ scale: [1,1.2,1] }} transition={{ repeat: Infinity, duration: 1 }}>{t.emoji}</motion.span>
-              ) : t.emoji}
+                <motion.div animate={{ scale: [1,1.2,1] }} transition={{ repeat: Infinity, duration: 1 }}>
+                  <t.Icon size={22} color={t.color} />
+                </motion.div>
+              ) : <t.Icon size={22} color="rgba(255,255,255,0.6)" />}
             </div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: playing === t.label ? t.color : 'var(--text2)', marginBottom: 2 }}>{t.label}</div>
-            <div style={{ fontSize: 9, color: 'var(--text3)' }}>{t.desc}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: playing === t.label ? t.color : 'rgba(255,255,255,0.85)', marginBottom: 2 }}>{t.label}</div>
+            <div style={{ fontSize: 9, color: 'rgba(255,255,255,0.45)' }}>{t.desc}</div>
             {playing === t.label && (
               <div style={{ display: 'flex', justifyContent: 'center', gap: 2, marginTop: 6 }}>
                 {[0,1,2].map(i => (
@@ -986,8 +1019,8 @@ function MoodMusic() {
       {playing && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ marginTop: 16, textAlign: 'center' }}>
           <button onClick={stopAll}
-            style={{ padding: '8px 20px', borderRadius: 20, border: '1px solid var(--border)', background: 'var(--glass)', color: 'var(--text2)', fontSize: 12, cursor: 'pointer' }}>
-            ⏹ Stop Music
+            style={{ padding: '8px 20px', borderRadius: 20, border: '1px solid var(--border)', background: 'var(--glass)', color: 'var(--text2)', fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+            <X size={12} /> Stop Music
           </button>
         </motion.div>
       )}
@@ -1020,16 +1053,10 @@ function ImageToVoice() {
     if (!image) return
     setLoading(true)
     try {
-      // Groq vision via our backend — send base64
-      const res = await api.generateAdvice(
-        `[IMAGE_DESCRIPTION_REQUEST] Describe this image in 3-4 vivid sentences as if narrating to someone who cannot see it. Be specific about colors, objects, people, mood, and setting. Image data (base64): ${image.slice(0, 200)}... (truncated for prompt — use your vision capability)`
-      )
-      // Fallback: if backend doesn't support vision, give a nice message
-      const text = res.text?.includes('base64') || res.text?.includes('cannot') || res.text?.includes("can't")
-        ? "I can see an image has been uploaded. For full AI image description, Groq vision support needs to be enabled on the backend. The image appears to have been loaded successfully."
-        : res.text
-      setDescription(text)
-      speak(text)
+      const mimeType = fileRef.current?.files?.[0]?.type || 'image/jpeg'
+      const res = await api.describeImage(image, mimeType)
+      setDescription(res.text)
+      speak(res.text)
     } catch { toast.error('Failed to describe image') }
     finally { setLoading(false) }
   }
@@ -1044,7 +1071,9 @@ function ImageToVoice() {
           <img src={preview} alt="uploaded" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', display: 'block' }} />
         ) : (
           <>
-            <div style={{ fontSize: 32, marginBottom: 8 }}>📸</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
+              <Gamepad2 size={32} color="var(--text3)" />
+            </div>
             <div style={{ fontSize: 13, color: 'var(--text2)', fontWeight: 600 }}>Click to upload image</div>
             <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 4 }}>JPG, PNG, GIF supported</div>
           </>
@@ -1094,11 +1123,12 @@ function NewsReader() {
 
   const fetch = async () => {
     setLoading(true); setNews(null)
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     try {
       const res = await api.generateAdvice(
-        `You are a professional news anchor. Generate a realistic, current-sounding news headline and summary about "${topic}". 
-        Reply ONLY in this exact JSON format (no markdown): 
-        {"headline":"...","summary":"...","source":"...","category":"...","readTime":"30 sec","anchor":"Alex Chen"}`
+        `Today is ${today}. You are a professional news anchor. Generate a realistic, current news headline and detailed summary about "${topic}" that reflects events happening around this date.
+        Reply ONLY in this exact JSON format (no markdown):
+        {"headline":"...","summary":"...","source":"...","sourceUrl":"...","category":"...","date":"${today}","readTime":"45 sec","anchor":"Alex Chen"}`
       )
       const data = extractJSON(res.text)
       if (!data?.headline) throw new Error('bad json')
@@ -1147,14 +1177,23 @@ function NewsReader() {
                   {news.category || topic}
                 </span>
                 <span style={{ fontSize: 10, color: 'var(--text3)' }}>{news.readTime} read</span>
-                <span style={{ fontSize: 10, color: 'var(--text3)', marginLeft: 'auto' }}>🎙️ {news.anchor}</span>
+                <span style={{ fontSize: 10, color: 'var(--text3)', marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4 }}><Mic size={10} /> {news.anchor}</span>
               </div>
               <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--text1)', lineHeight: 1.4, marginBottom: 12, fontFamily: 'Syne,system-ui,sans-serif' }}>
                 {news.headline}
               </div>
               <div style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.7, marginBottom: 16 }}>{news.summary}</div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 11, color: 'var(--text3)' }}>Source: {news.source}</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <span style={{ fontSize: 11, color: 'var(--text3)' }}>Source: {news.source}</span>
+                  {news.date && <span style={{ fontSize: 11, color: 'var(--text3)' }}>{news.date}</span>}
+                  {news.sourceUrl && (
+                    <a href={news.sourceUrl} target="_blank" rel="noopener noreferrer"
+                      style={{ fontSize: 11, color: '#ec4899', textDecoration: 'none' }}>
+                      {news.sourceUrl.replace(/^https?:\/\//, '').split('/')[0]}
+                    </a>
+                  )}
+                </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <button onClick={readAloud}
                     style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(236,72,153,0.3)', background: 'rgba(236,72,153,0.1)', color: '#ec4899', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
@@ -1215,8 +1254,8 @@ function DailyJoke() {
       ) : joke ? (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="card" style={{ padding: 24, background: 'linear-gradient(135deg,rgba(236,72,153,0.06),rgba(139,92,246,0.06))', border: '1px solid rgba(236,72,153,0.2)', marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#ec4899', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              😂 {joke.category}
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#ec4899', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Star size={12} color="#ec4899" /> {joke.category}
             </div>
             {joke.type === 'single' ? (
               <div style={{ fontSize: 15, color: 'var(--text1)', lineHeight: 1.7 }}>{joke.joke}</div>
@@ -1225,8 +1264,8 @@ function DailyJoke() {
                 <div style={{ fontSize: 15, color: 'var(--text1)', lineHeight: 1.7, marginBottom: 16 }}>{joke.setup}</div>
                 {!revealed ? (
                   <button onClick={() => { setRevealed(true); playSuccessSound() }}
-                    style={{ padding: '10px 20px', borderRadius: 10, border: '1px solid rgba(236,72,153,0.4)', background: 'rgba(236,72,153,0.1)', color: '#ec4899', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
-                    🥁 Reveal Punchline
+                    style={{ padding: '10px 20px', borderRadius: 10, border: '1px solid rgba(236,72,153,0.4)', background: 'rgba(236,72,153,0.1)', color: '#ec4899', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <Star size={14} /> Reveal Punchline
                   </button>
                 ) : (
                   <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
@@ -1247,7 +1286,15 @@ function DailyJoke() {
             </button>
           </div>
         </motion.div>
-      ) : null}
+      ) : (
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text2)' }}>
+          <Star size={36} color="var(--text3)" style={{ margin: '0 auto 12px' }} />
+          <div style={{ fontSize: 14, marginBottom: 16 }}>Could not load joke. Check your connection.</div>
+          <button onClick={load} className="btn" style={{ background: 'linear-gradient(135deg,#ec4899,#8b5cf6)' }}>
+            <RotateCcw size={14} /> Try Again
+          </button>
+        </div>
+      )}
     </div>
   )
 }
@@ -1298,7 +1345,7 @@ function PokemonTrivia() {
     if (g === pokemon.name.toLowerCase()) {
       setRevealed(true); setScore(s => s + 1); setRound(r => r + 1)
       playSuccessSound()
-      toast.success('Correct! 🎉')
+      toast.success('Correct!')
     } else {
       setGuesses(prev => [...prev, g])
       playErrorSound()
@@ -1361,7 +1408,9 @@ function PokemonTrivia() {
               {guesses.length > 0 && (
                 <div style={{ marginBottom: 10, display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                   {guesses.map((g, i) => (
-                    <span key={i} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 20, background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', textTransform: 'capitalize' }}>❌ {g}</span>
+                    <span key={i} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 20, background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.3)', textTransform: 'capitalize', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <X size={10} /> {g}
+                    </span>
                   ))}
                 </div>
               )}
@@ -1386,30 +1435,53 @@ function PokemonTrivia() {
             </button>
           )}
         </motion.div>
-      ) : null}
+      ) : (
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text2)' }}>
+          <Trophy size={36} color="var(--text3)" style={{ margin: '0 auto 12px' }} />
+          <div style={{ fontSize: 14, marginBottom: 16 }}>Could not load Pokémon. Check your connection.</div>
+          <button onClick={load} className="btn" style={{ background: 'linear-gradient(135deg,#f59e0b,#ef4444)' }}>
+            <RotateCcw size={14} /> Try Again
+          </button>
+        </div>
+      )}
     </div>
   )
 }
 
 // ── TABS array and main export ──────────────────────────────────────────────
 const TABS = [
-  { id: 'word',    label: '📖 Word',    component: WordOfDay },
-  { id: 'quiz',    label: '🎯 Quiz',    component: VocabQuiz },
-  { id: 'debate',  label: '🗣️ Debate',  component: DebateMode },
-  { id: 'speed',   label: '⚡ Speed',   component: SpeedReader },
-  { id: 'riddle',  label: '🧩 Riddle',  component: BrainTeaser },
-  { id: 'mood',    label: '😊 Mood',    component: MoodCheckin },
-  { id: 'pronun',  label: '🎤 Pronounce', component: PronunciationCoach },
-  { id: 'music',   label: '🎵 Music',   component: MoodMusic },
-  { id: 'image',   label: '📸 Image',   component: ImageToVoice },
-  { id: 'news',    label: '📰 News',    component: NewsReader },
-  { id: 'joke',    label: '😂 Jokes',   component: DailyJoke },
-  { id: 'pokemon', label: '🎮 Pokémon', component: PokemonTrivia },
+  { id: 'word',    label: 'Word',      icon: BookOpen,  component: WordOfDay },
+  { id: 'quiz',    label: 'Quiz',      icon: Brain,     component: VocabQuiz },
+  { id: 'debate',  label: 'Debate',    icon: Zap,       component: DebateMode },
+  { id: 'speed',   label: 'Speed',     icon: Timer,     component: SpeedReader },
+  { id: 'riddle',  label: 'Riddle',    icon: Lightbulb, component: BrainTeaser },
+  { id: 'mood',    label: 'Mood',      icon: Star,      component: MoodCheckin },
+  { id: 'pronun',  label: 'Pronounce', icon: Mic,       component: PronunciationCoach },
+  { id: 'music',   label: 'Music',     icon: Volume2,   component: MoodMusic },
+  { id: 'image',   label: 'Image',     icon: Gamepad2,  component: ImageToVoice },
+  { id: 'news',    label: 'News',      icon: ChevronRight, component: NewsReader },
+  { id: 'joke',    label: 'Jokes',     icon: Star,      component: DailyJoke },
+  { id: 'pokemon', label: 'Pokémon',   icon: Trophy,    component: PokemonTrivia },
 ]
 
 export default function Games() {
   const [tab, setTab] = useState('word')
+  const audioRef = useRef({ ctx: null, nodes: [], playing: null })
+  const [nowPlaying, setNowPlaying] = useState(null)
+
+  // Sync nowPlaying from audioRef for the persistent bar
+  const handleAudioChange = (label) => setNowPlaying(label)
+
+  const stopGlobalAudio = () => {
+    audioRef.current.nodes.forEach(n => { try { n.stop() } catch {} })
+    audioRef.current.nodes = []
+    if (audioRef.current.ctx) { audioRef.current.ctx.close(); audioRef.current.ctx = null }
+    audioRef.current.playing = null
+    setNowPlaying(null)
+  }
+
   const Active = TABS.find(t => t.id === tab)?.component || WordOfDay
+  const activeProps = tab === 'music' ? { audioRef, onPlayChange: handleAudioChange } : {}
 
   return (
     <div className="page-wrapper" style={{ '--page-accent': '#8b5cf6' }}>
@@ -1429,15 +1501,16 @@ export default function Games() {
 
           <QuoteBar section="study" color="#8b5cf6" />
 
-          {/* Tabs — scrollable on mobile */}
-          <div style={{ display: 'flex', gap: 6, marginBottom: 20, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none' }}>
-            {TABS.map(({ id, label }) => (
+          {/* Tabs — wrap on desktop, scroll on mobile */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 20 }}>
+            {TABS.map(({ id, label, icon: Icon }) => (
               <button key={id} onClick={() => { setTab(id); playClickSound() }}
-                style={{ flexShrink: 0, padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap',
-                  background: tab === id ? 'linear-gradient(135deg,#8b5cf6,#3b82f6)' : 'var(--glass)',
-                  color: tab === id ? '#fff' : 'var(--text2)',
-                  border: tab === id ? 'none' : '1px solid var(--border)' }}>
-                {label}
+                style={{ padding: '8px 14px', borderRadius: 20, cursor: 'pointer', fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap',
+                  background: tab === id ? 'linear-gradient(135deg,#8b5cf6,#3b82f6)' : 'rgba(255,255,255,0.1)',
+                  color: tab === id ? '#fff' : 'rgba(255,255,255,0.75)',
+                  border: tab === id ? '1px solid transparent' : '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex', alignItems: 'center', gap: 5 }}>
+                <Icon size={12} />{label}
               </button>
             ))}
           </div>
@@ -1446,10 +1519,35 @@ export default function Games() {
           <div className="card" style={{ padding: 20 }}>
             <AnimatePresence mode="wait">
               <motion.div key={tab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
-                <Active />
+                <Active {...activeProps} />
               </motion.div>
             </AnimatePresence>
           </div>
+
+          {/* Persistent now-playing bar */}
+          <AnimatePresence>
+            {nowPlaying && tab !== 'music' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }}
+                style={{ marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '10px 16px', borderRadius: 12, background: 'rgba(139,92,246,0.15)',
+                  border: '1px solid rgba(139,92,246,0.3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 2 }}>
+                    {[0,1,2].map(i => (
+                      <motion.div key={i} animate={{ height: [4,10,4] }} transition={{ repeat: Infinity, duration: 0.6, delay: i * 0.15 }}
+                        style={{ width: 3, borderRadius: 2, background: '#8b5cf6' }} />
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 12, color: 'var(--text2)' }}>Now playing: <strong style={{ color: '#a78bfa' }}>{nowPlaying}</strong></span>
+                </div>
+                <button onClick={stopGlobalAudio}
+                  style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '4px 10px', borderRadius: 8,
+                    border: '1px solid rgba(139,92,246,0.3)', background: 'transparent', color: 'var(--text3)', fontSize: 11, cursor: 'pointer' }}>
+                  <X size={11} /> Stop
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         </motion.div>
       </div>

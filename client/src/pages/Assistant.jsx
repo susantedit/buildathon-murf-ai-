@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Brain, GitBranch } from 'lucide-react'
+import { Brain, GitBranch, Mic, Languages, Check, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
@@ -17,13 +17,13 @@ import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soun
 
 const chips = ["I can't focus", 'Exam stress', 'I feel overwhelmed', 'Help me decide', 'I lack motivation', 'Study plan for tomorrow']
 
-const MOOD_LABELS = { calm: '🧘 Calm tone', motivational: '🔥 Motivational tone', storytelling: '📖 Storytelling tone', serious: '💼 Professional tone' }
+const MOOD_LABELS = { calm: 'Calm tone', motivational: 'Motivational tone', storytelling: 'Storytelling tone', serious: 'Professional tone' }
 
 const steps = [
-  { label: 'Input', icon: '✍️' },
-  { label: 'Process', icon: '🤖' },
-  { label: 'Voice', icon: '🎙️' },
-  { label: 'Ready', icon: '✅' },
+  { label: 'Input' },
+  { label: 'Process' },
+  { label: 'Voice' },
+  { label: 'Ready' },
 ]
 
 // ── Decision Simulator ────────────────────────────────────────────────────────
@@ -117,17 +117,17 @@ Analyze both options and reply ONLY in this exact JSON (no markdown):
               {[['A', result.optionA, '#3b82f6', optionA], ['B', result.optionB, '#8b5cf6', optionB]].map(([label, data, color, name]) => (
                 <div key={label} className="card" style={{ padding: 14, borderColor: result.recommendation === label ? color + '60' : 'var(--border)', background: result.recommendation === label ? color + '08' : 'var(--glass)' }}>
                   <div style={{ fontSize: 11, fontWeight: 800, color, marginBottom: 8 }}>
-                    Option {label} {result.recommendation === label && '✓'}
+                    Option {label} {result.recommendation === label && <Check size={12} style={{ display: 'inline', verticalAlign: 'middle' }} />}
                   </div>
                   <div style={{ fontSize: 11, color: 'var(--text3)', marginBottom: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
                   <div style={{ fontSize: 10, fontWeight: 600, color: riskColor(data.riskLevel), marginBottom: 8 }}>
                     Risk: {data.riskLevel}
                   </div>
                   <div style={{ marginBottom: 8 }}>
-                    {data.pros?.map((p, i) => <div key={i} style={{ fontSize: 11, color: '#10b981', marginBottom: 2 }}>✓ {p}</div>)}
+                    {data.pros?.map((p, i) => <div key={i} style={{ fontSize: 11, color: '#10b981', marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 4 }}><Check size={10} style={{ flexShrink: 0, marginTop: 2 }} /> {p}</div>)}
                   </div>
                   <div style={{ marginBottom: 8 }}>
-                    {data.cons?.map((c, i) => <div key={i} style={{ fontSize: 11, color: '#ef4444', marginBottom: 2 }}>✗ {c}</div>)}
+                    {data.cons?.map((c, i) => <div key={i} style={{ fontSize: 11, color: '#ef4444', marginBottom: 2, display: 'flex', alignItems: 'flex-start', gap: 4 }}><X size={10} style={{ flexShrink: 0, marginTop: 2 }} /> {c}</div>)}
                   </div>
                   <div style={{ fontSize: 10, color: 'var(--text3)', fontStyle: 'italic', lineHeight: 1.5 }}>
                     Long-term: {data.longTermImpact}
@@ -246,11 +246,11 @@ export default function Assistant() {
 
           {/* Tab switcher */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, background: 'var(--glass)', borderRadius: 12, padding: 4, border: '1px solid var(--border)' }}>
-            {[['advice','🧠 Advice'],['decision','🔀 Decide']].map(([t,l]) => (
+            {[['advice', <><Brain size={13} style={{ marginRight: 4 }} />Advice</>],['decision', <><GitBranch size={13} style={{ marginRight: 4 }} />Decide</>]].map(([t,l]) => (
               <button key={t} onClick={() => { setActiveTab(t); playClickSound() }}
                 style={{ flex: 1, padding: '8px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
                   background: activeTab === t ? 'linear-gradient(135deg,#3b82f6,#06b6d4)' : 'transparent',
-                  color: activeTab === t ? '#fff' : 'var(--text2)' }}>
+                  color: activeTab === t ? '#fff' : 'var(--text2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {l}
               </button>
             ))}
@@ -276,7 +276,7 @@ export default function Assistant() {
             <textarea value={input} onChange={e => handleInput(e.target.value)}
               placeholder="e.g. I am stressed about my exams and cannot focus... (or tap 🎤 to speak)"
               rows={4} className="inp" style={{ marginBottom: 16 }} />
-            <SubmitBtn loading={loading} onClick={go} label="🎤 Get Voice Advice" loadingLabel="Thinking..." />
+            <SubmitBtn loading={loading} onClick={go} label={<><Mic size={14} style={{ marginRight: 6 }} />Get Voice Advice</>} loadingLabel="Thinking..." />
           </div>
 
           <WaveformPlayer audioUrl={result?.audio} isLoading={loading} mode="assistant" />
@@ -287,7 +287,7 @@ export default function Assistant() {
 
               {/* Translate response */}
               <div className="card" style={{ padding: '12px 16px', marginTop: 8, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                <span style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600 }}>🌍 Translate:</span>
+                <span style={{ fontSize: 12, color: 'var(--text3)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}><Languages size={13} /> Translate:</span>
                 <select value={translatLang} onChange={e => translateResult(e.target.value)}
                   style={{ fontSize: 12, padding: '4px 8px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--glass)', color: 'var(--text1)', cursor: 'pointer' }}>
                   <option value="">Select language...</option>
@@ -297,8 +297,8 @@ export default function Assistant() {
               </div>
               {translated && (
                 <div className="card" style={{ padding: 16, marginTop: 4, background: 'rgba(59,130,246,0.06)', borderColor: 'rgba(59,130,246,0.2)' }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', marginBottom: 6 }}>
-                    🌍 {LANGS.find(l => l.code === translatLang)?.label} Translation
+                  <div style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <Languages size={12} /> {LANGS.find(l => l.code === translatLang)?.label} Translation
                   </div>
                   <p style={{ fontSize: 13, color: 'var(--text1)', lineHeight: 1.7 }}>{translated}</p>
                 </div>

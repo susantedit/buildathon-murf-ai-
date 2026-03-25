@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CalendarDays, CheckCircle2, Circle } from 'lucide-react'
+import { CalendarDays, CheckCircle2, Circle, Rocket, ClipboardList, ChevronDown, ChevronUp } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
@@ -13,10 +13,10 @@ import { useAuth } from '../context/AuthContext'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
 
 const steps = [
-  { label: 'Goal', icon: '🎯' },
-  { label: 'Plan', icon: '📋' },
-  { label: 'Voice', icon: '🎙️' },
-  { label: 'Execute', icon: '🚀' },
+  { label: 'Goal' },
+  { label: 'Plan' },
+  { label: 'Voice' },
+  { label: 'Execute' },
 ]
 
 export default function Planner() {
@@ -100,7 +100,7 @@ export default function Planner() {
             <textarea value={goal} onChange={e => setGoal(e.target.value)}
               placeholder="e.g. Prepare for exam in 3 days, finish project by Friday... (or tap 🎤)"
               rows={3} className="inp" style={{ marginBottom: 16 }} />
-            <SubmitBtn loading={loading} onClick={generate} label="🚀 Generate Plan" loadingLabel="Planning..." />
+            <SubmitBtn loading={loading} onClick={generate} label={<><Rocket size={14} style={{ marginRight: 6 }} />Generate Plan</>} loadingLabel="Planning..." />
           </div>
 
           <WaveformPlayer audioUrl={result?.audio} isLoading={loading} mode="planner" />
@@ -160,7 +160,7 @@ export default function Planner() {
             <div style={{ marginTop: 20 }}>
               <button onClick={() => setShowSaved(s => !s)}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, color: 'var(--text2)', marginBottom: 10 }}>
-                📋 Past Plans ({savedPlans.length}) {showSaved ? '▲' : '▼'}
+                <ClipboardList size={14} color="var(--text2)" /> Past Plans ({savedPlans.length}) {showSaved ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
               </button>
               {showSaved && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

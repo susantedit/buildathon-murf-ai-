@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { BookOpen, Lightbulb, RotateCcw, Smile, HelpCircle, CheckCircle2, XCircle, Trophy, Star, Mic, MicOff } from 'lucide-react'
+import { BookOpen, Lightbulb, RotateCcw, Smile, HelpCircle, CheckCircle2, XCircle, Trophy, ThumbsUp, Star, Mic, MicOff, Sprout, Flame, Rocket, GraduationCap, Volume2, MessageCircle, Flag } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
@@ -22,15 +22,14 @@ const modes = [
 ]
 
 const steps = [
-  { label: 'Topic', icon: '📝' },
-  { label: 'Analyze', icon: '🧠' },
-  { label: 'Voice', icon: '🎙️' },
-  { label: 'Learn', icon: '✨' },
+  { label: 'Topic' },
+  { label: 'Analyze' },
+  { label: 'Voice' },
+  { label: 'Learn' },
 ]
 
 const levelLabels = ['Basic', 'Intermediate', 'Advanced']
 const levelColors = ['#10b981', '#f59e0b', '#ef4444']
-const levelEmojis = ['🌱', '🔥', '🚀']
 
 function parseQuiz(text) {
   const lines = text.split('\n').filter(l => l.trim())
@@ -74,7 +73,7 @@ function QuizCard({ questions, topic, level, onNextLevel }) {
       {/* Level badge */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRadius: 10,
         background: `${levelColor}15`, border: `1px solid ${levelColor}40` }}>
-        <span style={{ fontSize: 16 }}>{levelEmojis[level]}</span>
+        {level === 0 ? <Sprout size={16} color={levelColor} /> : level === 1 ? <Flame size={16} color={levelColor} /> : <Rocket size={16} color={levelColor} />}
         <span style={{ fontSize: 13, fontWeight: 700, color: levelColor }}>Level {level + 1} — {levelLabels[level]}</span>
         <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--text3)' }}>{answered}/{total} answered</span>
       </div>
@@ -117,8 +116,8 @@ function QuizCard({ questions, topic, level, onNextLevel }) {
                   Show Answer
                 </button>
               ) : (
-                <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', fontSize: 13, color: '#10b981' }}>
-                  ✅ {q.answer || 'See explanation above'}
+                <div style={{ padding: '10px 14px', borderRadius: 10, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.3)', fontSize: 13, color: '#10b981', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <CheckCircle2 size={14} color="#10b981" /> {q.answer || 'See explanation above'}
                 </div>
               )}
             </div>
@@ -131,7 +130,7 @@ function QuizCard({ questions, topic, level, onNextLevel }) {
         <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
           className="card" style={{ padding: 20, textAlign: 'center', background: `${levelColor}10`, borderColor: `${levelColor}40` }}>
           <div style={{ fontSize: 28, marginBottom: 6 }}>
-            {score >= total * 0.8 ? '🏆' : score >= total * 0.5 ? '👍' : '📚'}
+            {score >= total * 0.8 ? <Trophy size={28} color={levelColor} /> : score >= total * 0.5 ? <ThumbsUp size={28} color={levelColor} /> : <BookOpen size={28} color={levelColor} />}
           </div>
           <div style={{ fontSize: 18, fontWeight: 700, color: levelColor, marginBottom: 4 }}>
             {score}/{total} correct
@@ -151,8 +150,8 @@ function QuizCard({ questions, topic, level, onNextLevel }) {
               </button>
             )}
             {level >= 2 && (
-              <div style={{ padding: '8px 16px', borderRadius: 10, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', fontSize: 13, color: '#10b981', fontWeight: 700 }}>
-                🎓 Master level complete!
+              <div style={{ padding: '8px 16px', borderRadius: 10, background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.4)', fontSize: 13, color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <GraduationCap size={16} color="#10b981" /> Master level complete!
               </div>
             )}
           </div>
@@ -256,7 +255,7 @@ function VivaMode({ topic }) {
 
   if (done) return (
     <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} style={{ textAlign: 'center', padding: 32 }}>
-      <div style={{ fontSize: 40, marginBottom: 12 }}>{avg >= 8 ? '🏆' : avg >= 5 ? '👍' : '📚'}</div>
+      <div style={{ fontSize: 40, marginBottom: 12 }}>{avg >= 8 ? <Trophy size={40} color={scoreColor(avg)} /> : avg >= 5 ? <ThumbsUp size={40} color={scoreColor(avg)} /> : <BookOpen size={40} color={scoreColor(avg)} />}</div>
       <div style={{ fontSize: 24, fontWeight: 900, color: scoreColor(avg), fontFamily: 'Syne,system-ui,sans-serif' }}>{avg}/10</div>
       <div style={{ fontSize: 14, color: 'var(--text2)', marginTop: 6, marginBottom: 8 }}>Average Viva Score</div>
       <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 24 }}>
@@ -280,18 +279,20 @@ function VivaMode({ topic }) {
       </div>
 
       <div className="card" style={{ padding: 20, marginBottom: 14, background: 'rgba(192,132,252,0.06)', border: '1px solid rgba(192,132,252,0.2)' }}>
-        <div style={{ fontSize: 11, color: '#c084fc', fontWeight: 700, marginBottom: 8 }}>🎓 EXAMINER ASKS</div>
+        <div style={{ fontSize: 11, color: '#c084fc', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <GraduationCap size={13} color="#c084fc" /> EXAMINER ASKS
+        </div>
         <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--text1)', lineHeight: 1.6 }}>{questions[current]}</div>
-        <button onClick={() => speak(questions[current])} style={{ marginTop: 10, fontSize: 11, padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(192,132,252,0.3)', background: 'rgba(192,132,252,0.1)', color: '#c084fc', cursor: 'pointer' }}>
-          🔊 Repeat question
+        <button onClick={() => speak(questions[current])} style={{ marginTop: 10, fontSize: 11, padding: '4px 10px', borderRadius: 8, border: '1px solid rgba(192,132,252,0.3)', background: 'rgba(192,132,252,0.1)', color: '#c084fc', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+          <Volume2 size={11} color="#c084fc" /> Repeat question
         </button>
       </div>
 
       {!feedback ? (
         <>
           {answer && (
-            <div style={{ padding: '10px 14px', borderRadius: 10, background: 'var(--glass)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--text1)', marginBottom: 12, lineHeight: 1.6 }}>
-              🗣️ "{answer}"
+            <div style={{ padding: '10px 14px', borderRadius: 10, background: 'var(--glass)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--text1)', marginBottom: 12, lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+              <MessageCircle size={14} color="var(--text3)" style={{ flexShrink: 0, marginTop: 2 }} /> "{answer}"
             </div>
           )}
           <div style={{ display: 'flex', gap: 8 }}>
@@ -327,7 +328,7 @@ function VivaMode({ topic }) {
             </div>
           </div>
           <button onClick={next} className="btn" style={{ background: 'linear-gradient(135deg,#c084fc,#8b5cf6)' }}>
-            {current + 1 >= questions.length ? '🏁 See Final Score' : 'Next Question →'}
+            {current + 1 >= questions.length ? <><Flag size={14} /> See Final Score</> : 'Next Question →'}
           </button>
         </motion.div>
       )}
@@ -465,7 +466,7 @@ Make sure all 10 questions follow this exact format. Keep questions educational 
               placeholder="e.g. Photosynthesis, Newton's laws, World War 2... (or tap 🎤)"
               rows={3} className="inp" style={{ marginBottom: 16 }} />
             <SubmitBtn loading={loading} onClick={go}
-              label={mode === 'quiz' ? '🧠 Generate Quiz (10 Questions)' : mode === 'viva' ? '🎓 Start Viva Practice' : '📚 Explain with Voice'}
+              label={mode === 'quiz' ? <><Brain size={14} style={{ marginRight: 6 }} />Generate Quiz (10 Questions)</> : mode === 'viva' ? <><Mic size={14} style={{ marginRight: 6 }} />Start Viva Practice</> : <><BookOpen size={14} style={{ marginRight: 6 }} />Explain with Voice</>}
               loadingLabel={mode === 'quiz' ? 'Generating quiz...' : 'Explaining...'} />
           </div>
 
@@ -491,8 +492,8 @@ Make sure all 10 questions follow this exact format. Keep questions educational 
                     toast.success('New explanation ready!')
                   } catch { toast.error('Something went wrong') }
                   finally { setLoading(false) }
-                }} className="btn" style={{ background: 'rgba(192,132,252,0.15)', color: '#c084fc', border: '1px solid rgba(192,132,252,0.4)' }}>
-                  🔄 Different angle
+                }} className="btn" style={{ background: 'rgba(192,132,252,0.15)', color: '#c084fc', border: '1px solid rgba(192,132,252,0.4)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <RotateCcw size={13} /> Different angle
                 </button>
                 <ShareButton text={result.text} />
               </div>

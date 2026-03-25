@@ -7,7 +7,8 @@ import {
   handleTextToSpeech,
   handleTranslate,
   handleSendAlert,
-  handleContact
+  handleContact,
+  handleDescribeImage
 } from '../controllers/generateController.js'
 
 const router = Router()
@@ -20,5 +21,6 @@ router.post('/text-to-speech', handleTextToSpeech)
 router.post('/translate', handleTranslate)
 router.post('/send-alert', handleSendAlert)
 router.post('/contact', handleContact)
+router.post('/describe-image', handleDescribeImage)
 
 export default router

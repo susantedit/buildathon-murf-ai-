@@ -45,9 +45,6 @@ export default function WorkflowSteps({ currentStep, steps }) {
                 }}>
                   {step.label}
                 </div>
-                {step.icon && (
-                  <div style={{ fontSize: 16, marginTop: 2 }}>{step.icon}</div>
-                )}
               </div>
             </div>
 

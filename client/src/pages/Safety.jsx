@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Shield, Phone, MapPin, Users, Mic, X, Video, Navigation, AlertTriangle, Check, PhoneCall, Radio, MicOff, Volume2, Clock, ChevronRight } from 'lucide-react'
+import { Shield, Phone, MapPin, Users, Mic, X, Video, Navigation, AlertTriangle, Check, PhoneCall, Radio, MicOff, Volume2, Clock, ChevronRight, UserX, Heart, ShieldOff } from 'lucide-react'
 import toast from 'react-hot-toast'
 import emailjs from '@emailjs/browser'
 import { api } from '../services/api'
@@ -160,10 +160,10 @@ const EMERGENCY = {
 }
 
 const SITUATIONS = [
-  { value: 'general',    emoji: '⚠️', label: 'General',    color: '#f59e0b' },
-  { value: 'followed',   emoji: '👤', label: 'Followed',   color: '#ef4444' },
-  { value: 'medical',    emoji: '🏥', label: 'Medical',    color: '#3b82f6' },
-  { value: 'harassment', emoji: '🚫', label: 'Harassment', color: '#8b5cf6' },
+  { value: 'general',    Icon: AlertTriangle, label: 'General',    color: '#f59e0b' },
+  { value: 'followed',   Icon: UserX,         label: 'Followed',   color: '#ef4444' },
+  { value: 'medical',    Icon: Heart,         label: 'Medical',    color: '#3b82f6' },
+  { value: 'harassment', Icon: ShieldOff,     label: 'Harassment', color: '#8b5cf6' },
 ]
 
 // ── Fake Call Screen ──
@@ -678,7 +678,7 @@ export default function Safety() {
 
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 20, background: 'var(--glass)', borderRadius: 12, padding: 4, border: '1px solid var(--border)' }}>
-            {[['sos','🆘 SOS'],['contacts','👥 Contacts'],['tools','🛠️ Tools'],['history','📋 History']].map(([t, l]) => (
+            {[['sos','SOS'],['contacts','Contacts'],['tools','Tools'],['history','History']].map(([t, l]) => (
               <button key={t} onClick={() => { setTab(t); if (t === 'history') setCallHistory(JSON.parse(localStorage.getItem('call-history') || '[]')) }}
                 style={{ flex: 1, padding: '8px 2px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 600,
                   background: tab === t ? 'linear-gradient(135deg,#ef4444,#dc2626)' : 'transparent',
@@ -707,11 +707,11 @@ export default function Safety() {
 
               {/* Situation selector */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 8, marginBottom: 20 }}>
-                {SITUATIONS.map(({ value, emoji, label, color }) => (
+                {SITUATIONS.map(({ value, Icon, label, color }) => (
                   <button key={value} onClick={() => { setSituation(value); playClickSound() }}
                     style={{ padding: '10px 4px', borderRadius: 10, border: `1px solid ${situation === value ? color + '60' : 'var(--border)'}`,
                       background: situation === value ? color + '18' : 'var(--glass)', cursor: 'pointer', textAlign: 'center' }}>
-                    <div style={{ fontSize: 18, marginBottom: 3 }}>{emoji}</div>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 3 }}><Icon size={18} color={situation === value ? color : 'var(--text3)'} /></div>
                     <div style={{ fontSize: 10, fontWeight: 600, color: situation === value ? color : 'var(--text3)' }}>{label}</div>
                   </button>
                 ))}

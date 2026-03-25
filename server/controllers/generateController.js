@@ -199,3 +199,17 @@ export async function handleContact(req, res) {
     })
   }
 }
+
+export async function handleDescribeImage(req, res) {
+  try {
+    const { image, mimeType = 'image/jpeg' } = req.body
+    if (!image) return res.status(400).json({ error: 'image (base64) is required' })
+
+    const { describeImage } = await import('../services/geminiService.js')
+    const description = await describeImage(image, mimeType)
+    res.json({ text: description })
+  } catch (err) {
+    console.error('Describe Image Error:', err)
+    res.status(500).json({ error: err.message || 'Failed to describe image' })
+  }
+}

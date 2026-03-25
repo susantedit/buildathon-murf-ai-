@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, ArrowRight, Sparkles, Mail, Send, Radio, Globe, Shield, Users, Code2, Heart } from 'lucide-react'
+import { Zap, ArrowRight, Sparkles, Mail, Send, Radio, Shield, Users, Code2, Heart, Mic, Brain, BookOpen, Timer, CalendarDays, Languages, BookHeart, Gamepad2, History } from 'lucide-react'
 import { playHoverSound, playClickSound } from '../utils/soundGenerator'
 import { api } from '../services/api'
 import toast from 'react-hot-toast'
@@ -9,17 +9,17 @@ import StreakBadge from '../components/StreakBadge'
 import QuoteBar from '../components/QuoteBar'
 
 const modes = [
-  { emoji: '🎬', label: 'Creator Mode',        desc: 'Scripts & voice for reels, YouTube, podcasts',   color: '#8b5cf6', path: '/creator' },
-  { emoji: '🧠', label: 'Life Assistant',       desc: 'AI voice guidance for stress, decisions & life',  color: '#3b82f6', path: '/assistant' },
-  { emoji: '📚', label: 'Study Mode',           desc: 'Voice explanations for any topic like a teacher', color: '#c084fc', path: '/study' },
-  { emoji: '🧘', label: 'Focus Mode',           desc: 'Guided timer sessions to keep you in flow',       color: '#10b981', path: '/focus' },
-  { emoji: '📅', label: 'Productivity Planner', desc: 'Set a goal, get a voice-guided daily plan',       color: '#f59e0b', path: '/planner' },
-  { emoji: '🛡️', label: 'Safety Guardian',      desc: 'Voice-powered emergency assistance for women',    color: '#ef4444', path: '/safety' },
-  { emoji: '🌍', label: 'Voice Translator',     desc: 'Translate text into native speech across 80+ languages', color: '#10b981', path: '/translator' },
-  { emoji: '🎙️', label: 'Podcast Studio',       desc: 'Turn URLs, PDFs & prompts into multi-voice podcasts', color: '#ec4899', path: '/podcast' },
-  { emoji: '📖', label: 'Voice Journal',        desc: 'Speak your daily entry, AI reflects it back',    color: '#ec4899', path: '/journal' },
-  { emoji: '🎮', label: 'Brain Games',          desc: 'Quiz, debate, speed reading, riddles & mood',     color: '#8b5cf6', path: '/games' },
-  { emoji: '📋', label: 'History',              desc: 'Review all your past sessions and responses',     color: '#64748b', path: '/history' },
+  { Icon: Mic,          label: 'Creator Mode',        desc: 'Scripts & voice for reels, YouTube, podcasts',   color: '#8b5cf6', path: '/creator' },
+  { Icon: Brain,        label: 'Life Assistant',       desc: 'AI voice guidance for stress, decisions & life',  color: '#3b82f6', path: '/assistant' },
+  { Icon: BookOpen,     label: 'Study Mode',           desc: 'Voice explanations for any topic like a teacher', color: '#c084fc', path: '/study' },
+  { Icon: Timer,        label: 'Focus Mode',           desc: 'Guided timer sessions to keep you in flow',       color: '#10b981', path: '/focus' },
+  { Icon: CalendarDays, label: 'Productivity Planner', desc: 'Set a goal, get a voice-guided daily plan',       color: '#f59e0b', path: '/planner' },
+  { Icon: Shield,       label: 'Safety Guardian',      desc: 'Voice-powered emergency assistance for women',    color: '#ef4444', path: '/safety' },
+  { Icon: Languages,    label: 'Voice Translator',     desc: 'Translate text into native speech across 80+ languages', color: '#10b981', path: '/translator' },
+  { Icon: Radio,        label: 'Podcast Studio',       desc: 'Turn URLs, PDFs & prompts into multi-voice podcasts', color: '#ec4899', path: '/podcast' },
+  { Icon: BookHeart,    label: 'Voice Journal',        desc: 'Speak your daily entry, AI reflects it back',    color: '#ec4899', path: '/journal' },
+  { Icon: Gamepad2,     label: 'Brain Games',          desc: 'Quiz, debate, speed reading, riddles & mood',     color: '#8b5cf6', path: '/games' },
+  { Icon: History,      label: 'History',              desc: 'Review all your past sessions and responses',     color: '#64748b', path: '/history' },
 ]
 
 const chips = ['Focus tips', 'Exam stress', 'Motivational reel', 'Explain quantum physics', 'Daily plan', 'I feel overwhelmed']
@@ -90,6 +90,14 @@ export default function Home() {
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
           style={{ textAlign: 'center', paddingBottom: 40 }}>
 
+          {/* Logo — same as navbar */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 20 }}>
+            <div className="nav-logo-icon" style={{ width: 44, height: 44, borderRadius: 14 }}>
+              <span style={{ fontSize: 22, fontWeight: 900, color: '#fff', fontFamily: 'Syne,system-ui,sans-serif', letterSpacing: -1 }}>V</span>
+            </div>
+            <span style={{ fontSize: 22, fontWeight: 800, fontFamily: 'Syne,system-ui,sans-serif', color: 'var(--text1)', letterSpacing: '-0.02em' }}>Vortex Voice AI</span>
+          </div>
+
           <div className="badge" style={{ background: 'rgba(139,92,246,0.12)', border: '1px solid rgba(139,92,246,0.28)', color: '#8b5cf6', marginBottom: 20 }}>
             <Sparkles size={13} /> Voice-First AI Platform · Powered by Murf Falcon
           </div>
@@ -157,7 +165,7 @@ export default function Home() {
             whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}
             onClick={() => navigate('/assistant', { state: { input: "I'm feeling overwhelmed with my studies and can't focus. Help me make a plan." } })}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 22px', borderRadius: 24, border: '1px solid rgba(139,92,246,0.4)', background: 'rgba(139,92,246,0.1)', color: '#8b5cf6', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 28 }}>
-            🎬 Try Demo — see it in action
+            <Zap size={14} /> Try Demo — see it in action
           </motion.button>
 
           <QuoteBar section="home" color="#8b5cf6" />
@@ -165,15 +173,15 @@ export default function Home() {
 
         {/* Mode cards */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 16 }}>
-          {modes.map(({ emoji, label, desc, color, path }, i) => (
+          {modes.map(({ Icon, label, desc, color, path }, i) => (
             <motion.div key={label} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + i * 0.07 }}
               whileHover={{ scale: 1.03, y: -4 }}
               onHoverStart={() => playHoverSound()}
               onClick={() => { playClickSound(); navigate(path) }}
               className="card"
               style={{ padding: 22, cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', transition: 'box-shadow 0.3s' }}>
-              <div style={{ width: 44, height: 44, borderRadius: 14, fontSize: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', background: color + '18', border: `1px solid ${color}35`, marginBottom: 14 }}>
-                {emoji}
+              <div style={{ width: 44, height: 44, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: color + '18', border: `1px solid ${color}35`, marginBottom: 14 }}>
+                <Icon size={22} color={color} />
               </div>
               <div style={{ fontFamily: 'Syne,system-ui,sans-serif', fontWeight: 600, fontSize: 15, color: 'var(--text1)', marginBottom: 6 }}>{label}</div>
               <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 14, lineHeight: 1.55 }}>{desc}</div>
@@ -203,7 +211,7 @@ export default function Home() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(240px,1fr))', gap: 14 }}>
             {[
               { icon: <Radio size={20} color="#ec4899" />, color: '#ec4899', title: 'Podcast Studio', desc: 'Turn any URL, PDF, or prompt into a multi-voice podcast with RAG chat.', path: '/podcast', badge: 'New' },
-              { icon: <Globe size={20} color="#10b981" />, color: '#10b981', title: 'Voice Translator', desc: 'Translate and hear your text in 80+ languages including Nepali.', path: '/translator', badge: 'Upgraded' },
+              { icon: <Languages size={20} color="#10b981" />, color: '#10b981', title: 'Voice Translator', desc: 'Translate and hear your text in 80+ languages including Nepali.', path: '/translator', badge: 'Upgraded' },
               { icon: <Shield size={20} color="#ef4444" />, color: '#ef4444', title: 'Safety Guardian', desc: 'Emergency alerts with live location sent to your trusted contacts.', path: '/safety', badge: 'Enhanced' },
             ].map(({ icon, color, title, desc, path, badge }) => (
               <motion.div key={title} whileHover={{ scale: 1.03, y: -3 }} onClick={() => navigate(path)}
@@ -233,7 +241,7 @@ export default function Home() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
               {[
                 { icon: <Users size={18} color="#8b5cf6" />, title: 'Built for Everyone', desc: 'Students, creators, professionals, and people in need of safety tools.' },
-                { icon: <Globe size={18} color="#10b981" />, title: 'Multilingual First', desc: 'Designed with Nepali and 80+ languages at the core, not as an afterthought.' },
+                { icon: <Languages size={18} color="#10b981" />, title: 'Multilingual First', desc: 'Designed with Nepali and 80+ languages at the core, not as an afterthought.' },
                 { icon: <Shield size={18} color="#ef4444" />, title: 'Safety Focused', desc: 'Real emergency alerts with live GPS location sent to trusted contacts.' },
                 { icon: <Code2 size={18} color="#3b82f6" />, title: 'Open & Modern Stack', desc: 'React, Node.js, Groq AI, Murf TTS, Firebase Auth, MongoDB.' },
               ].map(({ icon, title, desc }) => (
@@ -274,7 +282,7 @@ export default function Home() {
                 author: 'ChatGPT & Claude',
                 desc: 'The core concept of combining voice AI with life productivity, safety, and multilingual support came from AI-assisted ideation sessions.',
                 color: '#10b981',
-                emoji: '🤖',
+                icon: <Brain size={18} color="#10b981" />,
                 link: null
               },
               {
@@ -282,16 +290,16 @@ export default function Home() {
                 author: 'Murf Hackathon Discord',
                 desc: 'Seeing what fellow builders were creating in the hackathon pushed us to think bigger and build a more complete, multi-purpose platform.',
                 color: '#f59e0b',
-                emoji: '🌱',
+                icon: <Users size={18} color="#f59e0b" />,
                 link: null
               },
-            ].map(({ name, author, desc, color, emoji, link }) => (
+            ].map(({ name, author, desc, color, icon, link }) => (
               <motion.div key={name} whileHover={{ scale: 1.03, y: -3 }} className="card"
                 onClick={() => link && window.open(link, '_blank')}
                 style={{ padding: 18, cursor: link ? 'pointer' : 'default', borderColor: color + '30' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: color + '18', border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
-                    {emoji}
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: color + '18', border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    {icon}
                   </div>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text1)' }}>{name}</div>

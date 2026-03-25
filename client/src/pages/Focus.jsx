@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Play, Pause, RotateCcw, Wind, Timer, Volume2, VolumeX, Sparkles, CheckCircle2 } from 'lucide-react'
+import { Play, Pause, RotateCcw, Wind, Timer, Volume2, VolumeX, Sparkles, CheckCircle2, Target, Brain, Zap, BookOpen, Clock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import { PageHeader } from '../components/UI'
@@ -27,11 +27,11 @@ function launchFocusConfetti() {
 }
 
 const sessions = [
-  { label: 'Deep Focus', duration: 25, desc: 'Pomodoro work session', color: '#8b5cf6', emoji: '🎯' },
-  { label: 'Calm Mind',  duration: 10, desc: 'Breathing and reset',   color: '#3b82f6', emoji: '🧘' },
-  { label: 'Power Nap',  duration: 5,  desc: 'Quick recharge',        color: '#10b981', emoji: '⚡' },
-  { label: 'Study Flow', duration: 45, desc: 'Extended study mode',   color: '#c084fc', emoji: '📖' },
-  { label: 'Custom',     duration: null, desc: 'Set your own time',   color: '#f59e0b', emoji: '⏱️' },
+  { label: 'Deep Focus', duration: 25,   desc: 'Pomodoro work session', color: '#8b5cf6', Icon: Target   },
+  { label: 'Calm Mind',  duration: 10,   desc: 'Breathing and reset',   color: '#3b82f6', Icon: Brain    },
+  { label: 'Power Nap',  duration: 5,    desc: 'Quick recharge',        color: '#10b981', Icon: Zap      },
+  { label: 'Study Flow', duration: 45,   desc: 'Extended study mode',   color: '#c084fc', Icon: BookOpen },
+  { label: 'Custom',     duration: null, desc: 'Set your own time',     color: '#f59e0b', Icon: Clock    },
 ]
 
 const breathSteps = ['Breathe in...', 'Hold...', 'Breathe out...', 'Hold...']
@@ -212,7 +212,9 @@ export default function Focus() {
                 style={{ padding: 16, textAlign: 'left', cursor: 'pointer',
                   background: sel.label === s.label ? s.color + '12' : 'var(--glass)',
                   borderColor: sel.label === s.label ? s.color + '55' : 'var(--border)' }}>
-                <div style={{ fontSize: 20, marginBottom: 4 }}>{s.emoji}</div>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: s.color + '18', border: `1px solid ${s.color}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                  <s.Icon size={18} color={s.color} />
+                </div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text1)' }}>{s.label}</div>
                 <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 2 }}>{s.duration ? `${s.duration} min · ` : ''}{s.desc}</div>
               </button>
@@ -280,7 +282,9 @@ export default function Focus() {
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}
                 className="card"
                 style={{ padding: 18, textAlign: 'center', marginBottom: 12, background: sel.color + '10', borderColor: sel.color + '30' }}>
-                <div style={{ fontSize: 18, marginBottom: 6 }}>✨</div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 6 }}>
+                  <Sparkles size={16} color={sel.color} />
+                </div>
                 <div style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--text1)', lineHeight: 1.6 }}>
                   "{quotes[currentQuoteIdx]}"
                 </div>
@@ -352,7 +356,7 @@ export default function Focus() {
                     border: `1px solid ${stressLevel === level ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`,
                     background: stressLevel === level ? 'rgba(139,92,246,0.15)' : 'var(--glass)',
                     color: stressLevel === level ? '#8b5cf6' : 'var(--text3)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                  {level === 'low' ? '😌 Low' : level === 'moderate' ? '😐 Medium' : '😰 High'}
+                  {level === 'low' ? 'Low' : level === 'moderate' ? 'Medium' : 'High'}
                 </button>
               ))}
             </div>
@@ -381,7 +385,11 @@ export default function Focus() {
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
             <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.2, type: 'spring' }}
               style={{ textAlign: 'center', maxWidth: 360 }}>
-              <div style={{ fontSize: 64, marginBottom: 16 }}>🎉</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+                <div style={{ width: 72, height: 72, borderRadius: 24, background: sel.color + '20', border: `1px solid ${sel.color}40`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <CheckCircle2 size={36} color={sel.color} />
+                </div>
+              </div>
               <div style={{ fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 8, fontFamily: 'Poppins,system-ui,sans-serif' }}>
                 Session Complete!
               </div>
@@ -389,7 +397,9 @@ export default function Focus() {
                 {sel.label} · {activeDuration} minutes
               </div>
               <div style={{ padding: '20px 24px', borderRadius: 16, background: sel.color + '20', border: '1px solid ' + sel.color + '40', marginBottom: 28 }}>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>✨ Remember</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>
+                  <Sparkles size={13} color="rgba(255,255,255,0.5)" /> Remember
+                </div>
                 <div style={{ fontSize: 16, fontStyle: 'italic', color: '#fff', lineHeight: 1.7 }}>
                   "{completionQuote}"
                 </div>
@@ -397,8 +407,8 @@ export default function Focus() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <button onClick={() => { setCompleted(false); reset() }}
                   style={{ padding: '14px 28px', borderRadius: 14, border: 'none', cursor: 'pointer',
-                    background: `linear-gradient(135deg,${sel.color},#3b82f6)`, color: '#fff', fontSize: 15, fontWeight: 700 }}>
-                  🔄 Start Another Session
+                    background: `linear-gradient(135deg,${sel.color},#3b82f6)`, color: '#fff', fontSize: 15, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  <RotateCcw size={16} /> Start Another Session
                 </button>
                 <button onClick={() => setCompleted(false)}
                   style={{ padding: '12px 28px', borderRadius: 14, border: '1px solid rgba(255,255,255,0.15)', cursor: 'pointer',

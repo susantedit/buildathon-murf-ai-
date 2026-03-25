@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { User, Camera, Edit2, Check, X, LogOut, Mail, Shield, ZoomIn, ZoomOut, Move, BarChart2, Zap } from 'lucide-react'
+import { User, Camera, Edit2, Check, X, LogOut, Mail, Shield, ZoomIn, ZoomOut, Move, BarChart2, Zap, Target, PenLine, MapPin, Globe, Calendar, ThumbsUp, BookOpen, Brain, Mic, Focus, CalendarDays, Languages, Headphones, BookHeart } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '../context/AuthContext'
 import { PageHeader } from '../components/UI'
@@ -188,10 +188,10 @@ export default function Profile() {
   const ratingStats = getRatingStats()
   const mostUsed = getMostUsedMode(stats.modes)
 
-  const MODE_EMOJI = { creator: '🎬', assistant: '🧠', study: '📚', focus: '🧘', planner: '📅', translator: '🌍', podcast: '🎙️', journal: '📖' }
+  const MODE_ICONS = { creator: Zap, assistant: Brain, study: BookOpen, focus: Focus, planner: CalendarDays, translator: Languages, podcast: Headphones, journal: BookHeart }
 
   // Extra profile fields stored in localStorage
-  const [bio,      setBio]      = useState(() => localStorage.getItem('vortex-bio')      || '🚀 Building cool things with code while exploring AI, Generative AI, and Cybersecurity.')
+  const [bio,      setBio]      = useState(() => localStorage.getItem('vortex-bio')      || 'Building cool things with code while exploring AI, Generative AI, and Cybersecurity.')
   const [location, setLocation] = useState(() => localStorage.getItem('vortex-location') || '')
   const [language, setLanguage] = useState(() => localStorage.getItem('vortex-lang')     || '')
 
@@ -300,7 +300,7 @@ export default function Profile() {
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.06em' }}>About You</div>
 
             <EditableField
-              icon={<span style={{ fontSize: 16 }}>📝</span>}
+              icon={<PenLine size={16} color="#8b5cf6" />}
               label="Bio"
               value={bio}
               placeholder="Add a short bio..."
@@ -308,14 +308,14 @@ export default function Profile() {
               onSave={v => { setBio(v); localStorage.setItem('vortex-bio', v) }}
             />
             <EditableField
-              icon={<span style={{ fontSize: 16 }}>📍</span>}
+              icon={<MapPin size={16} color="#3b82f6" />}
               label="Location"
               value={location}
               placeholder="e.g. Kathmandu, Nepal"
               onSave={v => { setLocation(v); localStorage.setItem('vortex-location', v) }}
             />
             <EditableField
-              icon={<span style={{ fontSize: 16 }}>🌐</span>}
+              icon={<Globe size={16} color="#10b981" />}
               label="Preferred Language"
               value={language}
               placeholder="e.g. Nepali, English,Hindi"
@@ -332,13 +332,13 @@ export default function Profile() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 14 }}>
               {[
-                { label: 'Sessions', value: stats.totalSessions || 0, icon: '🎯', color: '#8b5cf6' },
-                { label: 'Words Generated', value: (stats.totalWords || 0).toLocaleString(), icon: '✍️', color: '#3b82f6' },
-                { label: 'Day Streak', value: `${streak.current} 🔥`, icon: '📅', color: '#f59e0b' },
-                { label: 'Helpful Ratings', value: `${ratingStats.thumbsUp} 👍`, icon: '⭐', color: '#10b981' },
-              ].map(({ label, value, icon, color }) => (
+                { label: 'Sessions', value: stats.totalSessions || 0, Icon: Target, color: '#8b5cf6' },
+                { label: 'Words Generated', value: (stats.totalWords || 0).toLocaleString(), Icon: PenLine, color: '#3b82f6' },
+                { label: 'Day Streak', value: `${streak.current}`, Icon: Calendar, color: '#f59e0b' },
+                { label: 'Helpful Ratings', value: `${ratingStats.thumbsUp}`, Icon: ThumbsUp, color: '#10b981' },
+              ].map(({ label, value, Icon, color, suffix }) => (
                 <div key={label} style={{ padding: '12px 14px', borderRadius: 12, background: color + '10', border: `1px solid ${color}25` }}>
-                  <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
+                  <div style={{ marginBottom: 4 }}><Icon size={18} color={color} /></div>
                   <div style={{ fontSize: 18, fontWeight: 800, color, fontFamily: 'Syne,system-ui,sans-serif' }}>{value}</div>
                   <div style={{ fontSize: 10, color: 'var(--text3)', marginTop: 2 }}>{label}</div>
                 </div>
@@ -347,7 +347,8 @@ export default function Profile() {
             {mostUsed && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 10, background: 'var(--glass)', border: '1px solid var(--border)' }}>
                 <Zap size={13} color="#f59e0b" />
-                <span style={{ fontSize: 12, color: 'var(--text2)' }}>Most used: <strong style={{ color: 'var(--text1)' }}>{MODE_EMOJI[mostUsed] || '💬'} {mostUsed.charAt(0).toUpperCase() + mostUsed.slice(1)}</strong></span>
+                {(() => { const ModeIcon = MODE_ICONS[mostUsed]; return ModeIcon ? <ModeIcon size={14} color="var(--text1)" /> : null })()}
+                <span style={{ fontSize: 12, color: 'var(--text2)' }}>Most used: <strong style={{ color: 'var(--text1)' }}>{mostUsed.charAt(0).toUpperCase() + mostUsed.slice(1)}</strong></span>
               </div>
             )}
           </div>

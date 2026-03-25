@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mic, Sparkles, Zap, Video, Flame } from 'lucide-react'
+import { Mic, Sparkles, Zap, Video, Flame, Smile, BookOpen, Briefcase } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
@@ -17,17 +17,17 @@ import { recordSession } from '../utils/stats'
 import { playWhooshSound, playSuccessSound, playClickSound } from '../utils/soundGenerator'
 
 const tones = [
-  { key: 'motivational', label: 'Motivational', emoji: '🔥', desc: 'High energy, inspiring' },
-  { key: 'calm', label: 'Calm', emoji: '🧘', desc: 'Soothing, peaceful' },
-  { key: 'storytelling', label: 'Storytelling', emoji: '📖', desc: 'Narrative, engaging' },
-  { key: 'serious', label: 'Professional', emoji: '💼', desc: 'Formal, authoritative' },
+  { key: 'motivational', label: 'Motivational', Icon: Flame,    desc: 'High energy, inspiring',  color: '#ef4444' },
+  { key: 'calm',         label: 'Calm',         Icon: Smile,    desc: 'Soothing, peaceful',       color: '#10b981' },
+  { key: 'storytelling', label: 'Storytelling', Icon: BookOpen, desc: 'Narrative, engaging',      color: '#8b5cf6' },
+  { key: 'serious',      label: 'Professional', Icon: Briefcase,desc: 'Formal, authoritative',    color: '#3b82f6' },
 ]
 
 const steps = [
-  { label: 'Write', icon: '✍️' },
-  { label: 'Voice', icon: '🎙️' },
-  { label: 'Preview', icon: '👁️' },
-  { label: 'Export', icon: '📥' },
+  { label: 'Write' },
+  { label: 'Voice' },
+  { label: 'Preview' },
+  { label: 'Export' },
 ]
 
 export default function Creator() {
@@ -162,12 +162,12 @@ Reply ONLY in this exact JSON (no markdown):
 
           {/* Tab switcher */}
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, background: 'var(--glass)', borderRadius: 12, padding: 4, border: '1px solid var(--border)' }}>
-            {[['script','🎬 Script + Voice'],['hooks','🔥 Hook Generator']].map(([t,l]) => (
+            {[['script','Script + Voice'],['hooks','Hook Generator']].map(([t,l]) => (
               <button key={t} onClick={() => { setActiveTab(t); playClickSound() }}
                 style={{ flex: 1, padding: '8px', borderRadius: 9, border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600,
                   background: activeTab === t ? 'linear-gradient(135deg,#8b5cf6,#f59e0b)' : 'transparent',
                   color: activeTab === t ? '#fff' : 'var(--text2)' }}>
-                {l}
+                {t === 'script' ? <><Mic size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />{l}</> : <><Flame size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />{l}</>}
               </button>
             ))}
           </div>
@@ -187,8 +187,8 @@ Reply ONLY in this exact JSON (no markdown):
                   <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap' }}>
                     {tones.map(t => (
                       <button key={t.key} onClick={() => setTone(t.key)}
-                        style={{ padding: '6px 12px', borderRadius: 20, border: `1px solid ${tone === t.key ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: tone === t.key ? 'rgba(139,92,246,0.15)' : 'var(--glass)', color: tone === t.key ? '#8b5cf6' : 'var(--text2)', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
-                        {t.emoji} {t.label}
+                        style={{ padding: '6px 12px', borderRadius: 20, border: `1px solid ${tone === t.key ? 'rgba(139,92,246,0.5)' : 'var(--border)'}`, background: tone === t.key ? 'rgba(139,92,246,0.15)' : 'var(--glass)', color: tone === t.key ? '#8b5cf6' : 'var(--text2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <t.Icon size={12} color={tone === t.key ? '#8b5cf6' : t.color} /> {t.label}
                       </button>
                     ))}
                   </div>
@@ -205,10 +205,10 @@ Reply ONLY in this exact JSON (no markdown):
                   {hooks && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {[
-                        { label: '🎣 Opening Hooks', items: hooks.hooks, color: '#ef4444' },
-                        { label: '⏱️ Retention Lines', items: hooks.retentionLines, color: '#f59e0b' },
-                        { label: '📣 Call to Actions', items: hooks.ctas, color: '#10b981' },
-                        { label: '📌 Title Ideas', items: hooks.titleIdeas, color: '#8b5cf6' },
+                        { label: 'Opening Hooks', items: hooks.hooks, color: '#ef4444' },
+                        { label: 'Retention Lines', items: hooks.retentionLines, color: '#f59e0b' },
+                        { label: 'Call to Actions', items: hooks.ctas, color: '#10b981' },
+                        { label: 'Title Ideas', items: hooks.titleIdeas, color: '#8b5cf6' },
                       ].map(({ label, items, color }) => items?.length > 0 && (
                         <div key={label} className="card" style={{ padding: 16 }}>
                           <div style={{ fontSize: 12, fontWeight: 700, color, marginBottom: 10 }}>{label}</div>
@@ -260,7 +260,9 @@ Reply ONLY in this exact JSON (no markdown):
                           background: tone === t.key ? 'rgba(139,92,246,0.15)' : 'var(--glass)',
                           borderColor: tone === t.key ? 'rgba(139,92,246,0.4)' : 'var(--border)'
                         }}>
-                        <div style={{ fontSize: 20, marginBottom: 4 }}>{t.emoji}</div>
+                        <div style={{ width: 32, height: 32, borderRadius: 10, background: t.color + '18', border: `1px solid ${t.color}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                          <t.Icon size={16} color={tone === t.key ? '#8b5cf6' : t.color} />
+                        </div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: tone === t.key ? '#8b5cf6' : 'var(--text1)' }}>
                           {t.label}
                         </div>
@@ -273,13 +275,13 @@ Reply ONLY in this exact JSON (no markdown):
                     <input type="checkbox" id="enhance" checked={enhanceScript} onChange={e => setEnhanceScript(e.target.checked)}
                       style={{ width: 16, height: 16, cursor: 'pointer' }} />
                     <label htmlFor="enhance" style={{ fontSize: 13, color: 'var(--text1)', cursor: 'pointer', flex: 1 }}>
-                      ✨ Enhance script with AI before voicing
+                      Enhance script with AI before voicing
                     </label>
                     <span style={{ fontSize: 11, color: 'var(--text3)' }}>Recommended</span>
                   </div>
 
                   <button className="btn" onClick={goToVoice}>
-                    <Sparkles size={16} /> ✨ Generate Script & Voice
+                    <Sparkles size={16} /> Generate Script & Voice
                   </button>
                 </div>
 
@@ -355,7 +357,9 @@ Reply ONLY in this exact JSON (no markdown):
             {currentStep === 3 && result && (
               <motion.div key="export" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
                 <div className="card" style={{ padding: 24, textAlign: 'center' }}>
-                  <div style={{ fontSize: 48, marginBottom: 12 }}>🎉</div>
+                  <div style={{ fontSize: 48, marginBottom: 12, display: 'flex', justifyContent: 'center' }}>
+                    <Sparkles size={48} color="#8b5cf6" />
+                  </div>
                   <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text1)', marginBottom: 8 }}>
                     Your content is ready!
                   </div>
@@ -365,13 +369,13 @@ Reply ONLY in this exact JSON (no markdown):
 
                   <div style={{ display: 'grid', gap: 10 }}>
                     <a href={result.audio} download={`vortex-creator-${Date.now()}.mp3`}
-                      className="btn" style={{ textDecoration: 'none' }}>
-                      📥 Download Audio (MP3)
+                      className="btn" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                      <Zap size={14} /> Download Audio (MP3)
                     </a>
 
                     <button className="btn" onClick={() => navigator.clipboard.writeText(result.text)}
-                      style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
-                      📋 Copy Script to Clipboard
+                      style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                      <BookOpen size={14} /> Copy Script to Clipboard
                     </button>
 
                     <button className="btn"
@@ -380,15 +384,15 @@ Reply ONLY in this exact JSON (no markdown):
                         navigator.clipboard.writeText(md)
                         toast.success('Copied as Markdown!')
                       }}
-                      style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
-                      📝 Copy as Markdown
+                      style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                      <Sparkles size={14} /> Copy as Markdown
                     </button>
 
                     <ShareButton text={result.text} audioUrl={result.audio} label="Share Script" style={{ justifyContent: 'center', padding: '10px 14px' }} />
 
                     <button className="btn" onClick={regenerate}
-                      style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
-                      ✨ Create Another
+                      style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                      <Sparkles size={14} /> Create Another
                     </button>
                   </div>
                 </div>

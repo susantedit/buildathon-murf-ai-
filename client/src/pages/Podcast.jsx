@@ -17,16 +17,16 @@ const MODES = [
 ]
 
 const STYLES = [
-  { key: 'conversational', label: 'Casual',      emoji: '💬' },
-  { key: 'educational',    label: 'Educational', emoji: '📚' },
-  { key: 'debate',         label: 'Debate',      emoji: '⚔️' },
-  { key: 'interview',      label: 'Interview',   emoji: '🎙️' },
+  { key: 'conversational', label: 'Casual',      emoji: null },
+  { key: 'educational',    label: 'Educational', emoji: null },
+  { key: 'debate',         label: 'Debate',      emoji: null },
+  { key: 'interview',      label: 'Interview',   emoji: null },
 ]
 
 const DEPTHS = [
-  { key: 'short',  label: 'Short',  emoji: '⚡', desc: '4-5 exchanges' },
-  { key: 'medium', label: 'Medium', emoji: '🎯', desc: '6-8 exchanges' },
-  { key: 'deep',   label: 'Deep',   emoji: '🧠', desc: '10-12 exchanges' },
+  { key: 'short',  label: 'Short',  emoji: null, desc: '4-5 exchanges' },
+  { key: 'medium', label: 'Medium', emoji: null, desc: '6-8 exchanges' },
+  { key: 'deep',   label: 'Deep',   emoji: null, desc: '10-12 exchanges' },
 ]
 
 const LANGUAGES = [
@@ -89,7 +89,7 @@ function AudioLine({ line, index, isPlaying, onPlay, onEnd }) {
       </div>
       <div style={{ maxWidth: '75%' }}>
         <div style={{ fontSize: 10, color: 'var(--text3)', marginBottom: 4, textAlign: isHost ? 'left' : 'right' }}>
-          {isHost ? '🎙️ Host · Marcus' : '🎤 Guest · Natalie'}
+          {isHost ? 'Host · Marcus' : 'Guest · Natalie'}
         </div>
         <div style={{ padding: '10px 14px', borderRadius: isHost ? '4px 14px 14px 14px' : '14px 4px 14px 14px', background: isHost ? 'rgba(124,58,237,0.12)' : 'rgba(16,185,129,0.12)', border: `1px solid ${isHost ? 'rgba(124,58,237,0.25)' : 'rgba(16,185,129,0.25)'}` }}>
           <p style={{ fontSize: 13, color: 'var(--text1)', margin: '0 0 8px', lineHeight: 1.5 }}>{line.text}</p>
@@ -141,7 +141,7 @@ export default function Podcast() {
   const playAll = () => {
     if (!result?.lines?.length) return
     setPlayingIdx(0)
-    toast('▶️ Playing all lines...')
+    toast('Playing all lines...')
   }
 
   const generate = async () => {
@@ -252,7 +252,7 @@ export default function Podcast() {
                   {STYLES.map(s => (
                     <button key={s.key} onClick={() => { setStyle(s.key); playClickSound() }}
                       style={{ padding: '6px 10px', borderRadius: 8, border: `1px solid ${style === s.key ? 'rgba(124,58,237,0.5)' : 'var(--border)'}`, background: style === s.key ? 'rgba(124,58,237,0.15)' : 'var(--glass)', color: style === s.key ? '#a78bfa' : 'var(--text2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>
-                      {s.emoji} {s.label}
+                      {s.label}
                     </button>
                   ))}
                 </div>
@@ -263,7 +263,7 @@ export default function Podcast() {
                   {DEPTHS.map(d => (
                     <button key={d.key} onClick={() => { setDepth(d.key); playClickSound() }}
                       style={{ padding: '6px 10px', borderRadius: 8, border: `1px solid ${depth === d.key ? 'rgba(124,58,237,0.5)' : 'var(--border)'}`, background: depth === d.key ? 'rgba(124,58,237,0.15)' : 'var(--glass)', color: depth === d.key ? '#a78bfa' : 'var(--text2)', fontSize: 12, fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>
-                      {d.emoji} {d.label} <span style={{ fontSize: 10, opacity: 0.7 }}>· {d.desc}</span>
+                      {d.label} <span style={{ fontSize: 10, opacity: 0.7 }}>· {d.desc}</span>
                     </button>
                   ))}
                 </div>
@@ -277,7 +277,7 @@ export default function Podcast() {
                 {LANGUAGES.map(l => (
                   <button key={l} onClick={() => { setLanguage(l); playClickSound() }}
                     style={{ padding: '5px 12px', borderRadius: 20, border: `1px solid ${language === l ? 'rgba(124,58,237,0.5)' : 'var(--border)'}`, background: language === l ? 'rgba(124,58,237,0.15)' : 'var(--glass)', color: language === l ? '#a78bfa' : 'var(--text2)', fontSize: 12, fontWeight: language === l ? 700 : 400, cursor: 'pointer' }}>
-                    {l === 'Nepali' ? '🇳🇵 ' : ''}{l}
+                    {l === 'Nepali' ? <span style={{ fontSize: 10, marginRight: 2 }}>NP</span> : null}{l}
                   </button>
                 ))}
               </div>
@@ -333,7 +333,7 @@ export default function Podcast() {
                 <div className="card" style={{ padding: 16, marginBottom: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <button onClick={() => setShowScript(s => !s)} style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text2)', fontSize: 13, fontWeight: 600 }}>
-                      <span>📄 Full Script</span>
+                      <span>Full Script</span>
                       {showScript ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                     </button>
                     <button
@@ -346,7 +346,7 @@ export default function Podcast() {
                         toast.success('Script downloaded!')
                       }}
                       style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '5px 10px', borderRadius: 8, border: '1px solid rgba(124,58,237,0.3)', background: 'rgba(124,58,237,0.1)', color: '#a78bfa', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                      ⬇️ Download .txt
+                      Download .txt
                     </button>
                   </div>
                   {showScript && (
@@ -412,12 +412,12 @@ export default function Podcast() {
           {!result && !loading && (
             <div className="card" style={{ padding: 16, background: 'rgba(124,58,237,0.06)', borderColor: 'rgba(124,58,237,0.18)' }}>
               <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.8 }}>
-                <strong style={{ color: '#a78bfa' }}>🎙️ Podcast Studio</strong><br />
-                ✓ URL, YouTube, PDF, Text, or AI Prompt<br />
-                ✓ 4 styles · 3 depth levels · 12 languages<br />
-                ✓ Host (Marcus) + Guest (Natalie) voices via Murf<br />
-                ✓ Play All — auto-advances through all lines<br />
-                ✓ Chat with transcript using RAG AI
+                <strong style={{ color: '#a78bfa' }}>Podcast Studio</strong><br />
+                URL, YouTube, PDF, Text, or AI Prompt<br />
+                4 styles · 3 depth levels · 12 languages<br />
+                Host (Marcus) + Guest (Natalie) voices via Murf<br />
+                Play All — auto-advances through all lines<br />
+                Chat with transcript using RAG AI
               </div>
             </div>
           )}

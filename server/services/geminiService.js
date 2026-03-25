@@ -68,3 +68,48 @@ export async function explainTopic(topic, mode = 'normal') {
   }
   return callGroq(prompts[mode] || prompts.normal)
 }
+
+export async function describeImage(base64Image, mimeType = 'image/jpeg') {
+  const keys = getKeys()
+  if (!keys.length) throw new Error('No GROQ_API_KEY configured')
+
+  let lastError
+  for (const key of keys) {
+    try {
+      const res = await axios.post(
+        GROQ_URL,
+        {
+          model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image_url',
+                  image_url: { url: `data:${mimeType};base64,${base64Image}` }
+                },
+                {
+                  type: 'text',
+                  text: 'Describe this image in 3-4 vivid sentences. Be specific about colors, objects, people, mood, and setting. Write as if narrating to someone who cannot see it.'
+                }
+              ]
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 512,
+        },
+        {
+          headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+          timeout: 30000,
+        }
+      )
+      if (!res.data?.choices?.[0]?.message?.content) throw new Error('Invalid response')
+      return res.data.choices[0].message.content
+    } catch (err) {
+      const status = err.response?.status
+      if (status === 429 || status === 401) { lastError = err; continue }
+      throw new Error(`Vision API error: ${err.response?.data?.error?.message || err.message}`)
+    }
+  }
+  throw lastError || new Error('All keys exhausted')
+}
