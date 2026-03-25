@@ -1,7 +1,7 @@
 // Service Worker for Vortex Voice AI
 // Strategy: network-first for HTML, cache-first for static assets
 
-const CACHE_VERSION = 'v3'
+const CACHE_VERSION = 'v4'
 const CACHE_NAME = `vortex-voice-ai-${CACHE_VERSION}`
 
 const STATIC_ASSETS = [
@@ -34,8 +34,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url)
 
+  // Never intercept cross-origin requests — let them go directly to network
+  if (url.hostname !== self.location.hostname) return
+
   // Always go to network for API calls
-  if (url.pathname.startsWith('/api/') || url.hostname !== self.location.hostname) {
+  if (url.pathname.startsWith('/api/')) {
     event.respondWith(fetch(event.request))
     return
   }
