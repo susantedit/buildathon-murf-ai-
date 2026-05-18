@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart, Gamepad2 } from 'lucide-react'
+import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart, Gamepad2, Bug } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
@@ -11,6 +11,7 @@ const links = [
   { to: '/',           label: 'Home',       Icon: Home },
   { to: '/creator',    label: 'Creator',    Icon: Mic },
   { to: '/assistant',  label: 'Assistant',  Icon: Brain },
+  { to: '/cagebait',   label: 'CageBait',   Icon: Bug },
   { to: '/study',      label: 'Study',      Icon: BookOpen },
   { to: '/focus',      label: 'Focus',      Icon: Timer },
   { to: '/planner',    label: 'Planner',    Icon: CalendarDays },
@@ -25,13 +26,14 @@ const links = [
 // Bottom nav: Home + 4 primary + "More" button
 const primaryLinks = [
   { to: '/',           label: 'Home',       Icon: Home },
-  { to: '/creator',    label: 'Creator',    Icon: Mic },
+  { to: '/cagebait',   label: 'CageBait',   Icon: Bug },
   { to: '/assistant',  label: 'Assistant',  Icon: Brain },
   { to: '/safety',     label: 'Safety',     Icon: Shield },
   { to: '/profile',    label: 'Profile',    Icon: UserCircle },
 ]
 
 const moreLinks = [
+  { to: '/creator',    label: 'Creator',    Icon: Mic },
   { to: '/translator', label: 'Translator', Icon: Languages },
   { to: '/study',      label: 'Study',      Icon: BookOpen },
   { to: '/focus',      label: 'Focus',      Icon: Timer },
@@ -73,7 +75,7 @@ export default function Navbar() {
           <div className="nav-logo-icon">
             <span style={{ fontSize: 15, fontWeight: 900, color: '#fff', fontFamily: 'Syne,system-ui,sans-serif', letterSpacing: -1 }}>V</span>
           </div>
-          <span className="nav-logo-text">Vortex Voice AI</span>
+          <span className="nav-logo-text">Vortex Atlas</span>
         </NavLink>
 
         <div className="nav-links">
@@ -118,7 +120,7 @@ export default function Navbar() {
           <div className="nav-logo-icon" style={{ width: 30, height: 30 }}>
             <span style={{ fontSize: 14, fontWeight: 900, color: '#fff', fontFamily: 'Syne,system-ui,sans-serif' }}>V</span>
           </div>
-          <span className="nav-logo-text" style={{ fontSize: 14 }}>Vortex Voice AI</span>
+          <span className="nav-logo-text" style={{ fontSize: 14 }}>Vortex Atlas</span>
         </NavLink>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="icon-btn" style={{ width: 32, height: 32 }} onClick={toggle} title={dark ? 'Switch to light mode' : 'Switch to dark mode'} aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}>

@@ -8,6 +8,8 @@ import VoiceMicButton from '../components/VoiceMicButton'
 import ShareButton from '../components/ShareButton'
 import { PageHeader, Label, SubmitBtn } from '../components/UI'
 import QuoteBar from '../components/QuoteBar'
+import HolographicCalendar from '../components/HolographicCalendar'
+import FloatingPanel from '../components/FloatingPanel'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
@@ -88,6 +90,14 @@ export default function Planner() {
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
           <PageHeader icon={CalendarDays} color="#f59e0b" title="Productivity Planner" sub="Set a goal, get a voice-guided daily plan" />
+
+          {/* Holographic Calendar — visual planner */}
+          <FloatingPanel glowColor="#f59e0b" style={{ padding: 20, marginBottom: 20 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 12 }}>
+              📅 Holographic Planner
+            </div>
+            <HolographicCalendar />
+          </FloatingPanel>
           <QuoteBar section="planner" color="#f59e0b" />
 
           <WorkflowSteps currentStep={currentStep} steps={steps} />

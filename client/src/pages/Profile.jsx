@@ -7,6 +7,7 @@ import { PageHeader } from '../components/UI'
 import QuoteBar from '../components/QuoteBar'
 import StreakBadge from '../components/StreakBadge'
 import NotificationReminder from '../components/NotificationReminder'
+import DataOrb from '../components/DataOrb'
 import { playClickSound, playSuccessSound } from '../utils/soundGenerator'
 import { getStats, getMostUsedMode } from '../utils/stats'
 import { getStreak } from '../utils/streak'
@@ -330,6 +331,20 @@ export default function Profile() {
               <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your Stats</span>
               <StreakBadge style={{ marginLeft: 'auto' }} />
             </div>
+
+            {/* DataOrb — orbiting stats visualization */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <DataOrb
+                size={180}
+                stats={[
+                  { label: 'Sessions', value: String(stats.totalSessions || 0), color: '#8b5cf6' },
+                  { label: 'Streak',   value: `${streak.current}d`,             color: '#f59e0b' },
+                  { label: 'Ratings',  value: String(ratingStats.thumbsUp || 0),color: '#10b981' },
+                  { label: 'Words',    value: `${Math.round((stats.totalWords || 0) / 1000)}k`, color: '#3b82f6' },
+                ]}
+              />
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 14 }}>
               {[
                 { label: 'Sessions', value: stats.totalSessions || 0, Icon: Target, color: '#8b5cf6' },

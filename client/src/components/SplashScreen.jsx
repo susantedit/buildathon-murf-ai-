@@ -24,24 +24,19 @@ export default function SplashScreen({ onDone }) {
           transition={{ duration: 0.5 }}
         >
           <div className="splash-container">
-            {/* Speeder */}
-            <div className="speeder">
-              <span>
-                <span />
-                <span />
-                <span />
-                <span />
-              </span>
-              <div className="speeder-base">
-                <span />
-                <div className="speeder-face" />
-              </div>
-            </div>
+            <motion.div
+              className="splash-orb"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="splash-ring splash-ring-a" />
+              <div className="splash-ring splash-ring-b" />
+              <div className="splash-core" />
+            </motion.div>
 
-            {/* App name below */}
-            <div className="splash-title">Vortex Voice AI</div>
-
-            {/* Progress bar */}
+            <div className="splash-brand">Vortex Atlas</div>
+            <div className="splash-copy">A premium voice-native AI workspace</div>
             <div className="splash-progress" />
           </div>
         </motion.div>

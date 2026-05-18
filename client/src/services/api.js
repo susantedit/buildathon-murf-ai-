@@ -44,4 +44,9 @@ export const api = {
   sendContact:     (data)               => post('/contact',           data),
   // Vision
   describeImage:   (image, mimeType)    => post('/describe-image',    { image, mimeType }),
+  // CageBait — scam honeypot
+  cageBaitPersonas:  ()                 => get('/cagebait/personas'),
+  cageBaitRespond:   (data)             => post('/cagebait/respond',       data),
+  cageBaitIntel:     (data)             => post('/cagebait/extract-intel', data),
+  cageBaitEndSession:(data)             => post('/cagebait/end-session',   data),
 }

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Brain, GitBranch, Mic, Languages, Check, X } from 'lucide-react'
+import { Brain, GitBranch, Mic, Languages, Check, X, Cpu, Clock, BookOpen } from 'lucide-react'
 import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import WorkflowSteps from '../components/WorkflowSteps'
@@ -9,11 +9,37 @@ import VoiceMicButton from '../components/VoiceMicButton'
 import ShareButton from '../components/ShareButton'
 import { PageHeader, Label, SubmitBtn, ResultCard } from '../components/UI'
 import QuoteBar from '../components/QuoteBar'
+import AiCoreSphere from '../components/AiCoreSphere'
 import { api } from '../services/api'
 import { useAuth } from '../context/AuthContext'
 import { detectMood } from '../utils/moodDetector'
 import { recordSession } from '../utils/stats'
 import { playClickSound, playWhooshSound, playSuccessSound } from '../utils/soundGenerator'
+import { computeCognitiveScore, cognitiveCssClass, cognitiveVoiceLabel } from '../utils/cognitiveEngine'
+import { useAdaptiveUI } from '../components/AdaptiveUIContext'
+
+// ── Stop words for topic extraction ──────────────────────────────────────────
+const STOP_WORDS = new Set(['that','this','with','from','have','will','been','they','what','when','where','which','your','about','into','more','also','some','than','then','them','these','those','such','each','much','very','just','like','over','only','both','here','there','after','before','other','same','most','many','even','well','back','good','make','take','come','know','time','year','long','down','help','feel','need','want','cant','dont','wont','isnt','arent','wasnt','havent'])
+
+function extractTopics(text) {
+  return text.toLowerCase().split(/\s+/).filter(w => w.length >= 4 && !STOP_WORDS.has(w.replace(/[^a-z]/g, ''))).slice(0, 3)
+}
+
+function buildMemoryContext(memory) {
+  if (!memory.length) return ''
+  const moodCounts = {}
+  const topicSet = new Set()
+  memory.slice(0, 5).forEach(m => {
+    if (m.mood) moodCounts[m.mood] = (moodCounts[m.mood] || 0) + 1
+    m.topics?.forEach(t => topicSet.add(t))
+  })
+  const recurringMood = Object.entries(moodCounts).find(([, c]) => c >= 3)?.[0]
+  const recurringTopics = [...topicSet].slice(0, 4)
+  const parts = []
+  if (recurringMood) parts.push(`This user has shown a recurring ${recurringMood} pattern. Tailor your advice accordingly.`)
+  if (recurringTopics.length >= 2) parts.push(`Recurring topics: ${recurringTopics.join(', ')}.`)
+  return parts.join(' ')
+}
 
 const chips = ["I can't focus", 'Exam stress', 'I feel overwhelmed', 'Help me decide', 'I lack motivation', 'Study plan for tomorrow']
 
@@ -144,6 +170,7 @@ Analyze both options and reply ONLY in this exact JSON (no markdown):
 
 export default function Assistant() {
   const { userId } = useAuth()
+  const { setMode } = useAdaptiveUI()
   const location = useLocation()
   const [currentStep, setCurrentStep] = useState(0)
   const [input, setInput] = useState(location.state?.input || '')
@@ -154,15 +181,42 @@ export default function Assistant() {
   const [translated, setTranslated] = useState(null)
   const [translatLang, setTranslateLang] = useState('')
   const [translating, setTranslating] = useState(false)
-  const [history, setHistory] = useState([]) // session conversation history
-  const [activeTab, setActiveTab] = useState('advice') // advice | decision
+  const [history, setHistory] = useState([])
+  const [activeTab, setActiveTab] = useState('advice')
+  const [sphereState, setSphereState] = useState('idle')
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false)
+  const [cogScore, setCogScore] = useState({ score: 60, label: 'Neutral', voiceTone: 'supportive' })
+  const [submitCount, setSubmitCount] = useState(0)
+  const [sessionStart] = useState(Date.now())
+  const [lastResponseTime, setLastResponseTime] = useState(null)
+  const cogDebounceRef = useRef(null)
 
-  // Memory: last 3 sessions stored in localStorage
+  // Memory: last 10 sessions with mood + topics
   const memory = useRef(JSON.parse(localStorage.getItem('assistant-memory') || '[]'))
-  const saveMemory = (q, a) => {
-    const updated = [{ q, a, date: new Date().toLocaleDateString() }, ...memory.current].slice(0, 3)
+
+  const saveMemory = (q, a, mood) => {
+    const topics = extractTopics(q)
+    const entry = { q, a: a.slice(0, 200), date: new Date().toISOString(), mood, topics }
+    const updated = [entry, ...memory.current].slice(0, 10)
     memory.current = updated
     localStorage.setItem('assistant-memory', JSON.stringify(updated))
+  }
+
+  // Update cognitive score with debounce on input change
+  const updateCogScore = (val, mood) => {
+    clearTimeout(cogDebounceRef.current)
+    cogDebounceRef.current = setTimeout(() => {
+      const latencyMs = lastResponseTime ? Date.now() - lastResponseTime : 5000
+      const elapsedMin = (Date.now() - sessionStart) / 60000
+      const interactionRate = elapsedMin > 0 ? submitCount / elapsedMin : 1
+      const score = computeCognitiveScore({ latencyMs, interactionRate, mood: mood || detectedMood || '', inputLength: val.length })
+      setCogScore(score)
+      // Sync adaptive UI mode with cognitive state
+      if (score.label === 'Stressed') setMode('debugging')
+      else if (score.label === 'Confident') setMode('exploring')
+      else if (score.label === 'Focus') setMode('learning')
+      else setMode('default')
+    }, 300)
   }
 
   const LANGS = [
@@ -189,6 +243,10 @@ export default function Assistant() {
     if (val.length > 15) {
       const mood = detectMood(val)
       setDetectedMood(mood)
+      updateCogScore(val, mood)
+      setSphereState('listening')
+    } else {
+      setSphereState('idle')
     }
   }
 
@@ -198,21 +256,31 @@ export default function Assistant() {
     setCurrentStep(1)
     setLoading(true)
     setResult(null)
+    setSphereState('processing')
+    setSubmitCount(c => c + 1)
     try {
       setCurrentStep(2)
-      // Inject memory context into prompt
-      const memCtx = memory.current.length > 0
-        ? `\n\n[User context from past sessions: ${memory.current.map(m => `"${m.q}"`).join('; ')}]`
-        : ''
-      const d = await api.generateAdvice(input + memCtx, userId)
+      const memCtx = buildMemoryContext(memory.current)
+      const promptWithCtx = memCtx ? `${input}\n\n[${memCtx}]` : input
+      const d = await api.generateAdvice(promptWithCtx, userId)
       setResult(d)
+      setLastResponseTime(Date.now())
       setCurrentStep(3)
       recordSession({ mode: 'assistant', wordCount: d.text?.split(' ').length || 0 })
       setHistory(h => [...h, { q: input, a: d.text, audio: d.audio }])
-      saveMemory(input, d.text)
+      saveMemory(input, d.text, detectedMood)
       playSuccessSound()
+      setSphereState('responding')
+      if (d.audio) {
+        setIsAudioPlaying(true)
+        const audio = new Audio(d.audio)
+        audio.onended = () => { setIsAudioPlaying(false); setSphereState('idle') }
+        audio.play().catch(() => { setIsAudioPlaying(false); setSphereState('idle') })
+      } else {
+        setTimeout(() => setSphereState('idle'), 3000)
+      }
       toast.success('Advice ready!')
-    } catch { toast.error('Something went wrong. Check your API keys.') }
+    } catch { toast.error('Something went wrong. Check your API keys.'); setSphereState('idle') }
     finally { setLoading(false) }
   }
 
@@ -239,7 +307,36 @@ export default function Assistant() {
     <div className="page-wrapper" style={{ '--page-accent': '#06b6d4' }}>
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <PageHeader icon={Brain} color="#3b82f6" title="Life Assistant" sub="Voice-guided advice for stress, decisions & daily life" />
+
+          {/* Header with AiCoreSphere */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+            <AiCoreSphere state={sphereState} size={72} style={{ flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <h1 style={{ fontFamily: "'Space Grotesk',system-ui,sans-serif", fontWeight: 700, fontSize: 22, color: 'var(--text1)', marginBottom: 3 }}>
+                Life Assistant
+              </h1>
+              <p style={{ fontSize: 13, color: 'var(--text2)', marginBottom: 8 }}>
+                Voice-guided advice for stress, decisions &amp; daily life
+              </p>
+              {/* Cognitive Score Badge */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={cogScore.label}
+                  initial={{ opacity: 0, x: -10, scale: 0.9 }}
+                  animate={{ opacity: 1, x: 0, scale: 1 }}
+                  exit={{ opacity: 0, x: 10, scale: 0.9 }}
+                  transition={{ duration: 0.25 }}
+                  className={`cog-badge ${cognitiveCssClass(cogScore.label)}`}
+                  aria-live="polite"
+                  style={{ display: 'inline-flex' }}
+                >
+                  <Cpu size={10} />
+                  {cogScore.label} · {cognitiveVoiceLabel(cogScore.label)}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </div>
+
           <QuoteBar section="assistant" color="#3b82f6" />
 
           <WorkflowSteps currentStep={currentStep} steps={steps} />
@@ -259,6 +356,45 @@ export default function Assistant() {
           {activeTab === 'decision' && <DecisionSimulator />}
 
           {activeTab === 'advice' && (<>
+          {/* Memory section */}
+          {memory.current.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              style={{ marginBottom: 16 }}
+            >
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Clock size={11} /> Memory · Last {Math.min(memory.current.length, 3)} sessions
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {memory.current.slice(0, 3).map((m, i) => {
+                  const moodColor = m.mood === 'motivational' ? '#10b981' : m.mood === 'calm' ? '#ef4444' : '#4F8CFF'
+                  return (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                      className="mem-card"
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        {m.mood && (
+                          <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 999, background: `${moodColor}18`, color: moodColor, border: `1px solid ${moodColor}35`, textTransform: 'uppercase', letterSpacing: '0.05em', flexShrink: 0 }}>
+                            {m.mood}
+                          </span>
+                        )}
+                        <span style={{ fontSize: 11, color: 'var(--text2)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                          {m.q.slice(0, 50)}{m.q.length > 50 ? '…' : ''}
+                        </span>
+                        <span style={{ fontSize: 10, color: 'var(--text3)', flexShrink: 0 }}>
+                          {new Date(m.date).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            </motion.div>
+          )}
+
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
             {chips.map(c => <button key={c} className="chip" onClick={() => { playClickSound(); handleInput(c) }}>{c}</button>)}
           </div>

@@ -7,6 +7,7 @@ import historyRoutes from './routes/history.js'
 import testRoutes from './routes/test.js'
 import contactRoutes from './routes/contacts.js'
 import podcastRoutes from './routes/podcast.js'
+import cageBaitRoutes from './routes/cagebait.js'
 import { verifyEmailConfig } from './services/emailService.js'
 
 dotenv.config()
@@ -76,6 +77,7 @@ app.use('/api', historyRoutes)
 app.use('/api', testRoutes)
 app.use('/api', contactRoutes)
 app.use('/api', podcastRoutes)
+app.use('/api', cageBaitRoutes)
 
 app.get('/', (req, res) => res.json({ status: 'Vortex Voice AI server running' }))
 app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }))

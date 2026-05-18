@@ -19,11 +19,21 @@ const voiceMap = {
   
   // Focus Mode voices (whispered, meditative)
   meditation: 'en-US-natalie',       // Soft, calming
-  focus: 'en-US-julia'               // Steady, focused
+  focus: 'en-US-julia',              // Steady, focused
+
+  // CageBait personas — distinct voices per character
+  elderly: 'en-US-natalie',          // Grandma Rose — warm, soft, older-sounding
+  professional: 'en-US-marcus',      // David Chen — deep, authoritative
+  newbie: 'en-US-julia',             // Jamie — friendly, slightly uncertain
 }
 
 // Smart voice selection based on mode and tone
-export function selectVoice(mode, tone) {
+export function selectVoice(mode, tone, cognitiveLabel = null) {
+  // Emotion-aware override — cognitive state takes priority
+  if (cognitiveLabel === 'Stressed')   return 'en-US-natalie'   // calm, soothing
+  if (cognitiveLabel === 'Confident')  return 'en-US-marcus'    // energetic, powerful
+  if (cognitiveLabel === 'Focus')      return 'en-US-julia'     // steady, focused
+  // Neutral falls through to mode-based selection below
   // Creator mode: high-energy voices
   if (mode === 'creator') {
     return voiceMap[tone] || voiceMap.motivational
@@ -49,20 +59,25 @@ export function selectVoice(mode, tone) {
   if (mode === 'planner') {
     return voiceMap.motivational
   }
+
+  // CageBait: persona-specific voices
+  if (mode === 'cagebait') {
+    return voiceMap[tone] || voiceMap.calm
+  }
   
   return voiceMap.calm
 }
 
-export async function textToSpeech(text, voiceStyle = 'calm', mode = 'assistant') {
+export async function textToSpeech(text, voiceStyle = 'calm', mode = 'assistant', cognitiveLabel = null) {
   try {
     if (!process.env.MURF_API_KEY) {
       throw new Error('MURF_API_KEY is not configured')
     }
 
-    console.log('Converting to speech:', { text: text.substring(0, 50), voiceStyle, mode })
+    console.log('Converting to speech:', { text: text.substring(0, 50), voiceStyle, mode, cognitiveLabel })
 
-    // Use smart voice selection
-    const voiceId = selectVoice(mode, voiceStyle)
+    // Use smart voice selection (cognitiveLabel overrides if set)
+    const voiceId = selectVoice(mode, voiceStyle, cognitiveLabel)
     console.log('Selected voice:', voiceId)
 
     const res = await axios.post(

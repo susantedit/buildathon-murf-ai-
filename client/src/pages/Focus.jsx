@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import WaveformPlayer from '../components/WaveformPlayer'
 import { PageHeader } from '../components/UI'
 import QuoteBar from '../components/QuoteBar'
+import BreathingCircle from '../components/BreathingCircle'
 import { playBreathSound, playTimerSound, playCompletionSound } from '../utils/soundGenerator'
 import { vibrateBreath, vibrateSuccess, vibrateLight } from '../utils/haptics'
 import { api } from '../services/api'
@@ -295,7 +296,9 @@ export default function Focus() {
           <AnimatePresence>
             {breathOn && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="card" style={{ padding: 24, textAlign: 'center' }}>
+                className="card" style={{ padding: 24, textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                {/* BreathingCircle 3D element */}
+                <BreathingCircle active={breathOn} size={160} />
                 <motion.div key={breathIdx} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                   style={{ fontSize: 22, fontWeight: 600, color: '#3b82f6', fontFamily: 'Poppins,system-ui,sans-serif', marginBottom: 8 }}>
                   {breathSteps[breathIdx]}

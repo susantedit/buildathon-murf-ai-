@@ -8,7 +8,7 @@ import SplashScreen from './components/SplashScreen'
 import LoginGate from './components/LoginGate'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
 import OnboardingTour from './components/OnboardingTour'
-import Home from './pages/Home'
+import Home from './pages/HomeNew'
 import Creator from './pages/Creator'
 import Assistant from './pages/Assistant'
 import Study from './pages/Study'
@@ -21,6 +21,9 @@ import Profile from './pages/Profile'
 import Podcast from './pages/Podcast'
 import Journal from './pages/Journal'
 import Games from './pages/Games'
+import CageBait from './pages/CageBait'
+import CursorGlow from './components/CursorGlow'
+import { AdaptiveUIProvider } from './components/AdaptiveUIContext'
 import { recordActivity } from './utils/streak'
 import { api } from './services/api'
 import { ChevronUp } from 'lucide-react'
@@ -40,7 +43,7 @@ function BackToTop() {
           initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="Back to top"
-          style={{ position: 'fixed', bottom: 80, right: 16, width: 40, height: 40, borderRadius: '50%', border: 'none', background: 'linear-gradient(135deg,#8b5cf6,#3b82f6)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 900, boxShadow: '0 4px 16px rgba(139,92,246,0.4)' }}>
+          style={{ position: 'fixed', bottom: 80, right: 16, width: 46, height: 46, borderRadius: '16px', border: '1px solid rgba(255,255,255,0.14)', background: 'linear-gradient(135deg, rgba(34,211,238,0.95), rgba(249,115,22,0.95))', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 900, boxShadow: '0 18px 40px rgba(34,211,238,0.25)' }}>
           <ChevronUp size={18} color="#fff" />
         </motion.button>
       )}
@@ -85,18 +88,22 @@ function AppInner() {
         <Route path="/podcast"    element={<Podcast />} />
         <Route path="/journal"    element={<Journal />} />
         <Route path="/games"      element={<Games />} />
+        <Route path="/cagebait"   element={<CageBait />} />
       </Routes>
       <PWAInstallPrompt />
       <OnboardingTour />
       <BackToTop />
+      <CursorGlow />
       <Toaster
         position="top-right"
         toastOptions={{
           style: {
-            background: 'var(--bg2)',
+            background: 'rgba(7, 12, 24, 0.92)',
             color: 'var(--text1)',
-            border: '1px solid var(--border)',
-            backdropFilter: 'blur(20px)'
+            border: '1px solid rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '14px',
+            boxShadow: '0 16px 50px rgba(2, 6, 23, 0.35)'
           }
         }}
       />
@@ -108,7 +115,9 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <AppInner />
+        <AdaptiveUIProvider>
+          <AppInner />
+        </AdaptiveUIProvider>
       </AuthProvider>
     </ThemeProvider>
   )

@@ -28,7 +28,7 @@ export async function handleGenerateScript(req, res) {
 
 export async function handleGenerateAdvice(req, res) {
   try {
-    const { text, userId = 'anonymous' } = req.body
+    const { text, userId = 'anonymous', cognitiveLabel = null } = req.body
     if (!text) return res.status(400).json({ error: 'text is required' })
 
     console.log('Generating advice for:', text)
@@ -37,7 +37,7 @@ export async function handleGenerateAdvice(req, res) {
     // TTS is optional — don't fail the whole request if Murf is down
     let audioUrl = ''
     try {
-      audioUrl = await textToSpeech(responseText, 'calm', 'assistant')
+      audioUrl = await textToSpeech(responseText, 'calm', 'assistant', cognitiveLabel)
     } catch (ttsErr) {
       console.warn('TTS skipped (non-fatal):', ttsErr.message)
     }

@@ -7,6 +7,7 @@ import { api } from '../services/api'
 import { vibrateEmergency, vibrateSuccess, vibrateLight } from '../utils/haptics'
 import { playClickSound, playSuccessSound, playErrorSound } from '../utils/soundGenerator'
 import QuoteBar from '../components/QuoteBar'
+import RadarPulse from '../components/RadarPulse'
 import { useAuth } from '../context/AuthContext'
 
 // EmailJS config — supports up to 3 accounts for quota rotation
@@ -640,9 +641,8 @@ export default function Safety() {
 
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Shield size={22} color="#ef4444" />
-            </div>
+            {/* RadarPulse replaces static icon */}
+            <RadarPulse active={emergencyMode} size={52} color="#ef4444" rings={2} />
             <div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text1)', fontFamily: 'Syne,system-ui,sans-serif' }}>Safety Guardian</div>
               <div style={{ fontSize: 12, color: 'var(--text3)' }}>Voice-powered emergency assistance</div>
