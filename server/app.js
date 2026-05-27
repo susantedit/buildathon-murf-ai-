@@ -2,12 +2,16 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 import generateRoutes from './routes/generate.js'
 import historyRoutes from './routes/history.js'
 import testRoutes from './routes/test.js'
 import contactRoutes from './routes/contacts.js'
 import podcastRoutes from './routes/podcast.js'
 import cageBaitRoutes from './routes/cagebait.js'
+import verificationRoutes from './routes/verification.js'
+import stegRoutes from './routes/steg.js'
 import { verifyEmailConfig } from './services/emailService.js'
 
 dotenv.config()
@@ -78,16 +82,27 @@ app.use('/api', testRoutes)
 app.use('/api', contactRoutes)
 app.use('/api', podcastRoutes)
 app.use('/api', cageBaitRoutes)
+app.use('/api', verificationRoutes)
+app.use('/api/steg', stegRoutes)
+
+// Central error handler — strips stack traces and key material from responses
+app.use((err, req, res, _next) => {
+  const status = err.status || err.statusCode || 500
+  res.status(status).json({ error: err.clientMessage || 'Something went wrong' })
+})
 
 app.get('/', (req, res) => res.json({ status: 'Vortex Voice AI server running' }))
 app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }))
+
+const httpServer = createServer(app)
+export const io = new Server(httpServer, { cors: { origin: allowedOrigins, credentials: true } })
 
 // Connect DB + start
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('MongoDB connected')
     verifyEmailConfig() // Check Gmail SMTP on startup
-    app.listen(process.env.PORT || 5000, () =>
+    httpServer.listen(process.env.PORT || 5000, () =>
       console.log(`Server running on port ${process.env.PORT || 5000}`)
     )
   })
