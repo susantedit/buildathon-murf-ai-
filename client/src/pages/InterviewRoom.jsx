@@ -205,6 +205,35 @@ export default function InterviewRoom() {
     return cameraOn ? 'Press Ctrl+Enter to send, speak with the mic, and keep eye contact with the camera preview.' : 'Press Ctrl+Enter to send, or use the mic to speak your answer.'
   }, [cameraOn, isFinished])
 
+  // Keyboard shortcuts: 'm' toggles mic, 'Shift+D' downloads transcript
+  useEffect(() => {
+    const onKey = (e) => {
+      // ignore if typing in inputs or textareas
+      const tag = (document.activeElement && document.activeElement.tagName) || ''
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return
+
+      if (e.key.toLowerCase() === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const btn = document.getElementById('mic-btn')
+        if (btn) btn.click()
+      }
+
+      if (e.key.toLowerCase() === 'd' && e.shiftKey) {
+        // download transcript
+        const lines = transcript.map(item => `[${item.speaker}] ${item.text}`).join('\n')
+        const blob = new Blob([lines], { type: 'text/plain' })
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `interview-transcript-${sessionId || Date.now()}.txt`
+        a.click()
+        URL.revokeObjectURL(url)
+        toast.success('Transcript downloaded')
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [transcript, sessionId])
+
   const toggleCamera = async () => {
     if (cameraOn) {
       cameraStreamRef.current?.getTracks?.().forEach(track => track.stop())
@@ -324,35 +353,6 @@ export default function InterviewRoom() {
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <textarea className="inp" value={answer} onChange={e => setAnswer(e.target.value)} onKeyDown={handleKeyDown} rows={6} placeholder="Speak or type your answer here. Press Ctrl+Enter to submit." style={{ flex: 1, resize: 'vertical' }} />
                 <VoiceMicButton buttonId="mic-btn" onResult={text => setAnswer(current => (current ? `${current} ${text}` : text))} />
-
-                // Keyboard shortcuts: 'm' toggles mic, 'Shift+D' downloads transcript
-                useEffect(() => {
-                  const onKey = (e) => {
-                    // ignore if typing in inputs or textareas
-                    const tag = (document.activeElement && document.activeElement.tagName) || ''
-                    if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return
-
-                    if (e.key.toLowerCase() === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                      const btn = document.getElementById('mic-btn')
-                      if (btn) btn.click()
-                    }
-
-                    if (e.key.toLowerCase() === 'd' && e.shiftKey) {
-                      // download transcript
-                      const lines = transcript.map(item => `[${item.speaker}] ${item.text}`).join('\n')
-                      const blob = new Blob([lines], { type: 'text/plain' })
-                      const url = URL.createObjectURL(blob)
-                      const a = document.createElement('a')
-                      a.href = url
-                      a.download = `interview-transcript-${sessionId || Date.now()}.txt`
-                      a.click()
-                      URL.revokeObjectURL(url)
-                      toast.success('Transcript downloaded')
-                    }
-                  }
-                  window.addEventListener('keydown', onKey)
-                  return () => window.removeEventListener('keydown', onKey)
-                }, [transcript, sessionId])
               </div>
 
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
