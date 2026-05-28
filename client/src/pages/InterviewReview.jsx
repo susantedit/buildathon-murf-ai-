@@ -99,6 +99,25 @@ export default function InterviewReview() {
     toast.success('Transcript downloaded')
   }
 
+  const downloadAudio = async () => {
+    if (!session?.audioUrl) return toast.error('No audio available')
+    try {
+      const resp = await fetch(session.audioUrl)
+      if (!resp.ok) return toast.error('Could not fetch audio')
+      const blob = await resp.blob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `interview-audio-${sessionId}.mp3`
+      a.click()
+      URL.revokeObjectURL(url)
+      toast.success('Audio downloaded')
+    } catch (err) {
+      console.error('Download audio error', err)
+      toast.error('Download failed')
+    }
+  }
+
   if (!session) {
     return (
       <div className="page-wrapper">
@@ -120,7 +139,8 @@ export default function InterviewReview() {
             <button className="btn" onClick={() => navigate('/interviews')} style={{ background: 'var(--glass)', color: 'var(--text2)' }}><ArrowLeft size={14} /> Back to dashboard</button>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               <ShareButton text={shareText} audioUrl={session.audioUrl} label="Share review" style={{ background: 'var(--glass)' }} />
-              <button className="btn" onClick={downloadTranscript} style={{ background: 'var(--glass)', color: 'var(--text2)' }}><Download size={14} /> Download</button>
+              <button className="btn" onClick={downloadTranscript} style={{ background: 'var(--glass)', color: 'var(--text2)' }}><Download size={14} /> Download transcript</button>
+              <button className="btn" onClick={downloadAudio} style={{ background: 'var(--glass)', color: 'var(--text2)' }}><Download size={14} /> Download audio</button>
             </div>
           </div>
 

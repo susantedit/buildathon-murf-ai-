@@ -80,7 +80,7 @@ function AppInner() {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/"           element={<Interviews />} />
+        <Route path="/"           element={<Home />} />
         <Route path="/interviews" element={<Interviews />} />
         <Route path="/interviews/new" element={<InterviewBuilder />} />
         <Route path="/interviews/live/:sessionId" element={<InterviewRoom />} />
