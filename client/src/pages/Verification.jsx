@@ -4,12 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   ShieldCheck, Globe, Sparkles, RefreshCw, Upload, Link2, FileText, Image as ImageIcon,
   AlertTriangle, Clock3, CheckCircle2, XCircle, MinusCircle, TrendingUp, Eye, Gauge,
-  Search, ChevronRight, ArrowUpRight, TriangleAlert, Layers3, ScanLine
+  Search, ChevronRight, ArrowUpRight, TriangleAlert, Layers3, ScanLine, Volume2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../services/api'
 import FloatingPanel from '../components/FloatingPanel'
 import WaveformVisualizer from '../components/WaveformVisualizer'
+import WaveformPlayer from '../components/WaveformPlayer'
 
 const verdictMeta = {
   VERIFIED: { label: 'Verified', color: '#10b981', bg: 'rgba(16,185,129,0.12)', border: 'rgba(16,185,129,0.28)', Icon: CheckCircle2 },
@@ -141,6 +142,8 @@ export default function Verification() {
   const [result, setResult] = useState(null)
   const [liveStatus, setLiveStatus] = useState('Idle')
   const [livePulse, setLivePulse] = useState(0)
+  const [voiceAudioUrl, setVoiceAudioUrl] = useState(null)
+  const [voiceLoading, setVoiceLoading] = useState(false)
   const textareaRef = useRef(null)
   const refreshTimerRef = useRef(null)
 
@@ -278,6 +281,46 @@ export default function Verification() {
     textareaRef.current?.focus()
   }
 
+  const speakSummary = async () => {
+    if (!result) return
+    setVoiceLoading(true)
+    setVoiceAudioUrl(null)
+    try {
+      const verdictLabel = verdictMeta[currentVerdict]?.label || currentVerdict
+      const totalClaims = result.summary?.totalClaims || 0
+      const supported = (result.summary?.verifiedCount || 0) + (result.summary?.likelyTrueCount || 0)
+      const challenged = result.summary?.likelyFalseCount || 0
+      const unverifiable = result.summary?.unverifiableCount || 0
+      const conf = Math.round(confidence)
+      const manip = Math.round(manipulationRisk)
+
+      // Build a natural spoken summary
+      const lines = [
+        `Verification complete. Overall verdict: ${verdictLabel}.`,
+        `Confidence score: ${conf} percent.`,
+        totalClaims > 0
+          ? `${totalClaims} claim${totalClaims !== 1 ? 's' : ''} were analysed. ${supported} supported, ${challenged} challenged, and ${unverifiable} unverifiable.`
+          : '',
+        manip > 50
+          ? `Warning: manipulation risk is elevated at ${manip} percent. Treat this content with caution.`
+          : `Manipulation risk is low at ${manip} percent.`,
+        result.summary?.overallStatus === 'FALSE' || result.summary?.overallStatus === 'LIKELY_FALSE'
+          ? 'This content contains claims that are likely false or unsupported by available evidence.'
+          : result.summary?.overallStatus === 'VERIFIED' || result.summary?.overallStatus === 'LIKELY_TRUE'
+          ? 'The main claims in this content appear to be supported by available evidence.'
+          : 'Some claims could not be fully verified. Cross-check with additional sources before sharing.',
+      ].filter(Boolean).join(' ')
+
+      const audioUrl = await api.textToSpeech(lines, 'serious')
+      setVoiceAudioUrl(audioUrl)
+      setLiveStatus('Voice summary ready')
+    } catch (err) {
+      toast.error(err.message || 'Voice summary failed')
+    } finally {
+      setVoiceLoading(false)
+    }
+  }
+
   return (
     <div className="page-wrapper" style={{ background: '#07101f', minHeight: '100vh' }}>
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
@@ -330,9 +373,30 @@ export default function Verification() {
                 <RefreshCw size={14} />
                 {autoRefresh ? 'Live monitoring on' : 'Live monitoring off'}
               </button>
+              <button
+                onClick={speakSummary}
+                className="btn"
+                style={{ width: 'auto', padding: '10px 14px', fontSize: 12, background: result ? 'linear-gradient(135deg,rgba(79,140,255,0.20),rgba(168,85,247,0.15))' : 'rgba(255,255,255,0.04)', opacity: result ? 1 : 0.45 }}
+                disabled={!result || voiceLoading}
+                aria-label="Hear voice summary"
+              >
+                {voiceLoading ? <div className="spin" /> : <Volume2 size={14} />}
+                Hear Summary
+              </button>
             </div>
           </div>
         </motion.div>
+
+        {/* Voice summary player — appears after "Hear Summary" is clicked */}
+        {voiceAudioUrl && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ marginBottom: 20 }}
+          >
+            <WaveformPlayer audioUrl={voiceAudioUrl} mode="assistant" />
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
