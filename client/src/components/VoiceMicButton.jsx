@@ -1,5 +1,5 @@
 // Reusable mic button for voice input — uses Web Speech API
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Mic, MicOff } from 'lucide-react'
 import { useVoiceInput } from '../utils/useVoiceInput'
@@ -8,6 +8,29 @@ import StegRecorder from './StegRecorder'
 export default function VoiceMicButton({ onResult, style = {}, buttonId }) {
   const { listening, start, stop, supported } = useVoiceInput(onResult)
   const [recOpen, setRecOpen] = useState(false)
+  const [sttMode, setSttMode] = useState('checking') // 'browser' | 'server' | 'mock'
+
+  useEffect(() => {
+    let mounted = true
+    async function check() {
+      try {
+        const resp = await fetch('/api/stt/status')
+        if (!mounted) return
+        if (supported) return setSttMode('browser')
+        if (resp.ok) {
+          const data = await resp.json()
+          if (data.configured) return setSttMode('server')
+        }
+        setSttMode('mock')
+      } catch (err) {
+        if (!mounted) return
+        if (supported) return setSttMode('browser')
+        setSttMode('mock')
+      }
+    }
+    check()
+    return () => { mounted = false }
+  }, [supported])
 
   // If browser supports Web Speech API, use it. Otherwise show a recorder fallback.
   if (!supported) {
@@ -26,6 +49,11 @@ export default function VoiceMicButton({ onResult, style = {}, buttonId }) {
           }}>
           <Mic size={16} color="#8b5cf6" />
         </motion.button>
+        <div style={{ fontSize: 11, color: 'var(--text3)', padding: '4px 8px', borderRadius: 999, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)', height: 28, display: 'flex', alignItems: 'center' }}>
+          {sttMode === 'checking' && 'Checking...'}
+          {sttMode === 'server' && 'Server STT'}
+          {sttMode === 'mock' && 'Local recorder'}
+        </div>
         {recOpen && (
           <div style={{ position: 'relative' }}>
             <div style={{ position: 'absolute', right: 0, top: 8, zIndex: 60, width: 360 }}>
@@ -69,7 +97,8 @@ export default function VoiceMicButton({ onResult, style = {}, buttonId }) {
   }
 
   return (
-    <motion.button
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <motion.button
       whileTap={{ scale: 0.9 }}
       onClick={listening ? stop : start}
       id={buttonId}
@@ -89,5 +118,12 @@ export default function VoiceMicButton({ onResult, style = {}, buttonId }) {
         : <Mic size={16} color="#8b5cf6" />
       }
     </motion.button>
+      <div style={{ fontSize: 11, color: listening ? '#ef4444' : 'var(--text3)', padding: '4px 8px', borderRadius: 999, background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.03)', height: 28, display: 'flex', alignItems: 'center' }}>
+        {sttMode === 'checking' && 'Checking...'}
+        {sttMode === 'browser' && 'Browser STT'}
+        {sttMode === 'server' && 'Server STT'}
+        {sttMode === 'mock' && 'Local recorder'}
+      </div>
+    </div>
   )
 }
