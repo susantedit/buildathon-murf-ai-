@@ -31,7 +31,7 @@ function TranscriptBubble({ item }) {
 export default function InterviewRoom() {
   const navigate = useNavigate()
   const { sessionId } = useParams()
-  const { userId } = useAuth()
+  const { userId, displayName } = useAuth()
   const [session, setSession] = useState(null)
   const [answer, setAnswer] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -292,7 +292,7 @@ export default function InterviewRoom() {
                     <div className="participant-avatar" style={{ background: 'linear-gradient(135deg,#0ea5a7,#06b6d4)' }}>
                       <div style={{ width: 72, height: 72, borderRadius: 999, background: 'url(https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop)&quot;)', backgroundSize: 'cover' }} />
                     </div>
-                    <div className="participant-label">Adrian (You)</div>
+                    <div className="participant-label">{(displayName || 'You') + ' (You)'}</div>
                   </div>
                 </div>
               </div>
