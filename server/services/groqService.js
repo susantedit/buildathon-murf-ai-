@@ -200,7 +200,7 @@ Make it practical, modern, and specific. Include exactly 6 questions. Keep openi
   })
 }
 
-export async function continueInterview({ plan, transcript = [], currentQuestion = '', answer = '', turn = 1 }) {
+export async function continueInterview({ plan, transcript = [], currentQuestion = '', answer = '', turn = 1, unverified = false }) {
   const prompt = `You are a skilled interview coach running a live mock interview.
 
 Return valid JSON only with this shape:
@@ -213,7 +213,8 @@ Return valid JSON only with this shape:
   "strength": "...",
   "gap": "...",
   "isComplete": false,
-  "summarySnippet": "..."
+  "summarySnippet": "...",
+  "unverifiedFacts": ["..."]
 }
 
 Interview plan:
@@ -230,6 +231,9 @@ ${answer}
 
 Turn: ${turn}
 
+The caller may request "unverified" output. The value is: ${unverified}.
+If ${unverified} then populate the `unverifiedFacts` array with up to 3 concise, plausible-sounding but possibly unverified observations or facts related to the candidate's answer (each one short). If ${unverified} is false, return an empty array for `unverifiedFacts`.
+
 Keep reply short and natural, like a real interviewer. Provide one nextQuestion unless the interview should wrap. The nextQuestion should feel like a follow-up or a smooth transition to the next round.`
 
   const content = await callGroq(prompt, { temperature: 0.5, maxTokens: 1000 })
@@ -243,6 +247,7 @@ Keep reply short and natural, like a real interviewer. Provide one nextQuestion 
     gap: 'Needs more concrete examples',
     isComplete: false,
     summarySnippet: 'Solid answer with room for more detail.',
+    unverifiedFacts: [],
   })
 }
 

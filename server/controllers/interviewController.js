@@ -44,14 +44,20 @@ export async function handleCreateInterview(req, res) {
 
 export async function handleContinueInterview(req, res) {
   try {
-    const { sessionId, plan, transcript = [], currentQuestion = '', answer = '', turn = 0 } = req.body
+    const { sessionId, plan, transcript = [], currentQuestion = '', answer = '', turn = 0, unverified = false } = req.body
     if (!answer) return res.status(400).json({ error: 'answer is required' })
 
-    const response = await continueInterview({ plan, transcript, currentQuestion, answer, turn: Number(turn) || 0 })
+    const response = await continueInterview({ plan, transcript, currentQuestion, answer, turn: Number(turn) || 0, unverified: !!unverified })
 
     let audioUrl = ''
     try {
-      audioUrl = await textToSpeech(response.reply || response.nextQuestion || response.summarySnippet || 'Let us continue.', 'calm', 'interview')
+      // If unverified facts are present, include them in the spoken output with a disclaimer
+      const unverifiedSection = Array.isArray(response.unverifiedFacts) && response.unverifiedFacts.length > 0
+        ? `\n\nDisclaimer: The following information may be unverified.\n${response.unverifiedFacts.join('\n')}`
+        : ''
+
+      const ttsText = `${response.reply || response.nextQuestion || response.summarySnippet || 'Let us continue.'}${unverifiedSection}`
+      audioUrl = await textToSpeech(ttsText, 'calm', 'interview')
     } catch (err) {
       console.warn('Interview turn audio skipped:', err.message)
     }

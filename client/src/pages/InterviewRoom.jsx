@@ -36,6 +36,7 @@ export default function InterviewRoom() {
   const [answer, setAnswer] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [analyzing, setAnalyzing] = useState(false)
+  const [unverifiedMode, setUnverifiedMode] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const [cameraOn, setCameraOn] = useState(false)
   const [cameraLoading, setCameraLoading] = useState(false)
@@ -163,6 +164,7 @@ export default function InterviewRoom() {
         currentQuestion: currentQuestion.question,
         answer: userTurn.text,
         turn: currentIndex + 1,
+        unverified: unverifiedMode,
       })
 
       const interviewerText = response.reply || response.coachingNote || response.summarySnippet || 'Thanks, let us continue.'
@@ -355,9 +357,11 @@ export default function InterviewRoom() {
 
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
                 <button className="btn" onClick={submitAnswer} disabled={submitting || analyzing || isFinished}><Send size={14} /> {submitting ? 'Sending...' : 'Send answer'}</button>
+                <button className="btn" onClick={() => setUnverifiedMode(m => !m)} style={{ background: unverifiedMode ? 'linear-gradient(90deg,#ff7a7a,#ffb86b)' : 'var(--glass)', color: unverifiedMode ? '#2b0216' : 'var(--text2)' }}>{unverifiedMode ? 'Unverified: ON' : 'Unverified: OFF'}</button>
                 <button className="btn" onClick={() => finalizeInterview(transcript)} disabled={submitting || analyzing} style={{ background: 'var(--glass)', color: 'var(--text2)' }}><CheckCircle2 size={14} /> End & review</button>
                 <button className="btn" onClick={() => setAnswer('')} style={{ background: 'var(--glass)', color: 'var(--text2)' }}><Mic size={14} /> Clear</button>
               </div>
+              {unverifiedMode && <div style={{ fontSize: 12, color: '#b45309', marginTop: 8 }}>Unverified mode: responses include speculative facts. Verify before use.</div>}
               <div style={{ fontSize: 11, color: 'var(--text3)', marginTop: 10 }}>{actionHint}</div>
             </div>
 
