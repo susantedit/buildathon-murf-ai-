@@ -9,6 +9,7 @@ const sessionSchema = new mongoose.Schema({
   inputText: { type: String, required: true },
   responseText: { type: String, default: '' },
   audioUrl: { type: String, default: '' },
+  meta: { type: mongoose.Schema.Types.Mixed, default: {} },
   createdAt: { type: Date, default: Date.now }
 })
 

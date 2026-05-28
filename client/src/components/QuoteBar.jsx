@@ -82,6 +82,14 @@ export const QUOTES = {
     { text: 'Consistency beats intensity every time. Keep showing up.', author: 'susantedit' },
     { text: 'The person you\'re becoming is built one session at a time.', author: 'susantedit' },
   ],
+  interview: [
+    { text: 'The best interviews reveal how you think, not how perfectly you memorize.', author: 'susantedit' },
+    { text: 'Preparation turns pressure into performance. Practice out loud and you will feel the difference.', author: 'susantedit' },
+    { text: 'Clear structure beats long answers. Lead with the point, then prove it.', author: 'susantedit' },
+    { text: 'Confidence is built one rehearsed story at a time.', author: 'susantedit' },
+    { text: 'Strong interviews feel like conversations with purpose.', author: 'susantedit' },
+    { text: 'Every mock interview is a rehearsal for the real opportunity.', author: 'susantedit' },
+  ],
   profile: [
     { text: '🚀 Building cool things with code while exploring AI, Generative AI, and Cybersecurity.', author: 'susantedit' },
     { text: 'First, solve the problem. Then, write the code.', author: 'John Johnson' },

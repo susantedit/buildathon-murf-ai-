@@ -9,6 +9,10 @@ import LoginGate from './components/LoginGate'
 import PWAInstallPrompt from './components/PWAInstallPrompt'
 import OnboardingTour from './components/OnboardingTour'
 import Home from './pages/HomeNew'
+import Interviews from './pages/Interviews'
+import InterviewBuilder from './pages/InterviewBuilder'
+import InterviewRoom from './pages/InterviewRoom'
+import InterviewReview from './pages/InterviewReview'
 import Creator from './pages/Creator'
 import Assistant from './pages/Assistant'
 import Study from './pages/Study'
@@ -76,7 +80,12 @@ function AppInner() {
     <BrowserRouter>
       <Navbar />
       <Routes>
-        <Route path="/"           element={<Home />} />
+        <Route path="/"           element={<Interviews />} />
+        <Route path="/interviews" element={<Interviews />} />
+        <Route path="/interviews/new" element={<InterviewBuilder />} />
+        <Route path="/interviews/live/:sessionId" element={<InterviewRoom />} />
+        <Route path="/interviews/review/:sessionId" element={<InterviewReview />} />
+        <Route path="/vortex"     element={<Home />} />
         <Route path="/creator"    element={<Creator />} />
         <Route path="/assistant"  element={<Assistant />} />
         <Route path="/study"      element={<Study />} />

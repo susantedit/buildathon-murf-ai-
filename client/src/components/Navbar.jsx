@@ -8,7 +8,7 @@ import { api } from '../services/api'
 import toast from 'react-hot-toast'
 
 const links = [
-  { to: '/',           label: 'Home',       Icon: Home },
+  { to: '/',           label: 'Interviews', Icon: Mic },
   { to: '/creator',    label: 'Creator',    Icon: Mic },
   { to: '/assistant',  label: 'Assistant',  Icon: Brain },
   { to: '/verification', label: 'Verify',   Icon: ShieldCheck },
@@ -26,7 +26,7 @@ const links = [
 
 // Bottom nav: Home + 4 primary + "More" button
 const primaryLinks = [
-  { to: '/',           label: 'Home',       Icon: Home },
+  { to: '/',           label: 'Interviews', Icon: Mic },
   { to: '/cagebait',   label: 'CageBait',   Icon: Bug },
   { to: '/assistant',  label: 'Assistant',  Icon: Brain },
   { to: '/safety',     label: 'Safety',     Icon: Shield },

@@ -1,9 +1,9 @@
 ﻿/* ============================================================
-   NEUROGLASS UI — VORTEX ATLAS DESIGN SYSTEM v2
-   Deep Space · Electric Blue · Neon Purple
+   NEUROGLASS UI - VORTEX ATLAS DESIGN SYSTEM v2
+   Deep Space - Electric Blue - Neon Purple
    ============================================================ */
 
-/* ── NEUROGLASS DARK THEME ── */
+/* -- NEUROGLASS DARK THEME -- */
 :root,
 [data-theme="dark"] {
   --bg:        #0B0F1A;
@@ -36,7 +36,7 @@
   --fp-glow: rgba(79,140,255,0.22);
 }
 
-/* ── LIGHT THEME ── */
+/* -- LIGHT THEME -- */
 [data-theme="light"] {
   --bg:        #f0f4ff;
   --bg2:       #e8eeff;
@@ -68,7 +68,7 @@
   --fp-glow: rgba(79,140,255,0.14);
 }
 
-/* ── RESET ── */
+/* -- RESET -- */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-family: "Manrope", system-ui, sans-serif; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
 body { background: var(--bg); color: var(--text1); min-height: 100vh; overflow-x: hidden; transition: background 0.4s, color 0.3s; }
@@ -79,7 +79,7 @@ textarea, input, select { font-family: inherit; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(79,140,255,0.35); border-radius: 4px; }
 
-/* ── BODY BACKGROUND ── */
+/* -- BODY BACKGROUND -- */
 body {
   background:
     radial-gradient(ellipse 60% 40% at 15% 10%, rgba(79,140,255,0.12), transparent 55%),
@@ -88,7 +88,7 @@ body {
     var(--bg);
 }
 
-/* ── PAGE WRAPPER ── */
+/* -- PAGE WRAPPER -- */
 .page-wrapper { min-height: 100vh; background: transparent; position: relative; }
 .page-wrapper::before {
   content: ""; position: fixed; inset: 0;
@@ -100,7 +100,7 @@ body {
 .page-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; padding: 96px 20px 100px; }
 .page-content-wide { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 96px 20px 100px; }
 
-/* ── NEUROGLASS CARD ── */
+/* -- NEUROGLASS CARD -- */
 .card {
   background: linear-gradient(135deg, rgba(79,140,255,0.07), rgba(168,85,247,0.04));
   backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
@@ -114,7 +114,7 @@ body {
 }
 .card-lift:hover { transform: translateY(-4px); }
 
-/* ── BUTTON ── */
+/* -- BUTTON -- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   background: linear-gradient(135deg, #4F8CFF 0%, #A855F7 100%);
@@ -130,7 +130,7 @@ body {
 .btn:active:not(:disabled) { transform: scale(0.97); box-shadow: 0 4px 16px rgba(79,140,255,0.30); }
 .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-/* ── INPUT ── */
+/* -- INPUT -- */
 .inp {
   width: 100%; background: var(--inp); border: 1px solid var(--border); border-radius: 14px;
   color: var(--text1); font-size: 14px; padding: 12px 16px; outline: none; resize: none;
@@ -139,7 +139,7 @@ body {
 .inp:focus { border-color: rgba(79,140,255,0.65); box-shadow: 0 0 0 3px rgba(79,140,255,0.12); background: var(--inp-f); }
 .inp::placeholder { color: var(--text3); }
 
-/* ── SELECT ── */
+/* -- SELECT -- */
 select.inp {
   appearance: none; -webkit-appearance: none; background-color: var(--bg2);
   background-image: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%234F8CFF%27 stroke-width=%272.5%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27%3E%3C/polyline%3E%3C/svg%3E");
@@ -147,7 +147,7 @@ select.inp {
 }
 select.inp option { background-color: var(--bg2); color: var(--text1); }
 
-/* ── CHIP ── */
+/* -- CHIP -- */
 .chip {
   display: inline-flex; align-items: center; padding: 6px 14px; border-radius: 999px; font-size: 12px;
   background: var(--chip); border: 1px solid var(--chip-b); color: var(--text2);
@@ -157,47 +157,47 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
 .chip:active { transform: scale(0.95); }
 .chip-on { background: rgba(79,140,255,0.20) !important; border-color: rgba(79,140,255,0.50) !important; color: #4F8CFF !important; }
 
-/* ── LABEL ── */
+/* -- LABEL -- */
 .lbl { display: block; font-size: 13px; font-weight: 500; color: var(--text2); margin-bottom: 8px; }
 
-/* ── PAGE HEADER ── */
+/* -- PAGE HEADER -- */
 .ph { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
 .ph-icon { width: 52px; height: 52px; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .ph h1 { font-family: "Space Grotesk", system-ui, sans-serif; font-weight: 700; font-size: 22px; color: var(--text1); margin-bottom: 3px; }
 .ph p  { font-size: 13px; color: var(--text2); }
 
-/* ── RESULT ── */
+/* -- RESULT -- */
 .result { padding: 20px; margin-top: 12px; }
 .result-hd { display: flex; align-items: center; gap: 7px; margin-bottom: 12px; }
 .result-lbl { font-size: 13px; font-weight: 500; color: var(--text2); }
 .result-txt { font-size: 14px; line-height: 1.75; color: var(--text1); white-space: pre-line; }
 
-/* ── SHIMMER ── */
+/* -- SHIMMER -- */
 .shimmer { background: linear-gradient(90deg, var(--sh-a) 25%, var(--sh-b) 50%, var(--sh-a) 75%); background-size: 200% 100%; animation: ng-shimmer 1.6s infinite; }
 
-/* ── SPINNER ── */
+/* -- SPINNER -- */
 .spin { width: 16px; height: 16px; border: 2px solid rgba(79,140,255,0.25); border-top-color: #4F8CFF; border-radius: 50%; display: inline-block; animation: ng-spin 0.7s linear infinite; }
 
-/* ── ICON BTN ── */
+/* -- ICON BTN -- */
 .icon-btn { width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--border); background: var(--glass); color: var(--text2); display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.15s, border-color 0.2s; }
 .icon-btn:hover { background: var(--glass-h); transform: scale(1.08); border-color: var(--border-h); }
 
-/* ── BADGE ── */
+/* -- BADGE -- */
 .badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
 
-/* ── GLOW CARD ── */
+/* -- GLOW CARD -- */
 .glow-card { position: relative; overflow: hidden; }
 .glow-card::after { content: ""; position: absolute; inset: -1px; background: linear-gradient(135deg, rgba(79,140,255,0.4), rgba(168,85,247,0.4), rgba(34,211,238,0.3)); border-radius: inherit; opacity: 0; transition: opacity 0.3s; z-index: -1; }
 .glow-card:hover::after { opacity: 1; }
 
-/* ── GRADIENT TEXT ── */
+/* -- GRADIENT TEXT -- */
 .grad-text { background: linear-gradient(135deg, #4F8CFF, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .grad-text-2 { background: linear-gradient(135deg, #22d3ee, #4F8CFF, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 .neon-blue { color: #4F8CFF; text-shadow: 0 0 20px rgba(79,140,255,0.6); }
 .neon-purple { color: #A855F7; text-shadow: 0 0 20px rgba(168,85,247,0.6); }
 .neon-cyan { color: #22d3ee; text-shadow: 0 0 20px rgba(34,211,238,0.6); }
 
-/* ── NAVBAR ── */
+/* -- NAVBAR -- */
 .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; height: 62px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: var(--nav); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--nav-b); }
 .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
 .nav-logo-icon { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #4F8CFF, #A855F7); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 16px rgba(79,140,255,0.40); }
@@ -214,11 +214,11 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
 .bot-link { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 10px; color: var(--text3); font-size: 10px; transition: color 0.2s; }
 .bot-link.active { color: #4F8CFF; }
 
-/* ── RESPONSIVE ── */
+/* -- RESPONSIVE -- */
 @media (max-width: 767px) { .navbar { display: none !important; } .mob-top { display: flex !important; } .bot-nav { display: flex !important; } .page-content, .page-content-wide { padding-top: 80px; padding-bottom: 80px; } }
 @media (min-width: 768px) { .mob-top { display: none !important; } .bot-nav { display: none !important; } .mob-menu { display: none !important; } }
 
-/* ── RESPONSIVE FIXES ── */
+/* -- RESPONSIVE FIXES -- */
 @media (max-width: 767px) {
   /* Page content padding */
   .page-content, .page-content-wide {
@@ -234,13 +234,13 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
   /* Hide cursor glow on touch */
   .cursor-dot, .cursor-trail { display: none !important; }
 
-  /* Stats strip — 2 columns on mobile */
+  /* Stats strip - 2 columns on mobile */
   .signal-strip { grid-template-columns: repeat(2, 1fr) !important; }
 
-  /* Contact shell — single column */
+  /* Contact shell - single column */
   .contact-shell { grid-template-columns: 1fr !important; gap: 24px !important; }
 
-  /* Hero scene — hide on very small screens */
+  /* Hero scene - hide on very small screens */
   .hero-scene { display: none !important; }
   .hero-shell { grid-template-columns: 1fr !important; }
 }
@@ -252,7 +252,7 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
   .contact-grid { grid-template-columns: 1fr !important; }
 }
 
-/* ── KEYFRAMES ── */
+/* -- KEYFRAMES -- */
 @keyframes ng-pulse  { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.04); opacity: 1; } }
 @keyframes ng-glow   { 0%,100% { opacity: 0.6; } 50% { opacity: 1; } }
 @keyframes ng-wave   { 0%,100% { transform: scaleY(0.2); } 50% { transform: scaleY(1); } }
@@ -267,7 +267,7 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
 @keyframes ng-draw   { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @keyframes ng-trail  { 0% { opacity: 0.4; transform: scale(1); } 100% { opacity: 0; transform: scale(0.3); } }
 
-/* ── CAGEBAIT STYLES ── */
+/* -- CAGEBAIT STYLES -- */
 .cb-persona-card { cursor: pointer; padding: 20px; transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s; }
 .cb-persona-card:hover { transform: translateY(-6px) scale(1.02); }
 .cb-persona-card.selected { border-color: rgba(79,140,255,0.60) !important; box-shadow: 0 0 40px rgba(79,140,255,0.20), inset 0 1px 0 rgba(255,255,255,0.12) !important; }
@@ -284,7 +284,7 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
 .cb-timer { font-family: "JetBrains Mono", monospace; font-size: 22px; font-weight: 600; color: #4F8CFF; text-shadow: 0 0 20px rgba(79,140,255,0.5); animation: ng-glow 2s ease-in-out infinite; }
 .cb-status-dot { width: 8px; height: 8px; border-radius: 50%; animation: ng-blink 1.5s ease-in-out infinite; }
 
-/* ── WAVEFORM VISUALIZER ── */
+/* -- WAVEFORM VISUALIZER -- */
 .wv-bar { border-radius: 3px; transform-origin: bottom; transition: height 0.05s ease; }
 .wv-bar.playing { animation: ng-wave 0.8s ease-in-out infinite; }
 .wv-bar:nth-child(2n) { animation-delay: 0.1s; }
@@ -293,56 +293,56 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
 .wv-bar:nth-child(5n) { animation-delay: 0.15s; }
 .wv-bar:nth-child(7n) { animation-delay: 0.25s; }
 
-/* ── COGNITIVE BADGE ── */
+/* -- COGNITIVE BADGE -- */
 .cog-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 700; backdrop-filter: blur(12px); border: 1px solid; transition: all 0.3s; }
 .cog-focus    { background: rgba(79,140,255,0.15); border-color: rgba(79,140,255,0.40); color: #4F8CFF; }
 .cog-stressed { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.35); color: #ef4444; }
 .cog-confident { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.35); color: #10b981; }
 .cog-neutral  { background: rgba(148,163,184,0.10); border-color: rgba(148,163,184,0.25); color: var(--text2); }
 
-/* ── MEMORY CARDS ── */
+/* -- MEMORY CARDS -- */
 .mem-card { padding: 12px 14px; border-radius: 12px; background: rgba(79,140,255,0.05); border: 1px solid rgba(79,140,255,0.15); transition: border-color 0.2s; }
 .mem-card:hover { border-color: rgba(79,140,255,0.30); }
 
-/* ── FLOATING PANEL (3D tilt) ── */
+/* -- FLOATING PANEL (3D tilt) -- */
 .floating-panel { transition: transform 0.15s ease-out, box-shadow 0.25s; will-change: transform; }
 .floating-panel:hover { box-shadow: 0 24px 80px rgba(79,140,255,0.20), inset 0 1px 0 rgba(255,255,255,0.12); }
 
-/* ── VOICE ORB ── */
+/* -- VOICE ORB -- */
 .voice-orb { border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: box-shadow 0.3s, transform 0.2s; }
 .voice-orb.idle     { box-shadow: 0 0 24px rgba(79,140,255,0.30); animation: ng-pulse 3s ease-in-out infinite; }
 .voice-orb.listening { box-shadow: 0 0 40px rgba(239,68,68,0.50), 0 0 80px rgba(239,68,68,0.20); }
 .voice-orb.speaking  { box-shadow: 0 0 40px rgba(79,140,255,0.50), 0 0 80px rgba(79,140,255,0.20); }
 
-/* ── CODE GRAPH ── */
+/* -- CODE GRAPH -- */
 .graph-node { cursor: pointer; transition: r 0.2s; }
 .graph-node:hover { filter: brightness(1.3); }
 .graph-edge { stroke-dasharray: 1; stroke-dashoffset: 1; animation: ng-draw 0.6s ease forwards; }
 
-/* ── CURSOR GLOW ── */
+/* -- CURSOR GLOW -- */
 .cursor-dot { position: fixed; pointer-events: none; z-index: 9999; border-radius: 50%; mix-blend-mode: screen; }
 .cursor-trail { position: fixed; pointer-events: none; z-index: 9998; border-radius: 50%; animation: ng-trail 0.3s ease forwards; }
 
-/* ── ADAPTIVE UI TRANSITIONS ── */
+/* -- ADAPTIVE UI TRANSITIONS -- */
 :root { transition: --ng-blue 0.6s, --ng-purple 0.6s, --g1 0.6s, --g2 0.6s; }
 
-/* ── PARTICLE FIELD ── */
+/* -- PARTICLE FIELD -- */
 .particle-field { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
 .particle { position: absolute; border-radius: 50%; animation: ng-float linear infinite; }
 
-/* ── ADAPTIVE UI MODES ── */
+/* -- ADAPTIVE UI MODES -- */
 .mode-debugging { --ng-blue: #ef4444; --ng-purple: #f97316; }
 .mode-learning  { --ng-blue: #22d3ee; --ng-purple: #3b82f6; }
 .mode-exploring { --ng-blue: #A855F7; --ng-purple: #ec4899; }
 
-/* ── REDUCED MOTION ── */
+/* -- REDUCED MOTION -- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
   .particle-field { display: none; }
   .cursor-dot, .cursor-trail { display: none; }
 }
 
-/* ── HOME PAGE LAYOUT ── */
+/* -- HOME PAGE LAYOUT -- */
 .home-page { overflow-x: hidden; }
 .home-shell { display: flex; flex-direction: column; gap: 80px; }
 
@@ -427,3 +427,4 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
 .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 @media (max-width: 480px) { .contact-grid { grid-template-columns: 1fr; } }
 .contact-actions { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+

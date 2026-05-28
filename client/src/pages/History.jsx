@@ -17,6 +17,7 @@ const cfg = {
   translator: { color: '#10b981', label: 'Translator', emoji: '🌍' },
   safety:     { color: '#ef4444', label: 'Safety',     emoji: '🛡️' },
   podcast:    { color: '#7c3aed', label: 'Podcast',    emoji: '🎙️' },
+  interview:  { color: '#06b6d4', label: 'Interview',  emoji: '🎤' },
 }
 
 function SessionCard({ s, onDelete }) {

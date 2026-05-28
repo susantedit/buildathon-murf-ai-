@@ -9,6 +9,7 @@ import historyRoutes from './routes/history.js'
 import testRoutes from './routes/test.js'
 import contactRoutes from './routes/contacts.js'
 import podcastRoutes from './routes/podcast.js'
+import interviewRoutes from './routes/interviews.js'
 import cageBaitRoutes from './routes/cagebait.js'
 import verificationRoutes from './routes/verification.js'
 import stegRoutes from './routes/steg.js'
@@ -81,6 +82,7 @@ app.use('/api', historyRoutes)
 app.use('/api', testRoutes)
 app.use('/api', contactRoutes)
 app.use('/api', podcastRoutes)
+app.use('/api', interviewRoutes)
 app.use('/api', cageBaitRoutes)
 app.use('/api', verificationRoutes)
 app.use('/api/steg', stegRoutes)

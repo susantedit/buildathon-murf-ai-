@@ -40,6 +40,10 @@ export const api = {
   // Podcast Studio
   generatePodcast: (data)               => post('/podcast/generate',  data),
   chatWithPodcast: (data)               => post('/podcast/chat',      data),
+  // Interview Lab
+  createInterview: (data)               => post('/interviews/create', data),
+  continueInterview: (data)             => post('/interviews/next',   data),
+  summarizeInterview: (data)            => post('/interviews/feedback', data),
   // Contact form
   sendContact:     (data)               => post('/contact',           data),
   // Vision

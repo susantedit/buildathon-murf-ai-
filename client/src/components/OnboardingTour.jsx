@@ -6,27 +6,27 @@ import { X, ArrowRight, Mic, Brain, Shield, Sparkles } from 'lucide-react'
 const STEPS = [
   {
     icon: <Sparkles size={28} color="#8b5cf6" />,
-    title: 'Welcome to Vortex Voice AI',
-    desc: 'Your all-in-one AI platform for content creation, learning, productivity, and safety — all powered by voice.',
-    color: '#8b5cf6',
+    title: 'Welcome to Interview OS',
+    desc: 'Create interviews with Groq, run them live with voice, and review detailed feedback without leaving the app.',
+    color: '#06b6d4',
   },
   {
     icon: <Mic size={28} color="#ec4899" />,
     title: 'Voice-First Experience',
-    desc: 'Tap the 🎤 mic button on any page to speak your input instead of typing. Your voice drives everything.',
+    desc: 'Tap the 🎤 mic button to speak the role, focus, or answer instead of typing. Your voice drives the workflow.',
     color: '#ec4899',
   },
   {
     icon: <Brain size={28} color="#3b82f6" />,
-    title: '10+ AI Modes',
-    desc: 'Creator, Assistant, Study, Focus, Planner, Translator, Podcast, Journal — each with AI voice responses via Murf Falcon.',
+    title: 'Groq + Murf',
+    desc: 'Groq generates the interview logic and feedback. Murf narrates the interviewer so every session feels alive.',
     color: '#3b82f6',
   },
   {
     icon: <Shield size={28} color="#ef4444" />,
-    title: 'Safety Guardian',
-    desc: 'Hold the SOS button for 2.5s to send emergency alerts with your live location to trusted contacts.',
-    color: '#ef4444',
+    title: 'History and review',
+    desc: 'Every interview is saved with transcript, feedback, and progress so you can revisit and improve quickly.',
+    color: '#10b981',
   },
 ]
 

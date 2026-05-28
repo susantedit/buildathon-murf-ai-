@@ -156,8 +156,13 @@ VITE_EMAILJS_PUBLIC_KEY_3=
 ```
 MONGODB_URI=
 GROQ_API_KEY=
+GROQ_API_KEY_2=
+GROQ_API_KEY_3=
+GROQ_API_KEYS=
 MURF_API_KEY=
 ```
+
+If one Groq key is rate-limited or fails, the server automatically retries the next configured key.
 
 ---
 

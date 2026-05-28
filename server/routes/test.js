@@ -1,5 +1,6 @@
 import express from 'express'
 import axios from 'axios'
+import { getGroqKeys } from '../services/groqService.js'
 
 const router = express.Router()
 
@@ -25,27 +26,46 @@ router.get('/test-apis', async (req, res) => {
 
   // Test Groq API
   try {
-    if (!process.env.GROQ_API_KEY) {
+    const keys = getGroqKeys()
+    if (!keys.length) {
       throw new Error('GROQ_API_KEY not set')
     }
     
-    const groqRes = await axios.post(
-      'https://api.groq.com/openai/v1/chat/completions',
-      {
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: 'Say hello' }],
-        max_tokens: 50
-      },
-      {
-        headers: {
-          'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        timeout: 10000
+    let lastError
+    for (const key of keys) {
+      try {
+        const groqRes = await axios.post(
+          'https://api.groq.com/openai/v1/chat/completions',
+          {
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: 'Say hello' }],
+            max_tokens: 50
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${key}`,
+              'Content-Type': 'application/json'
+            },
+            timeout: 10000
+          }
+        )
+
+        results.groq = !!groqRes.data?.choices?.[0]?.message?.content
+        lastError = null
+        break
+      } catch (err) {
+        const status = err.response?.status
+        if (!status || [401, 403, 408, 429, 500, 502, 503, 504].includes(status)) {
+          lastError = err
+          continue
+        }
+        throw err
       }
-    )
-    
-    results.groq = !!groqRes.data?.choices?.[0]?.message?.content
+    }
+
+    if (!results.groq && lastError) {
+      throw lastError
+    }
   } catch (err) {
     results.errors.groq = err.response?.data?.error?.message || err.message
   }
