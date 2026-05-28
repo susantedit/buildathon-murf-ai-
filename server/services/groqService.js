@@ -232,7 +232,7 @@ ${answer}
 Turn: ${turn}
 
 The caller may request "unverified" output. The value is: ${unverified}.
-If ${unverified} then populate the `unverifiedFacts` array with up to 3 concise, plausible-sounding but possibly unverified observations or facts related to the candidate's answer (each one short). If ${unverified} is false, return an empty array for `unverifiedFacts`.
+If ${unverified} then populate the unverifiedFacts array with up to 3 concise, plausible-sounding but possibly unverified observations or facts related to the candidate's answer (each one short). If ${unverified} is false, return an empty array for unverifiedFacts.
 
 Keep reply short and natural, like a real interviewer. Provide one nextQuestion unless the interview should wrap. The nextQuestion should feel like a follow-up or a smooth transition to the next round.`
 
