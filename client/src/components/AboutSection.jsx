@@ -97,7 +97,7 @@ export default function AboutSection() {
         <motion.div
           variants={sectionVariant} initial="hidden" whileInView="visible"
           viewport={{ once: true, margin: '-80px' }}
-          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 80 }}
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24, marginBottom: 80 }}
         >
           <FloatingPanel glowColor="#ef4444" style={{ padding: 32 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 16 }}>
@@ -197,7 +197,7 @@ export default function AboutSection() {
           </div>
 
           {/* Pipeline visualization */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, flexWrap: 'wrap', marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, flexWrap: 'wrap', rowGap: 12, marginBottom: 32 }}>
             {[
               { label: 'User Speaks',    icon: '🎤', color: '#4F8CFF' },
               { label: 'STT Captures',   icon: '📡', color: '#A855F7' },

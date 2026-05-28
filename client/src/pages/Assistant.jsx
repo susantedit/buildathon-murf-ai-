@@ -101,7 +101,7 @@ Analyze both options and reply ONLY in this exact JSON (no markdown):
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10, marginBottom: 10 }}>
         <div>
           <div style={{ fontSize: 11, fontWeight: 600, color: '#3b82f6', marginBottom: 6 }}>Option A</div>
           <input value={optionA} onChange={e => setOptionA(e.target.value)}
@@ -139,7 +139,7 @@ Analyze both options and reply ONLY in this exact JSON (no markdown):
             </div>
 
             {/* Side by side comparison */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 10 }}>
               {[['A', result.optionA, '#3b82f6', optionA], ['B', result.optionB, '#8b5cf6', optionB]].map(([label, data, color, name]) => (
                 <div key={label} className="card" style={{ padding: 14, borderColor: result.recommendation === label ? color + '60' : 'var(--border)', background: result.recommendation === label ? color + '08' : 'var(--glass)' }}>
                   <div style={{ fontSize: 11, fontWeight: 800, color, marginBottom: 8 }}>

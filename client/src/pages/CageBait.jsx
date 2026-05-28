@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Bug, Shield, Phone, Link, Building, CreditCard,
   AlertTriangle, Flag, Clock, ChevronDown, ChevronUp,
-  Copy, Check, Mic, X, Zap, Eye
+  Copy, Check, Mic, X, Zap, Eye, Sparkles
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../services/api'
@@ -116,6 +116,7 @@ export default function CageBait() {
   const [sessionReport, setSessionReport] = useState(null)
   const [copied, setCopied] = useState(false)
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [extractingIntel, setExtractingIntel] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const [startTime, setStartTime] = useState(null)
 
@@ -202,9 +203,10 @@ export default function CageBait() {
       setMessages(prev => [...prev, personaMsg])
 
       // Auto-play audio if provided
-      if (res.audioUrl) {
+      const audioUrl = res.audioUrl || res.audio
+      if (audioUrl) {
         setIsSpeaking(true)
-        const audio = new Audio(res.audioUrl)
+        const audio = new Audio(audioUrl)
         audio.onended = () => setIsSpeaking(false)
         audio.play().catch(() => {})
       }
@@ -223,6 +225,29 @@ export default function CageBait() {
       toast.error(err.message || 'Failed to get response')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleExtractIntel = async () => {
+    if (!messages.length || extractingIntel) return
+
+    const allText = messages
+      .map(m => `${m.role === 'scammer' ? 'SCAMMER' : selectedPersona?.name}: ${m.content}`)
+      .join('\n')
+
+    setExtractingIntel(true)
+    try {
+      const res = await api.cageBaitIntel({ conversationText: allText, userId })
+      if (res?.intel) {
+        setIntel(res.intel)
+        toast.success('Intel extracted')
+      } else {
+        toast('No intel captured yet')
+      }
+    } catch (err) {
+      toast.error(err.message || 'Failed to extract intel')
+    } finally {
+      setExtractingIntel(false)
     }
   }
 
@@ -573,7 +598,7 @@ export default function CageBait() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 20, alignItems: 'start' }}
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16, alignItems: 'start' }}
             >
               {/* Left: Transcript + Input */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -616,8 +641,61 @@ export default function CageBait() {
                     padding: 20, minHeight: 380, maxHeight: 480,
                     overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 12,
                     position: 'relative',
+                    background: 'linear-gradient(180deg, rgba(11,15,26,0.98), rgba(11,15,26,0.88))',
+                    border: '1px solid rgba(79,140,255,0.18)',
+                    boxShadow: '0 20px 60px rgba(2,6,23,0.45)',
                   }}
                 >
+                  <div style={{
+                    position: 'sticky', top: -20, zIndex: 2,
+                    margin: '-20px -20px 10px', padding: '14px 18px',
+                    background: 'linear-gradient(135deg, rgba(79,140,255,0.16), rgba(168,85,247,0.08), rgba(11,15,26,0.92))',
+                    borderBottom: '1px solid rgba(255,255,255,0.06)',
+                    backdropFilter: 'blur(16px)',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 14px #10b981' }} />
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.72)' }}>
+                            Live Transcript
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--text2)' }}>
+                            Turn {turnCount} · {PHASE_LABELS[currentPhaseIdx]} · {messages.length} messages captured
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        <div style={{
+                          padding: '6px 10px', borderRadius: 999,
+                          background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.24)',
+                          color: '#ef4444', fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase',
+                        }}>
+                          Active bait
+                        </div>
+                        <div style={{
+                          padding: '6px 10px', borderRadius: 999,
+                          background: 'rgba(34,211,238,0.10)', border: '1px solid rgba(34,211,238,0.20)',
+                          color: '#22d3ee', fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase',
+                        }}>
+                          Auto intel on
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ marginTop: 10, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+                      {PHASE_LABELS.map((label, index) => (
+                        <div key={label} style={{
+                          height: 4,
+                          borderRadius: 999,
+                          background: index <= currentPhaseIdx
+                            ? `linear-gradient(90deg, ${PHASE_COLORS[index]}, ${PHASE_COLORS[Math.min(index + 1, 3)]})`
+                            : 'rgba(255,255,255,0.08)',
+                          boxShadow: index <= currentPhaseIdx ? `0 0 14px ${PHASE_COLORS[index]}55` : 'none',
+                        }} />
+                      ))}
+                    </div>
+                  </div>
+
                   {messages.length === 0 && (
                     <div style={{
                       flex: 1, display: 'flex', flexDirection: 'column',
@@ -630,7 +708,7 @@ export default function CageBait() {
                   )}
 
                   <AnimatePresence initial={false}>
-                    {messages.map((msg) => (
+                    {messages.map((msg, index) => (
                       <motion.div
                         key={msg.id}
                         initial={{ opacity: 0, y: 12, scale: 0.96 }}
@@ -641,17 +719,40 @@ export default function CageBait() {
                           justifyContent: msg.role === 'scammer' ? 'flex-end' : 'flex-start',
                         }}
                       >
-                        <div style={{ maxWidth: '75%' }}>
+                        <div style={{ maxWidth: '82%' }}>
                           <div style={{
-                            fontSize: 10, fontWeight: 700, marginBottom: 4,
+                            fontSize: 10, fontWeight: 700, marginBottom: 6,
                             color: msg.role === 'scammer' ? '#ef4444' : persona?.color || '#4F8CFF',
                             textAlign: msg.role === 'scammer' ? 'right' : 'left',
                             textTransform: 'uppercase', letterSpacing: '0.06em',
                           }}>
                             {msg.role === 'scammer' ? '🦹 Scammer' : `🎭 ${persona?.name}`}
                           </div>
-                          <div className={msg.role === 'scammer' ? 'cb-msg-scammer' : 'cb-msg-persona card'}>
-                            {msg.content}
+                          <div
+                            className={msg.role === 'scammer' ? 'cb-msg-scammer' : 'cb-msg-persona card'}
+                            style={{
+                              position: 'relative',
+                              overflow: 'hidden',
+                              boxShadow: msg.role === 'scammer'
+                                ? '0 8px 24px rgba(239,68,68,0.12)'
+                                : '0 10px 30px rgba(79,140,255,0.12)',
+                              border: msg.role === 'scammer'
+                                ? '1px solid rgba(239,68,68,0.26)'
+                                : `1px solid ${persona?.colorBorder || 'rgba(79,140,255,0.24)'}`,
+                            }}
+                          >
+                            <div style={{ fontSize: 13, lineHeight: 1.7 }}>
+                              {msg.content}
+                            </div>
+                            <div style={{
+                              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                              gap: 10, marginTop: 10, paddingTop: 10,
+                              borderTop: '1px solid rgba(255,255,255,0.05)',
+                              fontSize: 10, color: 'var(--text3)',
+                            }}>
+                              <span>Turn {index + 1}</span>
+                              <span>{new Date(Math.max(Number(msg.id) - (msg.role === 'persona' ? 1 : 0), 0)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
                           </div>
                         </div>
                       </motion.div>
@@ -768,6 +869,25 @@ export default function CageBait() {
                     </div>
                     {intelOpen ? <ChevronUp size={16} color="var(--text3)" /> : <ChevronDown size={16} color="var(--text3)" />}
                   </button>
+
+                  <div style={{ padding: '0 16px 16px', display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                    <button
+                      onClick={handleExtractIntel}
+                      disabled={extractingIntel || !messages.length}
+                      aria-label="Extract intel from conversation"
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        padding: '8px 12px', borderRadius: 999,
+                        background: extractingIntel ? 'rgba(79,140,255,0.16)' : 'rgba(34,211,238,0.10)',
+                        border: '1px solid rgba(34,211,238,0.28)',
+                        color: 'var(--text1)', fontSize: 12, fontWeight: 700,
+                        cursor: extractingIntel || !messages.length ? 'not-allowed' : 'pointer',
+                      }}
+                    >
+                      {extractingIntel ? <div className="spin" style={{ width: 12, height: 12 }} /> : <Sparkles size={12} />}
+                      Extract Intel
+                    </button>
+                  </div>
 
                   <AnimatePresence>
                     {intelOpen && (
@@ -889,7 +1009,7 @@ export default function CageBait() {
                   <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>
                     Session Stats
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
                     {[
                       { label: 'Turns', value: turnCount, icon: Zap, color: '#4F8CFF' },
                       { label: 'Time', value: formatTime(elapsed), icon: Clock, color: '#f59e0b' },
@@ -929,12 +1049,19 @@ export default function CageBait() {
             >
               <div className="card" style={{
                 padding: 32,
-                background: 'linear-gradient(135deg, rgba(79,140,255,0.08), rgba(168,85,247,0.06))',
-                borderColor: 'rgba(79,140,255,0.3)',
+                background: 'linear-gradient(135deg, rgba(79,140,255,0.10), rgba(168,85,247,0.07), rgba(11,15,26,0.95))',
+                borderColor: 'rgba(79,140,255,0.32)',
                 position: 'relative', overflow: 'hidden',
+                boxShadow: '0 28px 80px rgba(2,6,23,0.5)',
               }}>
                 {/* Scan line */}
                 <div className="cb-scan-line" />
+
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'radial-gradient(circle at top left, rgba(79,140,255,0.16), transparent 28%), radial-gradient(circle at top right, rgba(168,85,247,0.12), transparent 22%)',
+                  pointerEvents: 'none',
+                }} />
 
                 {/* Header */}
                 <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -958,6 +1085,31 @@ export default function CageBait() {
                   <p style={{ fontSize: 13, color: 'var(--text2)' }}>
                     {persona?.name} kept the scammer engaged
                   </p>
+                </div>
+
+                <div style={{
+                  marginBottom: 22, padding: '16px 18px', borderRadius: 16,
+                  background: 'rgba(11,15,26,0.58)', border: '1px solid rgba(255,255,255,0.08)',
+                  backdropFilter: 'blur(14px)',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#22d3ee', marginBottom: 4 }}>
+                        Mission Debrief
+                      </div>
+                      <div style={{ fontSize: 14, color: 'var(--text1)', lineHeight: 1.6 }}>
+                        {sessionReport.summary || 'Session closed cleanly.'}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                      <div style={{ padding: '7px 10px', borderRadius: 999, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.24)', color: '#10b981', fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                        Saved
+                      </div>
+                      <div style={{ padding: '7px 10px', borderRadius: 999, background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.24)', color: '#f59e0b', fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                        {sessionReport.intel ? 'Intel captured' : 'Intel pending'}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Stats grid */}

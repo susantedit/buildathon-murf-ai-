@@ -245,7 +245,7 @@ export default function Podcast() {
             )}
 
             {/* Style + Depth + Language row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12, marginBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text3)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Style</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>

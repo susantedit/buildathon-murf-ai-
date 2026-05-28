@@ -1389,7 +1389,7 @@ function PokemonTrivia() {
           </div>
 
           {/* Hints */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8, marginBottom: 16 }}>
             {[
               { label: 'Type', value: revealed ? pokemon.types.join(', ') : '?', hint: true },
               { label: 'HP', value: pokemon.hp, hint: false },

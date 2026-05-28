@@ -49,4 +49,7 @@ export const api = {
   cageBaitRespond:   (data)             => post('/cagebait/respond',       data),
   cageBaitIntel:     (data)             => post('/cagebait/extract-intel', data),
   cageBaitEndSession:(data)             => post('/cagebait/end-session',   data),
+  // Verification — realtime claim analysis
+  verifyClaims:      (data)             => post('/verify/analyze',         data),
+  refreshVerification:(data)            => post('/verify/refresh',         data),
 }

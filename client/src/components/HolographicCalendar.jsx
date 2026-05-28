@@ -45,7 +45,7 @@ export default function HolographicCalendar({ style = {} }) {
   const selectedTasks = dayTasks(selectedDay)
 
   return (
-    <div style={{ ...style }}>
+    <div style={{ ...style, overflow: 'hidden', minWidth: 0 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <motion.button

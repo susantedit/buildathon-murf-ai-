@@ -22,6 +22,7 @@ import Podcast from './pages/Podcast'
 import Journal from './pages/Journal'
 import Games from './pages/Games'
 import CageBait from './pages/CageBait'
+import Verification from './pages/Verification'
 import CursorGlow from './components/CursorGlow'
 import { AdaptiveUIProvider } from './components/AdaptiveUIContext'
 import { recordActivity } from './utils/streak'
@@ -89,6 +90,7 @@ function AppInner() {
         <Route path="/journal"    element={<Journal />} />
         <Route path="/games"      element={<Games />} />
         <Route path="/cagebait"   element={<CageBait />} />
+        <Route path="/verification" element={<Verification />} />
       </Routes>
       <PWAInstallPrompt />
       <OnboardingTour />

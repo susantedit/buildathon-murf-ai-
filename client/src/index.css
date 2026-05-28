@@ -33,6 +33,7 @@
   --ng-red:    #ef4444;
   --ng-amber:  #f59e0b;
   --ng-green:  #10b981;
+  --fp-glow: rgba(79,140,255,0.22);
 }
 
 /* ── LIGHT THEME ── */
@@ -64,6 +65,7 @@
   --ng-red:    #ef4444;
   --ng-amber:  #f59e0b;
   --ng-green:  #10b981;
+  --fp-glow: rgba(79,140,255,0.14);
 }
 
 /* ── RESET ── */
@@ -215,6 +217,40 @@ select.inp option { background-color: var(--bg2); color: var(--text1); }
 /* ── RESPONSIVE ── */
 @media (max-width: 767px) { .navbar { display: none !important; } .mob-top { display: flex !important; } .bot-nav { display: flex !important; } .page-content, .page-content-wide { padding-top: 80px; padding-bottom: 80px; } }
 @media (min-width: 768px) { .mob-top { display: none !important; } .bot-nav { display: none !important; } .mob-menu { display: none !important; } }
+
+/* ── RESPONSIVE FIXES ── */
+@media (max-width: 767px) {
+  /* Page content padding */
+  .page-content, .page-content-wide {
+    padding: 80px 12px 80px;
+  }
+
+  /* Cards */
+  .card { border-radius: 16px; }
+
+  /* Buttons */
+  .btn { border-radius: 12px; font-size: 13px; padding: 11px 20px; }
+
+  /* Hide cursor glow on touch */
+  .cursor-dot, .cursor-trail { display: none !important; }
+
+  /* Stats strip — 2 columns on mobile */
+  .signal-strip { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Contact shell — single column */
+  .contact-shell { grid-template-columns: 1fr !important; gap: 24px !important; }
+
+  /* Hero scene — hide on very small screens */
+  .hero-scene { display: none !important; }
+  .hero-shell { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .page-content, .page-content-wide {
+    padding: 72px 10px 72px;
+  }
+  .contact-grid { grid-template-columns: 1fr !important; }
+}
 
 /* ── KEYFRAMES ── */
 @keyframes ng-pulse  { 0%,100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.04); opacity: 1; } }

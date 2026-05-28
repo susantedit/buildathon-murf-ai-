@@ -53,7 +53,13 @@ export async function handleRespond(req, res) {
       }
     }
 
-    res.json({ text: responseText, audio: audioUrl, turnCount })
+    res.json({
+      text: responseText,
+      response: responseText,
+      audio: audioUrl,
+      audioUrl,
+      turnCount,
+    })
   } catch (err) {
     console.error('[CageBait] Respond Error:', err)
     res.status(500).json({ error: err.message || 'Failed to generate response' })
@@ -90,13 +96,14 @@ export async function handleEndSession(req, res) {
 
     console.log(`[CageBait] Ending session for ${userId}, duration: ${durationSeconds}s`)
 
-    // Generate summary
-    const summary = await generateSessionSummary(conversationHistory, intel, personaId, durationSeconds)
-
-    // Save to DB
     const conversationText = conversationHistory
       .map(m => `${m.role === 'user' ? 'SCAMMER' : 'AGENT'}: ${m.content}`)
       .join('\n')
+
+    const extractedIntel = intel || (conversationText.length > 50 ? await extractIntel(conversationText) : null)
+
+    // Generate summary
+    const summary = await generateSessionSummary(conversationHistory, extractedIntel, personaId, durationSeconds)
 
     await Session.create({
       userId,
@@ -106,7 +113,7 @@ export async function handleEndSession(req, res) {
       audioUrl: '',
     })
 
-    res.json({ summary, saved: true })
+    res.json({ summary, saved: true, intel: extractedIntel })
   } catch (err) {
     console.error('[CageBait] End Session Error:', err)
     res.status(500).json({ error: err.message || 'Failed to end session' })

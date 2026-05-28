@@ -82,7 +82,7 @@ export default function LoginGate() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 18 }}>
             {[
               { label: 'Unlock', value: 'voice history + labs' },
               { label: 'Access', value: 'all modes + PWA' },

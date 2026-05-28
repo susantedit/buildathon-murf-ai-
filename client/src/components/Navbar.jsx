@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { NavLink } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart, Gamepad2, Bug } from 'lucide-react'
+import { Zap, Home, Mic, Brain, BookOpen, History, Sun, Moon, Timer, CalendarDays, Menu, X, Shield, Languages, LogIn, UserCircle, Radio, MoreHorizontal, BookHeart, Gamepad2, Bug, ShieldCheck } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../services/api'
@@ -11,6 +11,7 @@ const links = [
   { to: '/',           label: 'Home',       Icon: Home },
   { to: '/creator',    label: 'Creator',    Icon: Mic },
   { to: '/assistant',  label: 'Assistant',  Icon: Brain },
+  { to: '/verification', label: 'Verify',   Icon: ShieldCheck },
   { to: '/cagebait',   label: 'CageBait',   Icon: Bug },
   { to: '/study',      label: 'Study',      Icon: BookOpen },
   { to: '/focus',      label: 'Focus',      Icon: Timer },
@@ -35,6 +36,7 @@ const primaryLinks = [
 const moreLinks = [
   { to: '/creator',    label: 'Creator',    Icon: Mic },
   { to: '/translator', label: 'Translator', Icon: Languages },
+  { to: '/verification', label: 'Verify',   Icon: ShieldCheck },
   { to: '/study',      label: 'Study',      Icon: BookOpen },
   { to: '/focus',      label: 'Focus',      Icon: Timer },
   { to: '/planner',    label: 'Planner',    Icon: CalendarDays },

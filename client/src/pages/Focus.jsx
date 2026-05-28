@@ -207,7 +207,7 @@ export default function Focus() {
           <PageHeader icon={Timer} color="#10b981" title="Focus Mode" sub="Guided sessions to help you stay in flow" />
           <QuoteBar section="focus" color="#10b981" />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: sel.duration === null ? 12 : 28 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 10, marginBottom: sel.duration === null ? 12 : 28 }}>
             {sessions.map(s => (
               <button key={s.label} onClick={() => pick(s)} className="card"
                 style={{ padding: 16, textAlign: 'left', cursor: 'pointer',

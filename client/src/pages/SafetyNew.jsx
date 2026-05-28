@@ -376,7 +376,7 @@ Please check on the user immediately.
               </div>
               
               {/* Status Indicators */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10, marginBottom: 16 }}>
                 <div style={{ 
                   padding: 12, 
                   borderRadius: 10, 
@@ -431,7 +431,7 @@ Please check on the user immediately.
               </div>
 
               {/* Quick Actions */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 8 }}>
                 <button 
                   onClick={() => callEmergency('police')}
                   style={{

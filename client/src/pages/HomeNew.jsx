@@ -5,7 +5,7 @@ import {
   Bug, Mic, Brain, Shield, BookOpen, Timer, CalendarDays, Languages,
   Radio, BookHeart, Gamepad2, History, Zap, ArrowRight, Sparkles,
   Mail, Send, Users, Code2, Heart, ChevronDown, Activity, Cpu,
-  Globe, Lock,
+  Globe, Lock, ShieldCheck,
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { api } from '../services/api'
@@ -36,15 +36,26 @@ const pillars = [
     accent: '#ef4444',
   },
   {
-    Icon: Cpu,
-    label: 'Cognitive Engine',
-    subtitle: 'Adaptive Intelligence',
-    desc: 'Real-time behavioral analysis adapts voice tone and response style.',
-    path: '/assistant',
+    Icon: ShieldCheck,
+    label: 'Verify',
+    subtitle: 'Realtime Claim Analysis',
+    desc: 'Extract claims, cross-check live sources, and flag contradictions before misinformation spreads.',
+    path: '/verification',
     badge: null,
-    gradient: 'linear-gradient(135deg,rgba(79,140,255,0.18),rgba(34,211,238,0.08))',
-    border: 'rgba(79,140,255,0.35)',
-    accent: '#4F8CFF',
+    gradient: 'linear-gradient(135deg,rgba(16,185,129,0.16),rgba(79,140,255,0.10))',
+    border: 'rgba(16,185,129,0.35)',
+    accent: '#10b981',
+  },
+  {
+    Icon: Bug,
+    label: 'CageBait',
+    subtitle: 'AI Scam Honeypot',
+    desc: 'Deploy AI personas to waste scammers\' time and extract intelligence.',
+    path: '/cagebait',
+    badge: 'New',
+    gradient: 'linear-gradient(135deg,rgba(239,68,68,0.18),rgba(245,158,11,0.10))',
+    border: 'rgba(239,68,68,0.35)',
+    accent: '#ef4444',
   },
   {
     Icon: Mic,
@@ -70,13 +81,6 @@ const pillars = [
   },
 ]
 
-const howItWorks = [
-  { Icon: Mic,      label: 'Speak or Type',  desc: 'Use your voice or keyboard to start any session.',  color: '#4F8CFF' },
-  { Icon: Brain,    label: 'AI Understands', desc: 'Murf Falcon parses intent, emotion, and context.',   color: '#A855F7' },
-  { Icon: Activity, label: 'Voice Responds', desc: 'Adaptive TTS delivers a response tuned to your mood.', color: '#22d3ee' },
-  { Icon: Cpu,      label: 'System Adapts',  desc: 'Memory graph updates so every session gets smarter.', color: '#f59e0b' },
-]
-
 const adaptiveModes = [
   { key: 'debugging', label: 'Debug Mode',   color: '#ef4444', bg: 'rgba(239,68,68,0.12)',   border: 'rgba(239,68,68,0.35)' },
   { key: 'learning',  label: 'Learn Mode',   color: '#4F8CFF', bg: 'rgba(79,140,255,0.12)',  border: 'rgba(79,140,255,0.35)' },
@@ -84,6 +88,7 @@ const adaptiveModes = [
 ]
 
 const modeCards = [
+  { Icon: ShieldCheck, label: 'Verify',          desc: 'Fact-check text, URLs, screenshots, and transcripts.', color: '#10b981', path: '/verification', badge: 'New' },
   { Icon: Bug,         label: 'CageBait',       desc: 'AI scam honeypot — waste their time.',         color: '#ef4444', path: '/cagebait',   badge: 'New' },
   { Icon: Mic,         label: 'Creator',         desc: 'Scripts, hooks, reels, podcast-ready output.', color: '#22d3ee', path: '/creator',    badge: null },
   { Icon: Brain,       label: 'Assistant',       desc: 'Voice guidance for stress and daily clarity.', color: '#4F8CFF', path: '/assistant',  badge: null },
@@ -99,7 +104,7 @@ const modeCards = [
 ]
 
 const stats = [
-  { value: '6',    label: 'AI Pillars',     gradient: 'linear-gradient(135deg,#4F8CFF,#A855F7)' },
+  { value: '7',    label: 'AI Pillars',     gradient: 'linear-gradient(135deg,#4F8CFF,#A855F7)' },
   { value: '3',    label: 'Murf Personas',  gradient: 'linear-gradient(135deg,#A855F7,#22d3ee)' },
   { value: '80+',  label: 'Languages',      gradient: 'linear-gradient(135deg,#22d3ee,#4F8CFF)' },
   { value: 'Live', label: 'Adaptive Voice', gradient: 'linear-gradient(135deg,#f59e0b,#ef4444)' },
@@ -107,10 +112,18 @@ const stats = [
 
 const whatsNew = [
   {
+    Icon: ShieldCheck,
+    label: 'Verify',
+    badge: 'New',
+    desc: 'Realtime fact verification with claim extraction, live evidence checks, and contradiction scoring.',
+    color: '#10b981',
+    path: '/verification',
+  },
+  {
     Icon: Bug,
     label: 'CageBait',
     badge: 'New',
-    desc: 'Deploy AI honeypot personas that waste scammers\u2019 time and extract real intelligence.',
+    desc: 'Deploy AI honeypot personas that waste scammers\' time and extract real intelligence.',
     color: '#ef4444',
     path: '/cagebait',
   },
@@ -149,6 +162,7 @@ export default function HomeNew() {
   const [contactSending, setContactSending] = useState(false)
   const [contactSent, setContactSent] = useState(false)
   const [parallax, setParallax] = useState({ x: 0, y: 0 })
+  const [globeSize, setGlobeSize] = useState(340)
 
   // Mouse parallax
   useEffect(() => {
@@ -162,6 +176,14 @@ export default function HomeNew() {
     }
     window.addEventListener('mousemove', onMove, { passive: true })
     return () => window.removeEventListener('mousemove', onMove)
+  }, [])
+
+  // Responsive globe size
+  useEffect(() => {
+    const update = () => setGlobeSize(window.innerWidth < 768 ? 220 : window.innerWidth < 1024 ? 280 : 340)
+    update()
+    window.addEventListener('resize', update, { passive: true })
+    return () => window.removeEventListener('resize', update)
   }, [])
 
   // Sphere state cycling on hero interaction
@@ -226,8 +248,8 @@ export default function HomeNew() {
         <div style={{
           position: 'relative', zIndex: 2,
           display: 'grid',
-          gridTemplateColumns: '1fr auto',
-          gap: 60,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+          gap: 40,
           alignItems: 'center',
           maxWidth: 1100,
           width: '100%',
@@ -338,7 +360,7 @@ export default function HomeNew() {
               flexShrink: 0,
             }}
           >
-            <AIGlobe size={340} />
+            <AIGlobe size={globeSize} />
           </motion.div>
         </div>
 
@@ -382,7 +404,7 @@ export default function HomeNew() {
         variants={sectionVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}
         style={{ position: 'relative', zIndex: 1, padding: '0 24px 80px' }}
       >
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16 }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 16 }}>
           {stats.map(({ value, label, gradient }, i) => (
             <motion.div
               key={label}
@@ -411,7 +433,7 @@ export default function HomeNew() {
               <Cpu size={12} /> Platform Pillars
             </div>
             <h2 style={{ fontFamily: "'Space Grotesk',system-ui,sans-serif", fontWeight: 800, fontSize: 'clamp(1.6rem,3vw,2.4rem)', letterSpacing: '-0.03em', color: '#f0f4ff', marginBottom: 12 }}>
-              Four systems. One platform.
+              Five systems. One platform.
             </h2>
             <p style={{ fontSize: 14, color: '#94a3b8', maxWidth: 520, margin: '0 auto', lineHeight: 1.7 }}>
               Every pillar is powered by Murf Falcon voice intelligence and adapts to your behavior in real time.
@@ -670,7 +692,7 @@ export default function HomeNew() {
         variants={sectionVariant} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }}
         style={{ position: 'relative', zIndex: 1, padding: '0 24px 100px' }}
       >
-        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
+        <div style={{ maxWidth: 900, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 24, alignItems: 'start' }}>
           <div>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '5px 16px', borderRadius: 999, background: 'rgba(168,85,247,0.10)', border: '1px solid rgba(168,85,247,0.25)', fontSize: 12, fontWeight: 700, color: '#A855F7', marginBottom: 16 }}>
               <CalendarDays size={12} /> Holographic Planner
@@ -714,7 +736,7 @@ export default function HomeNew() {
           </p>
           <FloatingPanel style={{ padding: 28 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)', display: 'block', marginBottom: 6 }}>Name</label>
                   <input type="text" placeholder="Your name" value={contactForm.name} onChange={e => setContactForm(f => ({ ...f, name: e.target.value }))} className="inp" style={{ fontSize: 13 }} />

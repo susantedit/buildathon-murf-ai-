@@ -341,7 +341,7 @@ Reply ONLY in this exact JSON (no markdown):
                   <ResultCard icon={<Mic size={14} color="#8b5cf6" />} label="Generated Script" text={result.text} />
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10, marginTop: 12 }}>
                   <button className="btn" onClick={regenerate}
                     style={{ background: 'var(--glass)', color: 'var(--text1)', border: '1px solid var(--border)' }}>
                     ← Start Over

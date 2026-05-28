@@ -238,7 +238,7 @@ export default function Home() {
             </div>
           </div>
           <div className="card" style={{ padding: 28, maxWidth: 680, margin: '0 auto' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 20, marginBottom: 24 }}>
               {[
                 { icon: <Users size={18} color="#8b5cf6" />, title: 'Built for Everyone', desc: 'Students, creators, professionals, and people in need of safety tools.' },
                 { icon: <Languages size={18} color="#10b981" />, title: 'Multilingual First', desc: 'Designed with Nepali and 80+ languages at the core, not as an afterthought.' },
@@ -326,7 +326,7 @@ export default function Home() {
 
           <div className="card" style={{ padding: 28, maxWidth: 560, margin: '0 auto' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                 <div>
                   <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)', display: 'block', marginBottom: 6 }}>Name</label>
                   <input

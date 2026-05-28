@@ -335,7 +335,7 @@ export default function Profile() {
             {/* DataOrb — orbiting stats visualization */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
               <DataOrb
-                size={180}
+                size={window.innerWidth < 480 ? 140 : 180}
                 stats={[
                   { label: 'Sessions', value: String(stats.totalSessions || 0), color: '#8b5cf6' },
                   { label: 'Streak',   value: `${streak.current}d`,             color: '#f59e0b' },
@@ -345,7 +345,7 @@ export default function Profile() {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 14 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10, marginBottom: 14 }}>
               {[
                 { label: 'Sessions', value: stats.totalSessions || 0, Icon: Target, color: '#8b5cf6' },
                 { label: 'Words Generated', value: (stats.totalWords || 0).toLocaleString(), Icon: PenLine, color: '#3b82f6' },

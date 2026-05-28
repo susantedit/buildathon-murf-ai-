@@ -94,7 +94,7 @@ export default function TimeTunnel({ items = [], onSelect, style = {} }) {
   }, [])
 
   return (
-    <div style={{ position: 'relative', width: '100%', ...style }}>
+    <div style={{ position: 'relative', width: '100%', overflow: 'hidden', ...style }}>
       {/* Tunnel canvas */}
       <canvas
         ref={canvasRef}
@@ -136,7 +136,7 @@ export default function TimeTunnel({ items = [], onSelect, style = {} }) {
                 border: `1px solid ${isActive ? item.color + '60' : 'rgba(79,140,255,0.15)'}`,
                 backdropFilter: 'blur(12px)',
                 boxShadow: isActive ? `0 0 20px ${item.color}33` : 'none',
-                minWidth: 80,
+                minWidth: 60,
                 textAlign: 'center',
                 flexShrink: 0,
               }}
