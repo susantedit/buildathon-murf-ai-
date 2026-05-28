@@ -8,7 +8,8 @@ import { api } from '../services/api'
 import toast from 'react-hot-toast'
 
 const links = [
-  { to: '/',           label: 'Interviews', Icon: Mic },
+  { to: '/',           label: 'Home', Icon: Home },
+  { to: '/interviews', label: 'Interviews', Icon: Mic },
   { to: '/creator',    label: 'Creator',    Icon: Mic },
   { to: '/assistant',  label: 'Assistant',  Icon: Brain },
   { to: '/verification', label: 'Verify',   Icon: ShieldCheck },
@@ -24,13 +25,13 @@ const links = [
   { to: '/history',    label: 'History',    Icon: History },
 ]
 
-// Bottom nav: Home + 4 primary + "More" button
+// Bottom nav: Home + Interviews + 3 primary + "More" button
 const primaryLinks = [
-  { to: '/',           label: 'Interviews', Icon: Mic },
+  { to: '/',           label: 'Home', Icon: Home },
+  { to: '/interviews', label: 'Interviews', Icon: Mic },
   { to: '/cagebait',   label: 'CageBait',   Icon: Bug },
   { to: '/assistant',  label: 'Assistant',  Icon: Brain },
   { to: '/safety',     label: 'Safety',     Icon: Shield },
-  { to: '/profile',    label: 'Profile',    Icon: UserCircle },
 ]
 
 const moreLinks = [
@@ -81,7 +82,7 @@ export default function Navbar() {
         </NavLink>
 
         <div className="nav-links">
-          {links.map(({ to, label, Icon }) => (
+            {links.map(({ to, label, Icon }) => (
             <NavLink key={to} to={to} end={to === '/'}
               className={({ isActive }) => 'nav-link' + (isActive ? ' active' : '')}>
               <Icon size={13} />{label}

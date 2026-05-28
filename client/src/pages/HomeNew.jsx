@@ -350,6 +350,16 @@ export default function HomeNew() {
               >
                 <Brain size={16} /> Try Assistant
               </motion.button>
+              <motion.button
+                className="btn"
+                style={{ width: 'auto', paddingInline: 28, fontSize: 15, background: 'linear-gradient(135deg,#8b5cf6,#06b6d4)' }}
+                whileHover={{ scale: 1.04, boxShadow: '0 12px 40px rgba(139,92,246,0.42)' }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => { playClickSound(); navigate('/interviews') }}
+                onHoverStart={playHoverSound}
+              >
+                <Mic size={16} /> Go to Interviews
+              </motion.button>
             </motion.div>
 
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
