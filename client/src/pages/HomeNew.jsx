@@ -145,6 +145,14 @@ const whatsNew = [
   },
 ]
 
+// ── How It Works steps ───────────────────────────────────────────────────────
+const howItWorks = [
+  { Icon: Mic,      label: 'Speak',    desc: 'Use your voice or type to interact with any AI pillar.',          color: '#4F8CFF' },
+  { Icon: Brain,    label: 'Analyse',  desc: 'Murf Falcon processes tone, intent, and context in real time.',   color: '#A855F7' },
+  { Icon: Zap,      label: 'Adapt',    desc: 'The platform shifts voice, pace, and response style to match you.', color: '#22d3ee' },
+  { Icon: Activity, label: 'Respond',  desc: 'Receive a personalised voice response tailored to your state.',   color: '#f59e0b' },
+]
+
 // ── Section entrance variant ──────────────────────────────────────────────────
 const sectionVariant = {
   hidden: { opacity: 0, y: 30 },
