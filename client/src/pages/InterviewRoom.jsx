@@ -299,8 +299,6 @@ export default function InterviewRoom() {
                 <div className="question-pill">{currentQuestion?.question || plan.closingLine || 'Interview ready — press Send or use the mic.'}</div>
               </div>
 
-              <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-
           <div className="card" style={{ padding: 16, marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
               <div>
