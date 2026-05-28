@@ -243,8 +243,34 @@ export default function InterviewRoom() {
     <div className="page-wrapper">
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}>
-          <PageHeader icon={Bot} color="#06b6d4" title={session.title || 'Live Interview'} sub="Answer in real time. Groq adapts the interviewer. Murf voices the coach." />
-          <QuoteBar section="interview" color="#06b6d4" />
+
+              {/* Hero: interviewer + candidate tiles */}
+              <div className="interview-hero">
+                <div className="participant-tile">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: 'column' }}>
+                    <div className="participant-avatar">
+                      <div style={{ width: 72, height: 72, borderRadius: 12, background: 'radial-gradient(circle,#c4b5fd,#7c3aed)', display: 'grid', placeItems: 'center' }}>
+                        <Bot size={36} color="#fff" />
+                      </div>
+                    </div>
+                    <div className="participant-label">AI Interviewer</div>
+                  </div>
+                </div>
+                <div className="participant-tile">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexDirection: 'column' }}>
+                    <div className="participant-avatar" style={{ background: 'linear-gradient(135deg,#0ea5a7,#06b6d4)' }}>
+                      <div style={{ width: 72, height: 72, borderRadius: 999, background: 'url(https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop)&quot;)', backgroundSize: 'cover' }} />
+                    </div>
+                    <div className="participant-label">Adrian (You)</div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <div className="question-pill">{currentQuestion?.question || plan.closingLine || 'Interview ready — press Send or use the mic.'}</div>
+              </div>
+
+              <div className="card" style={{ padding: 16, marginBottom: 14 }}>
 
           <div className="card" style={{ padding: 16, marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -297,7 +323,36 @@ export default function InterviewRoom() {
               <label className="lbl">Your answer</label>
               <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
                 <textarea className="inp" value={answer} onChange={e => setAnswer(e.target.value)} onKeyDown={handleKeyDown} rows={6} placeholder="Speak or type your answer here. Press Ctrl+Enter to submit." style={{ flex: 1, resize: 'vertical' }} />
-                <VoiceMicButton onResult={text => setAnswer(current => (current ? `${current} ${text}` : text))} />
+                <VoiceMicButton buttonId="mic-btn" onResult={text => setAnswer(current => (current ? `${current} ${text}` : text))} />
+
+                // Keyboard shortcuts: 'm' toggles mic, 'Shift+D' downloads transcript
+                useEffect(() => {
+                  const onKey = (e) => {
+                    // ignore if typing in inputs or textareas
+                    const tag = (document.activeElement && document.activeElement.tagName) || ''
+                    if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return
+
+                    if (e.key.toLowerCase() === 'm' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                      const btn = document.getElementById('mic-btn')
+                      if (btn) btn.click()
+                    }
+
+                    if (e.key.toLowerCase() === 'd' && e.shiftKey) {
+                      // download transcript
+                      const lines = transcript.map(item => `[${item.speaker}] ${item.text}`).join('\n')
+                      const blob = new Blob([lines], { type: 'text/plain' })
+                      const url = URL.createObjectURL(blob)
+                      const a = document.createElement('a')
+                      a.href = url
+                      a.download = `interview-transcript-${sessionId || Date.now()}.txt`
+                      a.click()
+                      URL.revokeObjectURL(url)
+                      toast.success('Transcript downloaded')
+                    }
+                  }
+                  window.addEventListener('keydown', onKey)
+                  return () => window.removeEventListener('keydown', onKey)
+                }, [transcript, sessionId])
               </div>
 
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 14 }}>
