@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Play, ArrowUpRight, Trash2, Clock3, Star, Sparkles, FileDown, Share2, LayoutGrid, WandSparkles, Target, Mic2, ArrowRight, Activity } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { PageHeader } from '../components/UI'
+import HeroLarge from '../components/HeroLarge'
 import QuoteBar from '../components/QuoteBar'
 import StreakBadge from '../components/StreakBadge'
 import ShareButton from '../components/ShareButton'
@@ -77,31 +78,37 @@ const templates = [
 function InterviewCard({ session, onDelete, onOpen, onReview }) {
   const summary = session.feedback?.summary || session.plan?.description || 'Ready to continue.'
   const accent = session.status === 'completed' ? '#10b981' : session.status === 'live' ? '#f59e0b' : '#8b5cf6'
+  const statusClass = `status-${(session.status || 'draft').toString().toLowerCase()}`
 
   return (
-    <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card" style={{ padding: 18 }}>
+    <motion.div layout initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="big-card">
+      <div className={`card-badge ${statusClass}`}>{session.seniority || session.status}</div>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-            <span style={{ padding: '4px 10px', borderRadius: 999, background: accent + '18', border: `1px solid ${accent}30`, color: accent, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{session.status}</span>
-            <span style={{ fontSize: 11, color: 'var(--text3)' }}>{session.role || 'Role'}{session.company ? ` · ${session.company}` : ''}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+            <div className="card-illustration" style={{ background: accent + '18', border: `1px solid ${accent}35` }}>
+              <div style={{ width: 34, height: 34, borderRadius: 8, background: accent, opacity: 0.12 }} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 12, color: 'var(--text3)', marginBottom: 4 }}>{session.role || 'Role'}{session.company ? ` · ${session.company}` : ''}</div>
+              <h3 style={{ fontSize: 16, fontWeight: 800, color: 'var(--text1)', margin: 0, lineHeight: 1.2 }}>{session.title}</h3>
+            </div>
           </div>
-          <h3 style={{ fontSize: 18, fontWeight: 800, color: 'var(--text1)', marginBottom: 6, lineHeight: 1.2 }}>{session.title}</h3>
-          <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.6, marginBottom: 10 }}>{summary}</p>
+          <p style={{ fontSize: 13, color: 'var(--text2)', lineHeight: 1.6, marginBottom: 12 }}>{summary}</p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', color: 'var(--text3)', fontSize: 11 }}>
             <span>{new Date(session.createdAt || Date.now()).toLocaleDateString()}</span>
             {typeof session.score === 'number' && session.score > 0 && <span>Score {session.score}/100</span>}
             {session.seniority && <span>{session.seniority}</span>}
           </div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0 }}>
-          <button className="btn" onClick={() => onOpen(session)} style={{ padding: '8px 14px', minWidth: 120 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0, minWidth: 140 }}>
+          <button className="btn card-cta" onClick={() => onOpen(session)} style={{ justifyContent: 'center' }}>
             <Play size={14} /> {session.status === 'completed' ? 'Resume' : 'Continue'}
           </button>
-          <button className="btn" onClick={() => onReview(session)} style={{ padding: '8px 14px', minWidth: 120, background: 'var(--glass)', color: 'var(--text2)' }}>
+          <button className="btn card-cta" onClick={() => onReview(session)} style={{ justifyContent: 'center', background: 'var(--glass)', color: 'var(--text2)' }}>
             <ArrowUpRight size={14} /> Review
           </button>
-          <button onClick={() => onDelete(session)} style={{ padding: '8px 14px', minWidth: 120, borderRadius: 12, border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.08)', color: '#ef4444', cursor: 'pointer', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <button onClick={() => onDelete(session)} style={{ padding: '8px 14px', borderRadius: 12, border: '1px solid rgba(239,68,68,0.2)', background: 'rgba(239,68,68,0.08)', color: '#ef4444', cursor: 'pointer', fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
             <Trash2 size={14} /> Delete
           </button>
         </div>
@@ -211,7 +218,7 @@ export default function Interviews() {
     <div className="page-wrapper">
       <div className="page-content">
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-          <PageHeader icon={Sparkles} color="#06b6d4" title="Interview OS" sub="Plan, run, and review mock interviews with Groq-powered coaching and Murf narration" />
+          <HeroLarge />
           <QuoteBar section="interview" color="#06b6d4" />
 
           <div className="card" style={{ padding: 18, marginBottom: 14, background: 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(139,92,246,0.10))' }}>
@@ -342,11 +349,17 @@ export default function Interviews() {
             </div>
           )}
 
-          <AnimatePresence>
-            {!loading && sessions.map(session => (
-              <InterviewCard key={session.id} session={session} onDelete={removeSession} onOpen={openSession} onReview={openReview} />
-            ))}
-          </AnimatePresence>
+          <div>
+            <AnimatePresence>
+              {!loading && (
+                <div className="card-grid">
+                  {sessions.map(session => (
+                    <InterviewCard key={session.id} session={session} onDelete={removeSession} onOpen={openSession} onReview={openReview} />
+                  ))}
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.div>
       </div>
     </div>
